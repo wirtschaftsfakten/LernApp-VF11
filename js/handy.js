@@ -3,7 +3,8 @@ import * as S from './store.js';
 import { keywords, keySentences, TYPE_LABEL } from './gen.js';
 import { extractFile, ACCEPT } from './extract.js';
 import { addGenerated, loadBeispiel, migrate } from './setup.js';
-import { startSession, MODES, modeAvailable } from './learn.js';
+import { startSession } from './learn.js';
+import * as V from './views.js';
 import { h, $, $$, toast, plural, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, ICON } from './util.js';
 
 const main = $('#main');
@@ -30,12 +31,6 @@ function route() {
 window.addEventListener('hashchange', route);
 const go = (hash) => { if (location.hash === hash) route(); else location.hash = hash; };
 
-const cardStats = (cards) => {
-  const sure = cards.filter((c) => S.progressOf(c.id).box >= 3).length;
-  return { sure, pct: cards.length ? Math.round(sure / cards.length * 100) : 0, due: cards.filter((c) => S.isDue(c.id)).length };
-};
-const bar = (pct) => `<div class="bar"><i style="width:${pct}%"></i></div>`;
-
 // ---------- Bottom-Sheet ----------
 function openSheet(html, onSubmit) {
   sheet.innerHTML = `<form class="stack" id="sf">${html}</form>`;
@@ -57,38 +52,6 @@ function confirmSheet(text, label, action) {
 }
 
 // ---------- Start ----------
-const abbr = (name) => (name.split(/\s+[–-]\s+/)[0] || name).slice(0, 4);
-const tone = (c) => (c === 'lila' ? 'blau' : c || 'blau'); // Hellblau statt Lila
-const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-const BELL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
-const SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>';
-
-// Test, an dem gerade gelernt werden sollte: nächster Test mit Datum, sonst zuletzt gelernter
-function focusTest() {
-  const st = S.get();
-  const withCards = st.tests.filter((t) => S.cardsOf(t.id).length);
-  const dated = withCards.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
-  if (dated.length) return dated[0];
-  const lastOf = (t) => Math.max(0, ...S.cardsOf(t.id).map((c) => S.progressOf(c.id).last || 0));
-  return withCards.sort((a, b) => lastOf(b) - lastOf(a))[0] || null;
-}
-
-function heroCard(t) {
-  if (!t) return `<div class="hero-card"><span class="hero-chip">LernApp</span>
-    <p class="hero-label">So geht's</p><p class="hero-title">Fach antippen, Test anlegen, Arbeitsblatt fotografieren – fertig sind deine Lernkarten.</p></div>`;
-  const s = S.subject(t.subjectId);
-  const { pct } = cardStats(S.cardsOf(t.id));
-  return `<div class="hero-card">
-    <a class="hero-chip" href="#/fach/${s.id}">${h(abbr(s.name))} · ${h(s.name.split(/\s+[–-]\s+/)[1] || s.name)} <span aria-hidden="true">⌄</span></a>
-    <p class="hero-label">Dein Fortschritt</p>
-    <div class="slider" role="img" aria-label="${pct} Prozent sicher gelernt"><i style="width:${pct}%"></i><b style="left:${pct}%"></b></div>
-    <p class="hero-pct">${pct}%</p>
-    <p class="hero-label">${t.date ? `Nächster Test · ${countdownText(t.date)}` : 'Weiterlernen'}</p>
-    <p class="hero-title">${h(t.title)}</p>
-    <a class="hero-btn" href="#/lernen/${t.id}/wiederholen">Weiterlernen</a>
-  </div>`;
-}
-
 function viewHome() {
   const st = S.get();
   const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
@@ -96,23 +59,15 @@ function viewHome() {
     <header class="top">
       <span class="avatar" aria-hidden="true">L</span>
       <span class="hello"><small>Willkommen zurück,</small><b>Deine LernApp</b></span>
-      <a class="icon-btn" href="#/lernen/alle/wiederholen" aria-label="Wiederholen${due ? `, ${due} Karten fällig` : ''}">${BELL}${due ? `<span class="dot">${due > 99 ? '99+' : due}</span>` : ''}</a>
+      <a class="icon-btn" href="#/lernen/alle/wiederholen" aria-label="Wiederholen${due ? `, ${due} Karten fällig` : ''}">${V.BELL}${due ? `<span class="dot">${due > 99 ? '99+' : due}</span>` : ''}</a>
     </header>
-    <label class="search">${SEARCH}<input type="search" id="find" placeholder="Fach oder Test suchen" aria-label="Fach oder Test suchen"></label>
+    <label class="search">${V.SEARCH}<input type="search" id="find" placeholder="Fach oder Test suchen" aria-label="Fach oder Test suchen"></label>
     <div id="results" hidden></div>
     <div id="homeBody" class="home-body">
-      ${heroCard(focusTest())}
+      ${V.heroCard(V.focusTest())}
       <section>
         <h2>Deine Fächer</h2>
-        <div class="tiles">${st.subjects.map((s) => {
-          const tests = S.testsOf(s.id);
-          const n = st.cards.filter((c) => tests.some((t) => t.id === c.testId)).length;
-          return `<a class="tile-card" href="#/fach/${s.id}" data-tone="${tone(s.color)}">
-            <span class="tile-ico">${h(abbr(s.name))}</span>
-            <b>${h(s.name.split(/\s+[–-]\s+/)[1] || s.name)}</b>
-            <small>${tests.length ? `${plural(tests.length, 'Test', 'Tests')} · ${plural(n, 'Karte', 'Karten')}` : 'Noch kein Test'}</small>
-            <span class="pill">Öffnen</span></a>`;
-        }).join('')}
+        <div class="tiles">${st.subjects.map(V.subjectTile).join('')}
           <button class="tile-card add" id="newSubject"><span class="tile-ico">+</span><b>Fach anlegen</b><small>Eigenes Fach</small></button>
         </div>
       </section>
@@ -122,13 +77,7 @@ function viewHome() {
   find.oninput = () => {
     const q = find.value.trim().toLowerCase();
     body.hidden = !!q; res.hidden = !q;
-    if (!q) return;
-    const subs = st.subjects.filter((s) => s.name.toLowerCase().includes(q));
-    const tests = st.tests.filter((t) => t.title.toLowerCase().includes(q));
-    res.innerHTML = `<div class="cards">${[
-      ...subs.map((s) => `<a class="item-card" href="#/fach/${s.id}"><span class="txt"><small>Fach</small><b>${h(s.name)}</b><span>${plural(S.testsOf(s.id).length, 'Test', 'Tests')}</span></span><span class="pill">Öffnen</span></a>`),
-      ...tests.map((t) => `<a class="item-card" href="#/test/${t.id}"><span class="txt"><small>${h(S.subject(t.subjectId)?.name || '')}</small><b>${h(t.title)}</b><span>${plural(S.cardsOf(t.id).length, 'Karte', 'Karten')}</span></span><span class="pill">Lernen</span></a>`),
-    ].join('') || '<p class="muted">Nichts gefunden.</p>'}</div>`;
+    if (q) res.innerHTML = V.searchHtml(q);
   };
 }
 
@@ -140,21 +89,16 @@ function newSubject() {
   (fd) => { const s = S.addSubject(fd.get('name'), fd.get('color')); go(`#/fach/${s.id}`); });
 }
 
-const pageHead = (back, title, right = '') => `<header class="nav-head"><a class="icon-btn plain" href="${back}" aria-label="Zurück"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a><h1>${title}</h1>${right}</header>`;
+const pageHead = (back, title, right = '') => `<header class="nav-head"><a class="icon-btn plain" href="${back}" aria-label="Zurück">${V.BACK}</a><h1>${title}</h1>${right}</header>`;
 
 // ---------- Fach ----------
 function viewSubject(id) {
   const s = S.subject(id);
   const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
   main.innerHTML = `
-    ${pageHead('#/', h(s.name), `<button class="icon-btn plain" id="editS" aria-label="Fach bearbeiten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></button>`)}
+    ${pageHead('#/', h(s.name), `<button class="icon-btn plain" id="editS" aria-label="Fach bearbeiten">${V.PEN}</button>`)}
     <p class="section-label">Deine Tests</p>
-    ${tests.length ? `<div class="cards">${tests.map((t) => {
-      const cards = S.cardsOf(t.id); const { pct } = cardStats(cards);
-      return `<a class="item-card" href="#/test/${t.id}">
-        <span class="txt"><small>${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))} · ${countdownText(t.date)}` : 'Test'}</small><b>${h(t.title)}</b><span>${plural(cards.length, 'Karte', 'Karten')} · ${pct} % sicher</span></span>
-        <span class="pill">Lernen</span></a>`;
-    }).join('')}</div>` : `<div class="item-card empty-card"><span class="txt"><b>Noch kein Test</b><span>Lege einen Test an und fotografiere dann deine Arbeitsblätter.</span></span></div>`}
+    ${tests.length ? `<div class="cards">${tests.map(V.testCard).join('')}</div>` : `<div class="item-card empty-card"><span class="txt"><b>Noch kein Test</b><span>Lege einen Test an und fotografiere dann deine Arbeitsblätter.</span></span></div>`}
     <button class="btn primary big" id="newTest">+ Test anlegen</button>`;
   $('#newTest').onclick = () => openSheet(`<h2>Test anlegen</h2>
     <label class="field">Thema<input type="text" name="title" required placeholder="z. B. Kaufvertrag, Unit 3"></label>
@@ -175,14 +119,9 @@ function viewSubject(id) {
 const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spickzettel']];
 function viewTest(id, tab) {
   const t = S.test(id); const s = S.subject(t.subjectId);
-  const cards = S.cardsOf(id); const { pct } = cardStats(cards);
   main.innerHTML = `
-    ${pageHead(`#/fach/${s.id}`, h(s.name), `<button class="icon-btn plain" id="editT" aria-label="Test bearbeiten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></button>`)}
-    <div class="module-card">
-      <span class="txt"><small>${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))} · ${countdownText(t.date)}` : 'Test'}</small><b>${h(t.title)}</b><span>${plural(cards.length, 'Karte', 'Karten')} · ${pct} % sicher</span></span>
-      ${cards.length ? `<a class="arrow-btn" href="#/lernen/${id}/wiederholen" aria-label="Weiterlernen">${ARROW}</a>` : ''}
-      <div class="mbar"><i style="width:${pct}%"></i></div>
-    </div>
+    ${pageHead(`#/fach/${s.id}`, h(s.name), `<button class="icon-btn plain" id="editT" aria-label="Test bearbeiten">${V.PEN}</button>`)}
+    ${V.moduleCard(t)}
     <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
     <div id="tab" class="tabbody"></div>`;
   $('#editT').onclick = () => openSheet(`<h2>Test bearbeiten</h2>
@@ -197,35 +136,13 @@ function viewTest(id, tab) {
   ({ lernen: tabLearn, material: tabMaterial, karten: tabCards, spick: tabCheat }[tab] || tabLearn)(el, t);
 }
 
-const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'gruen', schreiben: 'blau' };
-const MODE_SHORT = {
-  karteikarten: 'Umdrehen und ehrlich bewerten', quiz: 'Eine von vier ist richtig', wahrfalsch: 'Stimmt die Aussage?',
-  lueckentext: 'Fehlendes Wort eintippen', zuordnen: 'Begriff und Erklärung verbinden', schreiben: 'Frei antworten, vergleichen',
-};
-
 function tabLearn(el, t) {
-  const cards = S.cardsOf(t.id);
-  if (!cards.length) {
+  if (!S.cardsOf(t.id).length) {
     el.innerHTML = `<div class="item-card empty-card"><span class="txt"><b>Erst Material, dann lernen</b><span>Fotografiere deine Arbeitsblätter oder lade PDF/Word-Dateien hoch.</span></span></div>
       <a class="btn primary big" href="#/test/${t.id}/material">Material hochladen</a>`;
     return;
   }
-  const stars = cards.filter((c) => c.star);
-  const last = S.resultsOf(t.id).at(-1);
-  el.innerHTML = `
-    ${stars.length ? `<section><p class="section-label">Kommt im Test dran</p><div class="cards">
-      ${stars.map((c, i) => `<details class="item-card star-q"><summary><span class="txt"><small>Frage ${i + 1}</small><b>${h(c.q)}</b></span><span class="pill">Antwort</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
-      </div></section>` : ''}
-    <section><p class="section-label">Üben</p>
-      <div class="tiles">
-        ${MODES.filter((m) => !['wiederholen', 'probetest'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
-          <span class="tile-ico">${ICON[m.icon]}</span><b>${m.title}</b><small>${MODE_SHORT[m.key]}</small><span class="pill">Starten</span></a>`).join('')}
-      </div>
-      <a class="exam-card" href="#/lernen/${t.id}/probetest" ${modeAvailable('probetest', cards) ? '' : 'aria-disabled="true"'}>
-        <span class="tile-ico">${ICON.exam}</span>
-        <span class="txt"><b>Probetest</b><small>${last ? `Letzte Note: ${last.grade} (${h(last.gradeText || '')})` : 'Gemischte Aufgaben mit Note nach IHK-Schlüssel'}</small></span>
-        <span class="arrow-btn">${ARROW}</span></a>
-    </section>`;
+  el.innerHTML = V.learnHtml(t);
 }
 
 // Material

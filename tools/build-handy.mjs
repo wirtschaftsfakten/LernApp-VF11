@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const order = ['util', 'store', 'gen', 'beispiel', 'extract', 'setup', 'learn', 'handy'];
+const order = ['util', 'store', 'gen', 'beispiel', 'extract', 'setup', 'learn', 'views', 'handy'];
 
 // ES-Module in Funktionsblöcke verwandeln: import → Zugriff auf __m, export → Rückgabe
 function wrap(name) {
@@ -18,7 +18,7 @@ function wrap(name) {
   return `__m.${name} = (() => {\n${src}\nreturn { ${exported.join(', ')} };\n})();`;
 }
 
-const css = readFileSync(join(root, 'css', 'app.css'), 'utf8') + '\n' + readFileSync(join(root, 'css', 'handy.css'), 'utf8');
+const css = readFileSync(join(root, 'css', 'app.css'), 'utf8') + '\n' + readFileSync(join(root, 'css', 'theme.css'), 'utf8');
 const js = 'const __m = {};\n' + order.map(wrap).join('\n\n');
 const tab = (href, key, label, path) => `<a href="${href}" data-tab="${key}"><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>${label}</a>`;
 

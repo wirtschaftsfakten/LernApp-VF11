@@ -1,4 +1,7 @@
 <title>LernApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* LernApp – Collegeblock & Textmarker */
 :root {
@@ -367,68 +370,61 @@ dialog.wide { width: min(820px, calc(100vw - 32px)); }
 .face { overflow-y: auto; align-content: safe center; overscroll-behavior: contain; }
 .face .back-text.long { font-size: 1rem; text-align: left; line-height: 1.55; }
 
-/* LernApp – Design-System
-   Grundlage: Apple Human Interface Guidelines + Refactoring UI (Referenzen im Ordner design-referenzen).
-   Idee: Aufbau wie eine native iPhone-App (große Titel, gruppierte Listen, farbige Icons, Tab-Leiste mit Unschärfe),
-   dazu ein Schulheft-Detail: Karopapier im Hintergrund und eine echte Karteikarte als einziges lautes Element.
-   Abstände nur aus der Skala 4/8/12/16/24/32/48, Schrift = Systemschrift (auf dem iPhone SF Pro). */
+/* LernApp – Design im Stil einer Fintech-App (Referenz: design-referenzen/awesome-design-md/design-md/revolut/DESIGN.md)
+   Verlaufs-Kopf mit großer Zahl, runde Aktions-Knöpfe, weiße Karten (Radius 24, keine Schatten),
+   Pill-Buttons, Inter mit enger Laufweite bei Zahlen. Akzent Hellblau, dezentes Karopapier unten. */
 :root {
-  /* Flächen */
-  --bg: #F2F4F7;            /* gruppierter Hintergrund, leicht bläulich */
-  --karo: #E3E8EF;          /* Karolinien */
-  --cell: #FFFFFF;
-  --fill: rgba(118, 128, 150, .12);   /* Suchfeld, Segment-Hintergrund */
-  --sep: rgba(60, 66, 87, .16);       /* Haarlinie */
-  /* Text */
-  --label: #10131A;
-  --label-2: #5E6577;
-  --label-3: #8B92A3;
-  /* Akzent Hellblau + Zustände */
-  --accent: #1C86E0;
-  --accent-press: #1570BF;
-  --accent-tint: #E5F1FC;
+  --bg: #F2F3F5;
+  --karo: #E5E8ED;
+  --card: #FFFFFF;
+  --soft: #F1F2F4;
+  --hair: #E8EAEE;
+  --ink: #191C1F;
+  --mute: #6B717C;
+  --stone: #8D969E;
+  --accent: #1A7BEF;
+  --accent-press: #1366CC;
+  --accent-soft: #E6F1FE;
   --on-accent: #FFFFFF;
-  --green: #1E9E57; --green-tint: #E3F5EA;
-  --red: #D93A3F;   --red-tint: #FDEBEC;
+  --green: #00A87E; --green-soft: #E2F6EF;
+  --red: #E23B4A;   --red-soft: #FDECEE;
   --star: #F2A100;
-  /* Fach- und Modus-Icons */
-  --i-blau: #2E90E8; --i-gruen: #2BA84A; --i-gelb: #E8A300; --i-pink: #E2457F; --i-orange: #F07C1E; --i-lila: #5C6BD6; --i-grau: #8A93A6; --i-rot: #E5484D;
-  /* Karteikarte */
-  --card-paper: #FFFFFF; --card-line: #CFE0F5; --card-red: #E5484D;
-  --shadow-1: 0 1px 2px rgba(16, 19, 26, .06);
-  --shadow-2: 0 1px 2px rgba(16, 19, 26, .06), 0 8px 24px -8px rgba(16, 19, 26, .16);
-  --r-cell: 12px; --r-card: 16px; --r-btn: 12px;
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --hero: radial-gradient(90% 70% at 10% 0%, #9EDCFF 0%, rgba(158,220,255,0) 60%),
+          radial-gradient(80% 80% at 100% 15%, #2E5BFF 0%, rgba(46,91,255,0) 62%),
+          radial-gradient(70% 70% at 45% 110%, #4FC0FF 0%, rgba(79,192,255,0) 70%),
+          #1B7AF0;
+  --hero-ink: #FFFFFF;
+  --glass: rgba(255, 255, 255, .2);
+  --glass-strong: rgba(255, 255, 255, .28);
+  --t-blau: #2B8CF2; --t-gruen: #00A87E; --t-gelb: #E8A300; --t-pink: #E61E63; --t-orange: #EC7E00; --t-lila: #0E9DB0; --t-grau: #8D969E; --t-rot: #E23B4A;
+  --r-card: 24px; --r-row: 16px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Alte Namen aus app.css auf das neue System abbilden (Lern-Bildschirme, PC-Teile) */
-  --paper: var(--bg); --sheet: var(--cell); --grid: var(--fill); --rule: var(--sep);
-  --ink: var(--label); --ink-2: var(--label-2); --ink-3: var(--label-3);
-  --blue: var(--accent); --blue-press: var(--accent-press); --ok: var(--green);
-  --font-ui: var(--font-display); --font-body: var(--font);
-  --radius-s: 10px; --radius-m: 12px; --shadow: var(--shadow-1);
-  --m-gelb: #FFE066; --m-gruen: #9BE7B4; --m-pink: #FFB1CF; --m-blau: #A9D3FA; --m-orange: #FFC48A; --m-lila: #A9D3FA;
-  --mark-a: .7;
+  /* alte Namen (app.css, Lern-Bildschirme) */
+  --paper: var(--bg); --sheet: var(--card); --grid: var(--soft); --rule: var(--hair);
+  --ink-2: var(--mute); --ink-3: var(--stone); --label: var(--ink); --label-2: var(--mute); --label-3: var(--stone);
+  --blue: var(--accent); --blue-press: var(--accent-press); --ok: var(--green); --cell: var(--card); --fill: var(--soft); --sep: var(--hair);
+  --font-ui: var(--font); --font-body: var(--font); --font-display: var(--font);
+  --radius-s: 12px; --radius-m: 16px; --shadow: none;
+  --m-gelb: #FFE066; --m-gruen: #9BE7C9; --m-pink: #FFB1CF; --m-blau: #A9D3FA; --m-orange: #FFC48A; --m-lila: #A9D3FA; --mark-a: .7;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #000000; --karo: #12161D; --cell: #1C1C1E; --fill: rgba(118, 118, 128, .24); --sep: rgba(84, 84, 88, .55);
-    --label: #F5F6F8; --label-2: #A1A6B3; --label-3: #6E7482;
-    --accent: #4DA8F5; --accent-press: #74BBF8; --accent-tint: #13283D; --on-accent: #04121F;
-    --green: #34C46A; --green-tint: #12291B; --red: #FF5A5F; --red-tint: #33171A;
-    --card-paper: #1F2024; --card-line: #26364A;
-    --shadow-1: none; --shadow-2: 0 0 0 1px rgba(255,255,255,.06);
+    --bg: #000000; --karo: #0E1116; --card: #16181A; --soft: #222428; --hair: rgba(255,255,255,.08);
+    --ink: #FFFFFF; --mute: rgba(255,255,255,.66); --stone: rgba(255,255,255,.45);
+    --accent: #4DA3FF; --accent-press: #78B8FF; --accent-soft: #10243D; --on-accent: #001326;
+    --green-soft: #0C2A22; --red-soft: #2E1215;
+    --hero: radial-gradient(90% 70% at 10% 0%, #2A6FD6 0%, rgba(42,111,214,0) 60%), radial-gradient(80% 80% at 100% 15%, #1B2E9E 0%, rgba(27,46,158,0) 62%), radial-gradient(70% 70% at 45% 110%, #0E6AB0 0%, rgba(14,106,176,0) 70%), #0B2F6E;
     --mark-a: .4;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #000000; --karo: #12161D; --cell: #1C1C1E; --fill: rgba(118, 118, 128, .24); --sep: rgba(84, 84, 88, .55);
-  --label: #F5F6F8; --label-2: #A1A6B3; --label-3: #6E7482;
-  --accent: #4DA8F5; --accent-press: #74BBF8; --accent-tint: #13283D; --on-accent: #04121F;
-  --green: #34C46A; --green-tint: #12291B; --red: #FF5A5F; --red-tint: #33171A;
-  --card-paper: #1F2024; --card-line: #26364A;
-  --shadow-1: none; --shadow-2: 0 0 0 1px rgba(255,255,255,.06);
+  --bg: #000000; --karo: #0E1116; --card: #16181A; --soft: #222428; --hair: rgba(255,255,255,.08);
+  --ink: #FFFFFF; --mute: rgba(255,255,255,.66); --stone: rgba(255,255,255,.45);
+  --accent: #4DA3FF; --accent-press: #78B8FF; --accent-soft: #10243D; --on-accent: #001326;
+  --green-soft: #0C2A22; --red-soft: #2E1215;
+  --hero: radial-gradient(90% 70% at 10% 0%, #2A6FD6 0%, rgba(42,111,214,0) 60%), radial-gradient(80% 80% at 100% 15%, #1B2E9E 0%, rgba(27,46,158,0) 62%), radial-gradient(70% 70% at 45% 110%, #0E6AB0 0%, rgba(14,106,176,0) 70%), #0B2F6E;
   --mark-a: .4;
   color-scheme: dark;
 }
@@ -436,346 +432,309 @@ dialog.wide { width: min(820px, calc(100vw - 32px)); }
 /* ---------- Grundlagen ---------- */
 html, body { min-height: 100%; }
 body {
-  margin: 0; color: var(--label); font: 400 17px/1.4 var(--font); letter-spacing: -.01em;
+  margin: 0; color: var(--ink); font: 400 16px/1.5 var(--font); letter-spacing: .01em;
   background-color: var(--bg);
   background-image: linear-gradient(var(--karo) 1px, transparent 1px), linear-gradient(90deg, var(--karo) 1px, transparent 1px);
   background-size: 24px 24px;
   -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent;
 }
-h1, h2, h3 { font-family: var(--font-display); margin: 0; }
+h1, h2, h3 { margin: 0; font-family: var(--font); letter-spacing: -.02em; }
 p { margin: 0; }
 a { color: var(--accent); }
-:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-.muted, .small.muted { color: var(--label-2); }
-.small { font-size: 15px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.muted { color: var(--mute); }
+.small { font-size: 14px; }
 .link { color: var(--accent); }
-
-#main {
-  max-width: 600px; margin: 0 auto;
-  padding: 0 16px calc(96px + env(safe-area-inset-bottom, 0px));
-  display: grid; gap: 24px; align-content: start;
-}
+#main { max-width: 600px; margin: 0 auto; padding: 0 16px calc(96px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 16px; align-content: start; }
 body.in-session #main { padding-top: 12px; padding-bottom: 32px; }
-.stack-l { display: grid; gap: 24px; }
+.stack-l { display: grid; gap: 16px; }
+.empty-note { color: var(--mute); text-align: center; padding: 24px 16px; }
 
-/* ---------- Navigationsleiste & große Titel ---------- */
-.navbar {
-  position: sticky; top: 0; z-index: 20; margin: 0 -16px;
-  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px;
-  min-height: 44px; padding: calc(4px + env(safe-area-inset-top, 0px)) 8px 4px;
-  background: transparent; transition: background .2s, box-shadow .2s;
+/* ---------- Verlaufs-Kopf ---------- */
+.rv-hero {
+  margin: 0 -16px; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 48px;
+  background: var(--hero); color: var(--hero-ink);
+  display: grid; gap: 24px;
 }
-body.scrolled .navbar { background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); box-shadow: 0 .5px 0 var(--sep); }
-.nav-title { font: 600 17px var(--font); opacity: 0; transition: opacity .2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 56vw; text-align: center; }
-body.scrolled .nav-title { opacity: 1; }
-.nav-back { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; padding-right: 8px; color: var(--accent); text-decoration: none; font-size: 17px; justify-self: start; min-width: 0; }
-.nav-back span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 32vw; }
-.nav-back svg, .nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
-.nav-actions { justify-self: end; display: flex; gap: 4px; }
-.nav-btn { width: 44px; height: 44px; display: grid; place-items: center; border: 0; background: none; color: var(--accent); border-radius: 22px; cursor: pointer; }
-.nav-btn:active { background: var(--fill); }
-.page-head { display: grid; gap: 2px; margin-top: -12px; }
-.eyebrow { display: flex; align-items: center; gap: 6px; font: 600 13px var(--font); color: var(--label-2); letter-spacing: 0; }
-.large-title { font: 700 34px/1.12 var(--font-display); letter-spacing: -.025em; text-wrap: balance; overflow-wrap: anywhere; hyphens: auto; }
-.subject-head { grid-template-columns: auto 1fr; align-items: center; gap: 12px; }
+.rv-hero.small { gap: 20px; padding-bottom: 44px; }
+.rv-top { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; min-height: 44px; }
+.rv-avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--accent); font: 700 16px var(--font); }
+.rv-search { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; background: var(--glass); color: rgba(255,255,255,.85); }
+.rv-search svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; flex: none; }
+.rv-search input { flex: 1; min-width: 0; height: 100%; border: 0 !important; padding: 0 !important; background: none !important; color: #fff; font: 500 15px var(--font); outline: none; box-shadow: none !important; }
+.rv-search input::placeholder { color: rgba(255,255,255,.8); }
+.rv-icon-btn { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; border: 0; background: var(--glass); color: #fff; cursor: pointer; text-decoration: none; flex: none; }
+.rv-icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rv-icon-btn:active { background: var(--glass-strong); }
+.rv-top-title { text-align: center; font: 600 16px var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-figure { display: grid; justify-items: center; gap: 8px; text-align: center; padding-top: 8px; }
+.rv-label { font: 500 15px var(--font); color: rgba(255,255,255,.85); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-big { font: 600 64px/1 var(--font); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.rv-hero.small .rv-big { font-size: 56px; }
+.rv-unit { font-size: 22px; font-weight: 500; letter-spacing: -.01em; margin-left: 6px; opacity: .9; }
+.rv-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 8px 14px; border-radius: 999px; background: var(--glass); color: #fff; font: 600 14px var(--font); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rv-chip svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.4; flex: none; }
+.rv-actions { display: flex; justify-content: center; gap: 12px; }
+.rv-action { display: grid; justify-items: center; gap: 8px; width: 76px; border: 0; background: none; color: #fff; text-decoration: none; font: 500 13px/1.2 var(--font); cursor: pointer; text-align: center; }
+.rv-action-ico { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--glass); transition: background .15s, transform .1s; }
+.rv-action-ico svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.rv-action:active .rv-action-ico { background: var(--glass-strong); transform: scale(.94); }
 
-/* ---------- Gruppierte Listen ---------- */
-.group { display: grid; gap: 8px; }
-.group-title { font: 700 20px var(--font-display); letter-spacing: -.02em; padding: 0 4px; }
-.group-foot { font-size: 13px; line-height: 1.4; color: var(--label-2); padding: 0 16px; }
-.cells { background: var(--cell); border-radius: var(--r-cell); overflow: hidden; box-shadow: var(--shadow-1); }
-.cell {
-  position: relative; display: flex; align-items: center; gap: 12px; width: 100%;
-  min-height: 52px; padding: 10px 16px; border: 0; background: none; text-align: left; font: inherit; color: inherit;
-  text-decoration: none; cursor: pointer;
-}
-.cells > .cell + .cell::before, .cells > .cell + details.cell::before, .cells > details.cell + .cell::before, .cells > details + details::before {
-  content: ''; position: absolute; top: 0; right: 0; left: 16px; height: .5px; background: var(--sep);
-}
-.cells > .cell:has(.app-ico) + .cell::before { left: 60px; }
-.cell:active:not(.plainrow) { background: var(--fill); }
-.cell.disabled { opacity: .4; pointer-events: none; }
-.cell-txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
-.cell-title { font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; hyphens: auto; }
-.cell-sub { font-size: 14px; line-height: 1.35; color: var(--label-2); overflow-wrap: anywhere; }
-.cell-sub.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.cell-right { flex: none; font-size: 15px; color: var(--label-2); font-variant-numeric: tabular-nums; }
-.chev { width: 16px; height: 16px; flex: none; fill: none; stroke: var(--label-3); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; margin-right: -4px; }
-.cell.strong .cell-title { font-weight: 600; }
-.cell.danger .cell-title { color: var(--red); }
-.cell.plainrow { cursor: default; }
-.due-tag { font: 600 13px var(--font); color: var(--accent); background: var(--accent-tint); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
-.empty-note { color: var(--label-2); text-align: center; padding: 24px 16px; }
-.empty { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 32px 16px; color: var(--label-2); }
-.empty-title { font: 600 20px var(--font-display); color: var(--label); }
-.empty .btn { width: 100%; max-width: 360px; }
+/* Inhalt rutscht über den Kopf */
+.rv-body { margin-top: -28px; position: relative; display: grid; gap: 16px; }
 
-/* Aufklappbare Zeile (Kommt im Test dran) */
-details.cell { display: block; padding: 0; min-height: 0; }
-details.cell summary { list-style: none; display: flex; align-items: center; gap: 12px; padding: 12px 16px; min-height: 52px; cursor: pointer; }
-details.cell summary::-webkit-details-marker { display: none; }
-details.cell .cell-right { color: var(--accent); font-size: 15px; }
-details.cell[open] .cell-right { color: var(--label-3); }
-details.cell .cell-title { font-weight: 600; }
-.star { color: var(--star); font-size: 17px; flex: none; }
-.disclose-body { padding: 0 16px 16px 45px; color: var(--label-2); font-size: 15px; line-height: 1.55; }
-
-/* ---------- Icons ---------- */
-.app-ico {
-  --c: var(--i-blau);
-  width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 8px;
-  background: var(--c); color: #fff; font: 700 11px/1 var(--font); letter-spacing: -.02em;
+/* ---------- Karten ---------- */
+.rv-card { background: var(--card); border-radius: var(--r-card); padding: 8px 0; }
+.rv-card-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px 4px; }
+.rv-card-head h2 { font: 600 18px var(--font); letter-spacing: -.01em; }
+.rv-link { border: 0; background: none; color: var(--accent); font: 600 15px var(--font); cursor: pointer; padding: 4px 0; }
+.rv-rows { display: grid; }
+.rv-row {
+  display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 10px 20px;
+  border: 0; background: none; color: var(--ink); text-decoration: none; text-align: left; font: inherit; cursor: pointer;
 }
-.app-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.app-ico[data-tone="gruen"] { --c: var(--i-gruen); } .app-ico[data-tone="gelb"] { --c: var(--i-gelb); }
-.app-ico[data-tone="pink"] { --c: var(--i-pink); } .app-ico[data-tone="orange"] { --c: var(--i-orange); }
-.app-ico[data-tone="lila"] { --c: var(--i-lila); } .app-ico[data-tone="grau"] { --c: var(--i-grau); } .app-ico[data-tone="rot"] { --c: var(--i-rot); }
-.app-ico.add { background: none; color: var(--accent); }
-.app-ico.add svg { width: 22px; height: 22px; stroke-width: 2.4; }
-.app-ico.xs { width: 20px; height: 20px; border-radius: 5px; font-size: 8px; }
-.app-ico.lg { width: 52px; height: 52px; border-radius: 13px; font-size: 16px; }
+.rv-row:active { background: var(--soft); }
+.rv-row.disabled { opacity: .4; pointer-events: none; }
+.rv-row.danger .row-title { color: var(--red); }
+.row-txt { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.row-title { font: 500 16px/1.35 var(--font); overflow-wrap: anywhere; hyphens: auto; }
+.row-sub { font: 400 14px/1.4 var(--font); color: var(--mute); overflow-wrap: anywhere; }
+.row-sub.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.row-right { display: grid; justify-items: end; gap: 1px; flex: none; text-align: right; }
+.row-right b { font: 600 16px var(--font); font-variant-numeric: tabular-nums; }
+.row-right small { font-size: 13px; color: var(--mute); }
+.chev { width: 18px; height: 18px; flex: none; fill: none; stroke: var(--stone); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rv-foot { padding: 4px 20px 12px; font-size: 13px; color: var(--mute); }
+.rv-card.empty { padding: 32px 24px; display: grid; gap: 10px; justify-items: center; text-align: center; color: var(--mute); }
+.empty-title { font: 600 20px var(--font); color: var(--ink); letter-spacing: -.02em; }
+.rv-card.empty .btn { width: 100%; max-width: 320px; margin-top: 8px; }
+.rv-plain-head { padding: calc(16px + env(safe-area-inset-top, 0px)) 4px 0; }
+.rv-plain-head h1 { font: 600 34px/1.1 var(--font); letter-spacing: -.04em; }
+
+/* Runde Icons */
+.dot-ico { --c: var(--t-blau); width: 40px; height: 40px; flex: none; border-radius: 50%; display: grid; place-items: center; background: var(--c); color: #fff; font: 700 12px/1 var(--font); letter-spacing: -.02em; }
+.dot-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dot-ico[data-tone="gruen"] { --c: var(--t-gruen); } .dot-ico[data-tone="gelb"] { --c: var(--t-gelb); } .dot-ico[data-tone="pink"] { --c: var(--t-pink); }
+.dot-ico[data-tone="orange"] { --c: var(--t-orange); } .dot-ico[data-tone="lila"] { --c: var(--t-lila); } .dot-ico[data-tone="grau"] { --c: var(--t-grau); } .dot-ico[data-tone="rot"] { --c: var(--t-rot); }
+.dot-ico.add { background: var(--accent-soft); color: var(--accent); }
+.dot-ico.lg { width: 56px; height: 56px; font-size: 16px; }
+
+/* Kennzahl-Kacheln */
+.rv-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rv-tile { display: grid; gap: 6px; align-content: start; padding: 16px 18px; border-radius: var(--r-card); background: var(--card); color: var(--ink); text-decoration: none; }
+.rv-tile small { font-size: 13px; color: var(--mute); }
+.rv-tile b { font: 600 32px/1.1 var(--font); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.rv-tile b span { font-size: 15px; font-weight: 500; letter-spacing: 0; margin-left: 4px; color: var(--mute); }
+.rv-meter { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; margin: 4px 0; }
+.rv-meter i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.rv-days { display: flex; gap: 4px; margin: 4px 0; }
+.rv-days i { flex: 1; height: 6px; border-radius: 3px; background: var(--soft); }
+.rv-days i.on { background: var(--green); }
+
+/* Reiter als Pills */
+.rv-pills { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+.rv-pills a, .rv-pills button { flex: none; padding: 9px 16px; border-radius: 999px; border: 0; background: var(--card); color: var(--ink); text-decoration: none; font: 600 14px var(--font); cursor: pointer; }
+.rv-pills [aria-current="page"] { background: var(--ink); color: var(--card); }
+.rv-pill { flex: none; padding: 6px 12px; border-radius: 999px; background: var(--soft); color: var(--ink); font: 600 13px var(--font); }
+details.rv-row { display: block; padding: 0; min-height: 0; }
+details.rv-row summary { list-style: none; display: flex; align-items: center; gap: 14px; padding: 10px 20px; min-height: 64px; cursor: pointer; }
+details.rv-row summary::-webkit-details-marker { display: none; }
+details.rv-row[open] .rv-pill { background: var(--ink); color: var(--card); }
+details.rv-row .dot-ico { font-size: 18px; }
+.disclose-body { padding: 0 20px 16px 74px; color: var(--mute); font-size: 15px; line-height: 1.55; }
 
 /* ---------- Knöpfe ---------- */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  min-height: 44px; padding: 10px 16px; border-radius: var(--r-btn); border: 0;
-  background: var(--fill); color: var(--accent); font: 600 17px var(--font); text-decoration: none; cursor: pointer; box-shadow: none;
-  transition: transform .1s, background .15s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 24px;
+  border: 0; border-radius: 999px; background: var(--soft); color: var(--ink); font: 600 16px var(--font); letter-spacing: .01em;
+  text-decoration: none; cursor: pointer; box-shadow: none !important; transition: transform .1s, background .15s;
 }
-.btn:hover { background: var(--fill); }
-.btn:active { transform: scale(.98); box-shadow: none; }
+.btn:hover { background: var(--soft); }
+.btn:active { transform: scale(.98); }
 .btn.primary { background: var(--accent); color: var(--on-accent); }
 .btn.primary:hover { background: var(--accent); filter: none; }
 .btn.primary:active { background: var(--accent-press); }
-.btn.ghost, .btn.plain { background: none; padding-inline: 8px; }
-.btn.danger { background: var(--red-tint); color: var(--red); border: 0; box-shadow: none; }
-.btn.big { min-height: 50px; width: 100%; }
-.btn.small { min-height: 34px; padding: 6px 12px; font-size: 15px; }
-.btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
-.danger-text { color: var(--red) !important; }
+.btn.ghost, .btn.plain { background: none; padding-inline: 10px; color: var(--accent); }
+.btn.danger { background: var(--red-soft); color: var(--red); border: 0; }
+.btn.big { min-height: 52px; width: 100%; }
+.btn.small { min-height: 36px; padding: 6px 16px; font-size: 14px; }
+.btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
 .btn:disabled { opacity: .4; }
-
-/* ---------- Suchfeld & Segment-Steuerung ---------- */
-.search { display: flex; align-items: center; gap: 6px; height: 40px; padding: 0 10px; border-radius: 10px; background: var(--fill); color: var(--label-2); }
-.search svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; flex: none; }
-.search input { flex: 1; min-width: 0; height: 100%; border: 0 !important; padding: 0 !important; background: none !important; font: 17px var(--font); color: var(--label); box-shadow: none !important; outline: none; }
-.search input::placeholder { color: var(--label-2); }
-.seg { display: flex; padding: 2px; border-radius: 9px; background: var(--fill); overflow-x: auto; scrollbar-width: none; }
-.seg > a, .seg > button { flex: 1 0 auto; min-height: 32px; padding: 6px 12px; border: 0; border-radius: 7px; background: none; text-align: center; text-decoration: none; color: var(--label); font: 500 14px var(--font); cursor: pointer; white-space: nowrap; }
-.seg > [aria-current="page"] { background: var(--cell); font-weight: 600; box-shadow: 0 3px 8px rgba(0,0,0,.1), 0 0 0 .5px rgba(0,0,0,.04); }
-.seg.full { width: 100%; }
-
-/* ---------- Karteikarte (Hauptelement) ---------- */
-.index-card {
-  position: relative; border-radius: 6px; background: var(--card-paper); box-shadow: var(--shadow-2);
-  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--card-line) 31px 32px);
-  background-position: 0 52px; background-size: 100% calc(100% - 52px); background-repeat: no-repeat;
-  overflow: hidden;
-}
-.index-card::before { content: ''; position: absolute; left: 0; right: 0; top: 46px; height: 2px; background: var(--card-red); opacity: .85; }
-.ic-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; height: 46px; padding: 0 16px; font: 600 13px var(--font); color: var(--label-2); }
-.ic-date { color: var(--card-red); font-weight: 700; }
-.ic-body { display: grid; gap: 16px; padding: 16px 16px 16px; }
-.ic-title { font: 700 24px/1.25 var(--font-display); letter-spacing: -.02em; color: var(--label); text-decoration: none; text-wrap: balance; }
-.ic-meta { color: var(--label-2); font-size: 15px; }
-.ic-progress { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; font-size: 13px; color: var(--label-2); font-variant-numeric: tabular-nums; }
-.meter { height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
-.meter i { display: block; height: 100%; border-radius: inherit; background: var(--green); }
-.meter i.indet { width: 35%; background: var(--accent); animation: indet 1.1s ease-in-out infinite alternate; }
-@keyframes indet { from { margin-left: 0; } to { margin-left: 65%; } }
-
-/* Kennzahlen-Zeile */
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--cell); border-radius: var(--r-cell); box-shadow: var(--shadow-1); text-decoration: none; color: var(--label); }
-.stats > span { display: grid; gap: 2px; padding: 12px 16px; }
-.stats > span + span { border-left: .5px solid var(--sep); }
-.stats b { font: 700 22px var(--font-display); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-.stats small { font-size: 13px; color: var(--label-2); }
-
-/* Testkopf */
-.test-head { display: grid; gap: 12px; margin-top: -12px; }
-.test-head .large-title { font-size: 30px; }
-.ic-progress.wide { grid-template-columns: 1fr auto; }
-
-/* ---------- Material, Karten, Spickzettel ---------- */
-.progress-card { display: grid; gap: 6px; padding: 16px; border-radius: var(--r-cell); background: var(--cell); }
-.card-cell { align-items: flex-start; }
-.starbtn { flex: none; width: 44px; height: 44px; margin: -8px -12px -8px 0; border: 0; background: none; font-size: 22px; line-height: 1; color: var(--label-3); cursor: pointer; }
-.starbtn.on { color: var(--star); }
-.terms { display: flex; flex-wrap: wrap; gap: 8px; }
-.term { padding: 6px 10px; border-radius: 8px; background: var(--cell); font-size: 15px; box-shadow: var(--shadow-1); }
-.sheet-paper { margin: 0; padding: 16px 16px 16px 40px; background: var(--cell); border-radius: var(--r-cell); display: grid; gap: 12px; line-height: 1.55; font-size: 16px; box-shadow: var(--shadow-1); }
-.mk { --c: var(--m-gelb); background: linear-gradient(transparent 55%, color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent) 55%); padding: 0 1px; border-radius: 0; }
-.reader-text { display: grid; gap: 12px; line-height: 1.6; font-size: 16px; }
+.danger-text { color: var(--red) !important; }
+.btn.know { background: var(--green-soft); color: var(--green); border: 0; }
+.btn.dont { background: var(--red-soft); color: var(--red); border: 0; }
 
 /* ---------- Formulare ---------- */
-label.field { display: grid; gap: 6px; font: 600 13px var(--font); color: var(--label-2); }
+label.field { display: grid; gap: 6px; font: 500 13px var(--font); color: var(--mute); }
 input[type="text"], input[type="date"], input[type="number"], input[type="search"], textarea, select {
-  width: 100%; padding: 12px; border-radius: 10px; border: 0; background: var(--fill); color: var(--label); font: 17px var(--font); box-shadow: none;
+  width: 100%; min-height: 52px; padding: 14px 16px; border-radius: 12px; border: 0; background: var(--card); color: var(--ink); font: 16px var(--font); box-shadow: none;
 }
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 0; box-shadow: none; }
-textarea { min-height: 120px; resize: vertical; line-height: 1.45; }
+textarea { min-height: 120px; resize: vertical; line-height: 1.5; }
 .swatches { display: flex; gap: 12px; flex-wrap: wrap; }
 .swatches label { position: relative; cursor: pointer; }
 .swatches input { position: absolute; opacity: 0; }
-.swatches .app-ico { width: 36px; height: 36px; border-radius: 10px; }
-.swatches input:checked + .app-ico { box-shadow: 0 0 0 2px var(--cell), 0 0 0 4px var(--label); }
-.chip { border: 0; background: var(--fill); border-radius: 8px; padding: 6px 12px; min-height: 34px; font: 500 14px var(--font); color: var(--label); cursor: pointer; }
-.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.swatches .dot-ico { width: 36px; height: 36px; }
+.swatches input:checked + .dot-ico { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--ink); }
+.chip { border: 0; background: var(--card); border-radius: 999px; padding: 8px 14px; min-height: 36px; font: 600 14px var(--font); color: var(--ink); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--card); }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .row.end { justify-content: flex-end; }
 .stack { display: grid; gap: 16px; }
+.seg { display: flex; gap: 6px; padding: 0; background: none; overflow-x: auto; }
+.seg > a, .seg > button { flex: none; padding: 8px 14px; border-radius: 999px; border: 0; background: var(--soft); color: var(--ink); font: 600 14px var(--font); cursor: pointer; text-decoration: none; }
+.seg > [aria-current="page"] { background: var(--ink); color: var(--card); }
+.rv-row .seg { width: 100%; }
+.search { display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border-radius: 999px; background: var(--card); color: var(--mute); }
+.search svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; flex: none; }
+.search input { flex: 1; min-width: 0; min-height: 0; height: 100%; border: 0 !important; padding: 0 !important; background: none !important; font: 16px var(--font); color: var(--ink); outline: none; box-shadow: none !important; }
 
-/* ---------- Sheets (unteres Blatt) ---------- */
-#sheet, #dialog {
-  border: 0; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--bg); color: var(--label);
-  width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto;
-}
-#sheet { margin: auto auto 0; border-radius: 14px 14px 0 0; }
+/* Material, Karten, Spickzettel */
+.progress-card { display: grid; gap: 8px; padding: 18px 20px; border-radius: var(--r-card); background: var(--card); }
+.meter { height: 6px; border-radius: 3px; background: var(--soft); overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.meter i.indet { width: 35%; animation: indet 1.1s ease-in-out infinite alternate; }
+@keyframes indet { from { margin-left: 0; } to { margin-left: 65%; } }
+.card-cell { align-items: flex-start; }
+.starbtn { flex: none; width: 44px; height: 44px; margin: -6px -12px -6px 0; border: 0; background: none; font-size: 22px; line-height: 1; color: var(--stone); cursor: pointer; }
+.starbtn.on { color: var(--star); }
+.terms { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 20px 16px; }
+.term { padding: 6px 12px; border-radius: 999px; background: var(--soft); font: 500 14px var(--font); }
+.sheet-paper { margin: 0; padding: 8px 20px 16px 40px; display: grid; gap: 12px; line-height: 1.6; font-size: 15px; }
+.mk { --c: var(--m-blau); background: linear-gradient(transparent 55%, color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent) 55%); }
+.reader-text { display: grid; gap: 12px; line-height: 1.6; font-size: 16px; }
+
+/* ---------- Sheets ---------- */
+#sheet, #dialog { border: 0; padding: 8px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--bg); color: var(--ink); width: 100%; max-width: 600px; max-height: 92vh; overflow-y: auto; }
+#sheet { margin: auto auto 0; border-radius: 24px 24px 0 0; }
 #sheet[open] { animation: sheet-in .28s cubic-bezier(.2,.8,.2,1); }
 @keyframes sheet-in { from { transform: translateY(40px); opacity: .6; } }
-#sheet::backdrop, #dialog::backdrop { background: rgba(0,0,0,.35); }
-.grabber { width: 36px; height: 5px; border-radius: 3px; background: var(--label-3); opacity: .5; margin: 0 auto 12px; }
-.sheet-h { font: 700 22px var(--font-display); letter-spacing: -.02em; }
-.sheet-title { text-align: center; font-size: 13px; color: var(--label-2); padding: 4px 16px; }
+#sheet::backdrop, #dialog::backdrop { background: rgba(0,0,0,.4); }
+.grabber { width: 40px; height: 5px; border-radius: 3px; background: var(--stone); opacity: .5; margin: 0 auto 12px; }
+.sheet-h { font: 600 24px var(--font); letter-spacing: -.03em; }
+.sheet-title { text-align: center; font-size: 14px; color: var(--mute); padding: 4px 16px; }
+#sheet .rv-rows { background: var(--card); border-radius: var(--r-card); overflow: hidden; }
 .sheet-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
 .sheet-actions .btn { flex: 1; }
 .sheet-actions .btn.plain { flex: 0 0 auto; margin-right: auto; }
 
 /* ---------- Tab-Leiste ---------- */
 #tabbar {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  padding: 6px 8px calc(4px + env(safe-area-inset-bottom, 0px));
-  background: color-mix(in srgb, var(--cell) 80%, transparent);
-  backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-top: .5px solid var(--sep);
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(3, 1fr);
+  padding: 8px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--card) 88%, transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--hair);
 }
-#tabbar a { display: grid; justify-items: center; gap: 2px; padding: 2px 0; color: var(--label-3); text-decoration: none; font: 500 10px var(--font); letter-spacing: .01em; }
-#tabbar a svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-#tabbar a[aria-current="page"] { color: var(--accent); }
-#tabbar a[aria-current="page"] svg { stroke-width: 2.2; }
+#tabbar a { display: grid; justify-items: center; gap: 3px; color: var(--stone); text-decoration: none; font: 500 11px var(--font); }
+#tabbar a svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+#tabbar a[aria-current="page"] { color: var(--ink); font-weight: 600; }
 
 /* ---------- Lern-Bildschirme ---------- */
 .session { width: 100%; max-width: 600px; margin: 0 auto; display: grid; gap: 16px; }
 .session-top { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; min-height: 44px; }
-.session-top .btn { background: none; padding: 0 4px; font-weight: 400; }
-.session-top .bar { height: 6px; border-radius: 3px; background: var(--fill); }
-.session-top .bar i { background: var(--accent) !important; border-radius: 3px; transition: width .3s; }
-.counter { font: 600 13px var(--font); color: var(--label-2); font-variant-numeric: tabular-nums; }
-.session > div:nth-child(2) .small.muted { font-size: 13px; }
-.session h2 { font: 700 28px var(--font-display); letter-spacing: -.02em; }
-
-.question { display: grid; gap: 16px; padding: 0; background: none; border: 0; box-shadow: none; }
-.question .qtext { font: 600 21px/1.35 var(--font-display); letter-spacing: -.015em; }
+.session-top .btn { background: var(--card); min-height: 36px; padding: 6px 14px; font-size: 14px; }
+.session-top .bar { height: 6px; border-radius: 3px; background: var(--card); overflow: hidden; }
+.session-top .bar i { background: var(--accent) !important; border-radius: 3px; transition: width .3s; display: block; height: 100%; }
+.counter { font: 600 13px var(--font); color: var(--mute); font-variant-numeric: tabular-nums; }
+.session h2 { font: 600 30px var(--font); letter-spacing: -.04em; }
+.question, .question.sheet, form.question { display: grid; gap: 16px; padding: 0; background: none; border: 0; box-shadow: none; }
+.question .qtext { font: 600 22px/1.3 var(--font); letter-spacing: -.02em; }
 .question .qtext .gap { display: inline-block; min-width: 4.5em; border-bottom: 3px solid var(--accent); }
-.question > .small.muted, .question .row > .small.muted { font-size: 13px; }
 .opts { display: grid; gap: 8px; }
-.opt {
-  display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: center; width: 100%; text-align: left;
-  min-height: 56px; padding: 12px 16px; border-radius: var(--r-cell); border: 2px solid transparent;
-  background: var(--cell); box-shadow: var(--shadow-1); color: var(--label); font: 17px/1.35 var(--font); cursor: pointer;
-  transition: transform .1s, border-color .15s, background .15s;
-}
+.opt { display: grid; grid-template-columns: 32px 1fr; gap: 14px; align-items: center; width: 100%; min-height: 60px; padding: 12px 16px; text-align: left;
+  border-radius: var(--r-row); border: 2px solid transparent; background: var(--card); color: var(--ink); font: 500 16px/1.4 var(--font); cursor: pointer; box-shadow: none;
+  transition: transform .1s, border-color .15s, background .15s; }
 .opt:active:not(:disabled) { transform: scale(.985); }
-.opt .key { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 14px; background: var(--fill); color: var(--label-2); font: 600 13px var(--font); border: 0; }
-.opt.check .key { border-radius: 7px; }
+.opt .key { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; border: 0; background: var(--soft); color: var(--mute); font: 600 13px var(--font); }
+.opt.check .key { border-radius: 50%; }
 .opt.check.on { border-color: var(--accent); }
 .opt.check.on .key { background: var(--accent); color: var(--on-accent); }
-.opt.right { border-color: var(--green); background: var(--green-tint); }
+.opt.right { border-color: var(--green); background: var(--green-soft); }
 .opt.right .key { background: var(--green); color: #fff; }
-.opt.wrong { border-color: var(--red); background: var(--red-tint); }
+.opt.wrong { border-color: var(--red); background: var(--red-soft); }
 .opt.wrong .key { background: var(--red); color: #fff; }
 .opt.missed { border: 2px dashed var(--green); }
-.opt:disabled { cursor: default; color: var(--label); }
-
-/* Feedback als Leiste unten (Daumenbereich) */
+.opt:disabled { cursor: default; color: var(--ink); }
 .question #fb:not(:empty), #f #fb:not(:empty) {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-  padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-  background: var(--cell); box-shadow: 0 -8px 24px rgba(0,0,0,.12);
-  animation: fb-in .22s cubic-bezier(.2,.8,.2,1);
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--card); border-radius: 24px 24px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,.12); animation: fb-in .22s cubic-bezier(.2,.8,.2,1);
 }
 @keyframes fb-in { from { transform: translateY(100%); } }
 #fb > * { max-width: 600px; margin-inline: auto; }
-.feedback { padding: 0; border: 0; border-radius: 0; background: none !important; font-size: 15px; line-height: 1.45; }
-.feedback b { display: block; font: 700 20px var(--font-display); margin-bottom: 4px; }
+.feedback { padding: 0; border: 0; border-radius: 0; background: none !important; font-size: 15px; line-height: 1.5; }
+.feedback b { display: block; font: 600 22px var(--font); letter-spacing: -.02em; margin-bottom: 4px; }
 .feedback.ok b { color: var(--green); }
 .feedback.no b { color: var(--red); }
-.feedback .src { margin-top: 6px; font-size: 13px; color: var(--label-2); max-height: 4.5em; overflow: hidden; }
-#fb .row.end { margin-top: 12px !important; }
-#fb .row.end .btn { width: 100%; min-height: 50px; }
+.feedback .src { margin-top: 6px; font-size: 13px; color: var(--mute); max-height: 4.5em; overflow: hidden; }
+#fb .row.end { margin-top: 14px !important; }
+#fb .row.end .btn { width: 100%; min-height: 52px; }
+.session:has(#fb:not(:empty)) { padding-bottom: 220px; }
 .question #act { position: sticky; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
-.question #act .btn, #f .row.end .btn.primary { min-height: 50px; flex: 1; }
-.question #act .btn { width: 100%; }
-
+.question #act .btn { width: 100%; min-height: 52px; }
+#f .row.end .btn.primary { min-height: 52px; flex: 1; }
 .tf { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.tf .btn { min-height: 56px; font-size: 17px; }
-.btn.know { background: var(--green-tint); color: var(--green); border: 0; box-shadow: none; }
-.btn.dont { background: var(--red-tint); color: var(--red); border: 0; box-shadow: none; }
+.tf .btn { min-height: 60px; font-size: 17px; }
 .answer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .answer-row .btn { min-height: 56px; }
 
-/* Karteikarte im Lernmodus */
-.flash { perspective: 1400px; cursor: pointer; }
+/* Karteikarte: Vorderseite wie eine Bankkarte im Verlauf, Rückseite weiß */
+.flash, .flash:focus { perspective: 1400px; cursor: pointer; outline: none; }
 .flash-inner { position: relative; min-height: 380px; transition: transform .5s cubic-bezier(.3,.7,.2,1); transform-style: preserve-3d; }
-.flash.flipped .flash-inner { transform: rotateX(180deg); }
-.face {
-  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  display: grid; align-content: safe center; gap: 12px; text-align: center; padding: 64px 24px 40px; overflow-y: auto;
-  border-radius: 6px; background-color: var(--card-paper); color: var(--label); box-shadow: var(--shadow-2); border: 0;
-  background-image: repeating-linear-gradient(to bottom, transparent 0 31px, var(--card-line) 31px 32px);
-  background-position: 0 52px; background-size: 100% calc(100% - 52px); background-repeat: no-repeat;
-}
-.face::before { content: ''; position: absolute; left: 0; right: 0; top: 46px; height: 2px; background: var(--card-red); opacity: .85; }
-.face.back { transform: rotateX(180deg); }
-.face .type { position: absolute; top: 15px; left: 16px; font: 600 13px var(--font); color: var(--label-2); }
-.face .hint { position: absolute; bottom: 12px; left: 0; right: 0; font-size: 13px; color: var(--label-3); }
-.face .front-text { font: 600 24px/1.32 var(--font-display); letter-spacing: -.015em; }
-.face .front-text span[style] { border-bottom-color: var(--label) !important; }
-.face .back-text { font: 400 19px/1.45 var(--font); }
+.flash.flipped .flash-inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: grid; align-content: safe center; gap: 12px; text-align: center;
+  padding: 56px 24px 44px; overflow-y: auto; border-radius: 28px; border: 0; box-shadow: none; background: var(--card); color: var(--ink); }
+.face::before { display: none; }
+.face.front { background: var(--hero); color: #fff; }
+.face.back { transform: rotateY(180deg); }
+.face .type { position: absolute; top: 20px; left: 24px; font: 600 13px var(--font); color: inherit; opacity: .75; }
+.face .hint { position: absolute; bottom: 18px; left: 0; right: 0; font-size: 13px; opacity: .7; color: inherit; }
+.face .front-text { font: 600 26px/1.3 var(--font); letter-spacing: -.03em; }
+.face.front .front-text span[style] { border-bottom-color: #fff !important; }
+.face .back-text { font: 500 19px/1.45 var(--font); }
 .face .back-text.long { font-size: 16px; text-align: left; }
-.face .back-q { font-size: 14px; color: var(--label-2); }
+.face .back-q { font-size: 14px; color: var(--mute); }
 .boxes { display: flex; gap: 6px; justify-content: center; }
-.boxes span { width: 28px; height: 4px; border-radius: 2px; background: var(--fill); }
+.boxes span { width: 28px; height: 5px; border-radius: 3px; background: var(--card); }
 .boxes span.on { background: var(--green); }
 
 /* Zuordnen */
 .match { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .match .col { display: grid; gap: 8px; align-content: start; }
-.tile { padding: 12px; min-height: 56px; border-radius: var(--r-cell); border: 2px solid transparent; background: var(--cell); box-shadow: var(--shadow-1); text-align: left; font: 15px/1.3 var(--font); color: var(--label); cursor: pointer; }
+.tile { padding: 14px; min-height: 60px; border-radius: var(--r-row); border: 2px solid transparent; background: var(--card); text-align: left; font: 500 15px/1.35 var(--font); color: var(--ink); cursor: pointer; box-shadow: none; }
 .tile.sel { border-color: var(--accent); }
-.tile.done { background: var(--green-tint); color: var(--green); box-shadow: none; }
+.tile.done { background: var(--green-soft); color: var(--green); }
 .tile.shake { animation: shake .35s; border-color: var(--red); }
 @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
 /* Ergebnis */
 .result { display: grid; gap: 16px; justify-items: center; text-align: center; padding: 24px 0; background: none; border: 0; box-shadow: none; }
-.due-num { font: 700 56px/1 var(--font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
-.grade { font: 800 88px/1 var(--font-display); color: var(--accent); letter-spacing: -.04em; transform: none; }
-.margin-note { font: 600 17px var(--font); color: var(--label-2); transform: none; }
+.due-num { font: 600 64px/1 var(--font); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.grade { font: 600 96px/1 var(--font); letter-spacing: -.06em; color: var(--accent); transform: none; }
+.margin-note { font: 500 16px var(--font); color: var(--mute); transform: none; }
 .review { display: grid; gap: 8px; width: 100%; text-align: left; }
-.review h3 { font-size: 20px; }
-.review .item { padding: 12px 16px; border-radius: var(--r-cell); background: var(--cell); border-left: 4px solid var(--red); box-shadow: var(--shadow-1); font-size: 15px; }
-.review .item.ok { border-left-color: var(--green); }
+.review h3 { font-size: 18px; }
+.review .item { padding: 14px 18px; border-radius: var(--r-row); background: var(--card); border-left: 0; position: relative; font-size: 15px; }
+.review .item::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: var(--red); }
+.review .item.ok::before { background: var(--green); }
 .result .row { width: 100%; }
 .result .row .btn { flex: 1; }
-.sheet.pad { padding: 16px; border-radius: var(--r-cell); background: var(--cell); border: 0; box-shadow: var(--shadow-1); }
+.sheet.pad { padding: 20px; border-radius: var(--r-card); background: var(--card); border: 0; box-shadow: none; }
 
 /* Originalblatt-Ansicht */
-dialog.viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: var(--bg); color: var(--label); }
+dialog.viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: var(--bg); color: var(--ink); }
 dialog.viewer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
-.viewer-bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px; background: color-mix(in srgb, var(--cell) 85%, transparent); backdrop-filter: blur(20px); box-shadow: 0 .5px 0 var(--sep); }
-.viewer-title { font: 600 17px var(--font); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 160px; }
-.viewer-bar .row { gap: 4px; flex-wrap: nowrap; }
-.viewer-bar .btn { min-height: 36px; padding: 6px 12px; font-size: 15px; }
+.viewer-bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; background: var(--card); }
+.viewer-title { font: 600 16px var(--font); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 160px; }
+.viewer-bar .row { gap: 6px; flex-wrap: nowrap; }
+.viewer-bar .btn { min-height: 36px; padding: 6px 14px; font-size: 14px; }
 .viewer-body { overflow: auto; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 16px; justify-items: center; align-content: start; }
-.viewer-page { display: block; width: 100%; max-width: 900px; height: auto; background: #fff; border-radius: 4px; box-shadow: var(--shadow-2); }
+.viewer-page { display: block; width: 100%; max-width: 900px; height: auto; background: #fff; border-radius: 12px; }
 dialog.viewer.zoomed .viewer-body { justify-items: start; }
 dialog.viewer.zoomed .viewer-page { width: 220%; max-width: none; }
-.viewer-wait { padding: 40px 16px; text-align: center; display: grid; gap: 12px; justify-items: center; max-width: 480px; margin: 0 auto; color: var(--label-2); }
+.viewer-wait { padding: 40px 16px; text-align: center; display: grid; gap: 12px; justify-items: center; max-width: 480px; margin: 0 auto; color: var(--mute); }
 
 /* Meldung */
-#toast { position: fixed; left: 50%; transform: translate(-50%, 160%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 60; padding: 12px 18px; border-radius: 14px; background: color-mix(in srgb, var(--label) 88%, transparent); backdrop-filter: blur(20px); color: var(--bg); font: 600 15px var(--font); max-width: calc(100vw - 32px); transition: transform .25s; }
+#toast { position: fixed; left: 50%; transform: translate(-50%, 160%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 60; padding: 12px 20px; border-radius: 999px; background: var(--ink); color: var(--card); font: 600 15px var(--font); max-width: calc(100vw - 32px); transition: transform .25s; }
 #toast.show { transform: translate(-50%, 0); }
 #toast:not(.show) { visibility: hidden; transition: transform .25s, visibility 0s .25s; }
 body.in-session #toast { bottom: 24px; }
@@ -783,19 +742,8 @@ body.in-session #toast { bottom: 24px; }
 kbd, .kbd-hint { display: none; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
 
-/* ---------- Feinschliff ---------- */
-.btn, .btn.primary, .btn.danger, .btn.know, .btn.dont { box-shadow: none !important; }
-#main section + section, .stack-l > section + section, .stack-l > * + section { margin-top: 0; }
-.navbar { grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr); }
-.nav-title { max-width: 46vw; }
-.nav-back span { max-width: 26vw; }
-.flash, .flash:focus { outline: none; }
-.session:has(#fb:not(:empty)) { padding-bottom: 220px; }
-:root { --seg-on: var(--cell); --i-lila: #0E9DB0; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --seg-on: #636366; } }
-:root[data-theme="dark"] { --seg-on: #636366; }
-.seg > [aria-current="page"] { background: var(--seg-on); }
-.question.sheet, form.question { background: none; box-shadow: none; padding: 0; border: 0; }
+#main section + section, .stack-l > * + section { margin-top: 0; }
+.rv-action { flex: 0 1 76px; min-width: 0; width: auto; }
 
 </style>
 <main id="main" tabindex="-1"></main>
@@ -2746,8 +2694,8 @@ return { MODES, modeAvailable, startSession, topicsOf };
 })();
 
 __m.views = (() => {
-// Gemeinsame Bausteine (PC- und Handy-Version) – Aufbau nach iOS-Muster:
-// große Titel, gruppierte Listen, farbige Fach-Icons, eine Karteikarte als Hauptelement.
+// Gemeinsame Bausteine (PC- und Handy-Version) im Stil einer Fintech-App:
+// Verlaufs-Kopf mit großer Zahl, runde Aktions-Knöpfe, weiße Karten mit runden Icons, Pill-Buttons.
 const S = __m.store;
 const { MODES, modeAvailable, topicsOf } = __m.learn;
 const { h, plural, countdownText, daysUntil, fmtDate, ICON } = __m.util;
@@ -2755,12 +2703,16 @@ const { h, plural, countdownText, daysUntil, fmtDate, ICON } = __m.util;
 const abbr = (name) => (name.split(/\s+[–-]\s+/)[0] || name).slice(0, 4);
 const longName = (name) => name.split(/\s+[–-]\s+/)[1] || name;
 const tone = (c) => c || 'blau';
-const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
-const SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>';
-const PEN = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg>';
-const BACK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+const svg = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const ARROW = svg('<path d="M5 12h14M13 6l6 6-6 6"/>');
+const SEARCH = svg('<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>');
+const PEN = svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>');
+const BACK = svg('<path d="M15 5l-7 7 7 7"/>');
 const CHEV = '<svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
-const PLUS = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
+const PLUS = svg('<path d="M12 5v14M5 12h14"/>');
+const BOLT = svg('<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>');
+const UPLOAD = svg('<path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>');
+const DOWN = svg('<path d="M6 9l6 6 6-6"/>');
 
 const cardStats = (cards) => {
   const sure = cards.filter((c) => S.progressOf(c.id).box >= 3).length;
@@ -2769,18 +2721,38 @@ const cardStats = (cards) => {
 
 const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', ankreuzen: 'gruen', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'lila', schreiben: 'grau', probetest: 'rot' };
 
-// Farbiges Fach-Icon (wie in den iPhone-Einstellungen)
-const subjectIcon = (s, size = '') => `<span class="app-ico ${size}" data-tone="${tone(s.color)}" aria-hidden="true">${h(abbr(s.name))}</span>`;
-const modeIcon = (key, icon) => `<span class="app-ico" data-tone="${MODE_TONE[key] || 'blau'}" aria-hidden="true">${ICON[icon]}</span>`;
+// Runde Icons
+const subjectIcon = (s, size = '') => `<span class="dot-ico ${size}" data-tone="${tone(s.color)}" aria-hidden="true">${h(abbr(s.name))}</span>`;
+const modeIcon = (key, icon) => `<span class="dot-ico" data-tone="${MODE_TONE[key] || 'blau'}" aria-hidden="true">${ICON[icon]}</span>`;
+const plainIcon = (inner, t = 'blau') => `<span class="dot-ico" data-tone="${t}" aria-hidden="true">${inner}</span>`;
 
-// Eine Zeile einer gruppierten Liste
-function cell({ href, act, id, icon = '', title, sub = '', right = '', chev = true, cls = '' }) {
-  const inner = `${icon}<span class="cell-txt"><span class="cell-title">${title}</span>${sub ? `<span class="cell-sub">${sub}</span>` : ''}</span>${right ? `<span class="cell-right">${right}</span>` : ''}${chev ? CHEV : ''}`;
-  if (href) return `<a class="cell ${cls}" href="${href}">${inner}</a>`;
-  if (act) return `<button class="cell ${cls}" data-act="${act}" ${id ? `data-id="${id}"` : ''}>${inner}</button>`;
-  return `<div class="cell ${cls}">${inner}</div>`;
+// Zeile in einer Karte
+function cell({ href, act, id, icon = '', title, sub = '', right = '', rightSub = '', chev = false, cls = '', attrs = '' }) {
+  const inner = `${icon}<span class="row-txt"><span class="row-title">${title}</span>${sub ? `<span class="row-sub">${sub}</span>` : ''}</span>${right || rightSub ? `<span class="row-right">${right ? `<b>${right}</b>` : ''}${rightSub ? `<small>${rightSub}</small>` : ''}</span>` : ''}${chev ? CHEV : ''}`;
+  if (href) return `<a class="rv-row ${cls}" href="${href}" ${attrs}>${inner}</a>`;
+  if (act) return `<button class="rv-row ${cls}" data-act="${act}" ${id ? `data-id="${id}"` : ''} ${attrs}>${inner}</button>`;
+  return `<div class="rv-row ${cls}" ${attrs}>${inner}</div>`;
 }
-const group = (title, rows, foot = '') => rows ? `<section class="group">${title ? `<h2 class="group-title">${title}</h2>` : ''}<div class="cells">${rows}</div>${foot ? `<p class="group-foot">${foot}</p>` : ''}</section>` : '';
+// Weiße Karte mit Titel und optionalem Link rechts
+const group = (title, rows, foot = '', link = '') => rows ? `<section class="rv-card">${title || link ? `<header class="rv-card-head">${title ? `<h2>${title}</h2>` : '<span></span>'}${link}</header>` : ''}<div class="rv-rows">${rows}</div>${foot ? `<p class="rv-foot">${foot}</p>` : ''}</section>` : '';
+
+// Runder Aktions-Knopf im Kopf (wie "Geld hinzufügen")
+const action = ({ href, act, id, icon, label, cls = '' }) => href
+  ? `<a class="rv-action ${cls}" href="${href}"><span class="rv-action-ico">${icon}</span><span>${label}</span></a>`
+  : `<button class="rv-action ${cls}" ${act ? `data-act="${act}"` : ''} ${id ? `data-id="${id}"` : ''}><span class="rv-action-ico">${icon}</span><span>${label}</span></button>`;
+
+// Verlaufs-Kopf mit großer Zahl
+function hero({ top = '', label = '', big = '', unit = '', chip = '', actions = [], cls = '' }) {
+  return `<section class="rv-hero ${cls}">
+    ${top ? `<div class="rv-top">${top}</div>` : ''}
+    <div class="rv-figure">
+      ${label ? `<p class="rv-label">${label}</p>` : ''}
+      <p class="rv-big">${big}${unit ? `<span class="rv-unit">${unit}</span>` : ''}</p>
+      ${chip}
+    </div>
+    ${actions.length ? `<div class="rv-actions">${actions.join('')}</div>` : ''}
+  </section>`;
+}
 
 // Test, an dem gerade gelernt werden sollte: nächster Test mit Datum, sonst zuletzt gelernter
 function focusTest() {
@@ -2792,45 +2764,66 @@ function focusTest() {
   return withCards.sort((a, b) => lastOf(b) - lastOf(a))[0] || null;
 }
 
-// Die Karteikarte: das eine auffällige Element der App
-function focusCard(t) {
-  if (!t) return `<article class="index-card"><div class="ic-head"><span>Los geht's</span></div>
-    <div class="ic-body"><p class="ic-title">Fach öffnen, Test anlegen, Arbeitsblatt fotografieren.</p><p class="ic-meta">Daraus macht die App Karteikarten, Quiz und Probetest.</p></div></article>`;
-  const s = S.subject(t.subjectId);
-  const cards = S.cardsOf(t.id);
-  const { sure, pct, due } = cardStats(cards);
-  return `<article class="index-card">
-    <div class="ic-head"><span>${h(abbr(s.name))} · ${h(longName(s.name))}</span>${t.date ? `<span class="ic-date">${countdownText(t.date)}</span>` : ''}</div>
-    <div class="ic-body">
-      <a class="ic-title" href="#/test/${t.id}">${h(t.title)}</a>
-      <div class="ic-progress"><div class="meter" role="img" aria-label="${pct} Prozent sicher"><i style="width:${pct}%"></i></div><span>${sure}/${cards.length} sicher</span></div>
-      <a class="btn primary big" href="#/lernen/${t.id}/wiederholen">${due ? `Weiterlernen · ${due} fällig` : 'Weiterlernen'}</a>
-    </div>
-  </article>`;
+// Kopf der Startseite
+function homeHero(top) {
+  const st = S.get();
+  const t = focusTest();
+  const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
+  const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
+  const n = due || fresh;
+  const chip = t ? `<a class="rv-chip" href="#/test/${t.id}">${h(abbr(S.subject(t.subjectId).name))} · ${h(t.title.length > 34 ? t.title.slice(0, 32) + '…' : t.title)}${DOWN}</a>` : '<span class="rv-chip">Noch kein Test</span>';
+  return hero({
+    top, label: due ? 'Heute fällig' : 'Neue Karten', big: String(n), unit: n === 1 ? 'Karte' : 'Karten', chip,
+    actions: t ? [
+      action({ href: '#/lernen/alle/wiederholen', icon: ICON.repeat, label: 'Lernen' }),
+      action({ href: `#/lernen/${t.id}/quiz`, icon: ICON.quiz, label: 'Quiz' }),
+      action({ href: `#/lernen/${t.id}/probetest`, icon: ICON.exam, label: 'Probetest' }),
+      action({ href: `#/test/${t.id}/material`, icon: PLUS, label: 'Material' }),
+    ] : [],
+  });
+}
+
+// Zwei kleine Kennzahl-Karten
+function statTiles() {
+  const st = S.get();
+  const sure = st.cards.filter((c) => S.progressOf(c.id).box >= 3).length;
+  const pct = st.cards.length ? Math.round(sure / st.cards.length * 100) : 0;
+  const streak = S.streakDays();
+  return `<div class="rv-tiles">
+    <a class="rv-tile" href="#/lernen/alle/wiederholen"><small>Sicher gelernt</small><b>${pct}<span>%</span></b><div class="rv-meter"><i style="width:${pct}%"></i></div><small>${sure} von ${st.cards.length} Karten</small></a>
+    <div class="rv-tile"><small>Lernserie</small><b>${streak}<span>${streak === 1 ? 'Tag' : 'Tage'}</span></b><div class="rv-days">${[...Array(7)].map((_, i) => `<i class="${i < Math.min(streak, 7) ? 'on' : ''}"></i>`).join('')}</div><small>am Stück gelernt</small></div>
+  </div>`;
 }
 
 function subjectCell(s) {
   const tests = S.testsOf(s.id);
   const cards = S.get().cards.filter((c) => tests.some((t) => t.id === c.testId));
   const { pct } = cardStats(cards);
-  return cell({ href: `#/fach/${s.id}`, icon: subjectIcon(s), title: h(longName(s.name)), sub: tests.length ? `${plural(tests.length, 'Test', 'Tests')} · ${plural(cards.length, 'Karte', 'Karten')}` : 'Noch kein Test', right: cards.length ? `${pct} %` : '' });
+  return cell({ href: `#/fach/${s.id}`, icon: subjectIcon(s), title: h(longName(s.name)), sub: tests.length ? plural(tests.length, 'Test', 'Tests') : 'Noch kein Test', right: cards.length ? `${pct} %` : '', rightSub: cards.length ? plural(cards.length, 'Karte', 'Karten') : '' });
 }
 
 function testCell(t) {
   const cards = S.cardsOf(t.id); const { pct } = cardStats(cards);
-  return cell({ href: `#/test/${t.id}`, title: h(t.title), sub: `${t.date ? `${fmtDate(new Date(t.date + 'T00:00'))} · ` : ''}${plural(cards.length, 'Karte', 'Karten')} · ${pct} % sicher`, right: t.date ? `<span class="due-tag">${countdownText(t.date)}</span>` : '' });
+  const s = S.subject(t.subjectId);
+  return cell({ href: `#/test/${t.id}`, icon: subjectIcon(s), title: h(t.title), sub: t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))}` : `${plural(cards.length, 'Karte', 'Karten')}`, right: t.date ? countdownText(t.date) : `${pct} %`, rightSub: t.date ? `${pct} % sicher` : 'sicher' });
 }
 
-// Kopf einer Testseite: Fortschritt und Hauptknopf
-function testHeader(t) {
+// Kopf einer Testseite
+function testHero(t, top) {
   const s = S.subject(t.subjectId);
   const cards = S.cardsOf(t.id); const { sure, pct, due } = cardStats(cards);
-  return `<header class="test-head">
-    <p class="eyebrow">${subjectIcon(s, 'xs')} ${h(longName(s.name))}${t.date ? ` · Test am ${fmtDate(new Date(t.date + 'T00:00'))}` : ''}</p>
-    <h1 class="large-title">${h(t.title)}</h1>
-    ${cards.length ? `<div class="ic-progress wide"><div class="meter"><i style="width:${pct}%"></i></div><span>${sure} von ${cards.length} Karten sicher</span></div>
-    <a class="btn primary big" href="#/lernen/${t.id}/wiederholen">${due ? `Weiterlernen · ${due} fällig` : 'Weiterlernen'}</a>` : ''}
-  </header>`;
+  return hero({
+    top, cls: 'small',
+    label: `${h(abbr(s.name))} · ${h(t.title)}`,
+    big: String(pct), unit: '% sicher',
+    chip: `<span class="rv-chip static">${sure} von ${cards.length} Karten${t.date ? ` · Test ${countdownText(t.date)}` : ''}</span>`,
+    actions: cards.length ? [
+      action({ href: `#/lernen/${t.id}/wiederholen`, icon: ICON.repeat, label: due ? `Lernen (${due})` : 'Lernen' }),
+      action({ href: `#/lernen/${t.id}/quiz`, icon: ICON.quiz, label: 'Quiz' }),
+      action({ href: `#/lernen/${t.id}/ankreuzen`, icon: ICON.check, label: 'Ankreuzen' }),
+      action({ href: `#/lernen/${t.id}/probetest`, icon: ICON.exam, label: 'Probetest' }),
+    ] : [action({ href: `#/test/${t.id}/material`, icon: PLUS, label: 'Material' })],
+  });
 }
 
 // Inhalt des Reiters "Lernen"
@@ -2840,14 +2833,14 @@ function learnHtml(t) {
   const last = S.resultsOf(t.id).at(-1);
   const tps = topicsOf(cards, S.docsOf(t.id));
   const modes = MODES.filter((m) => !['wiederholen', 'probetest', 'schreiben'].includes(m.key));
-  const topicIcon = (k) => `<span class="app-ico" data-tone="${k === 'begriffe' ? 'lila' : k.startsWith('liste:') ? 'gruen' : k === 'zeit' ? 'orange' : 'grau'}" aria-hidden="true">${k.startsWith('doc:') ? ICON.cards : k === 'zeit' ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>' : ICON.check}</span>`;
+  const topicIcon = (k) => plainIcon(k.startsWith('doc:') ? ICON.cards : k === 'zeit' ? svg('<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>') : ICON.check, k === 'begriffe' ? 'lila' : k.startsWith('liste:') ? 'gruen' : k === 'zeit' ? 'orange' : 'grau');
   return `
-    ${stars.length ? `<section class="group"><h2 class="group-title">Kommt im Test dran</h2><div class="cells">
-      ${stars.map((c) => `<details class="cell disclose"><summary><span class="star" aria-hidden="true">★</span><span class="cell-txt"><span class="cell-title">${h(c.q)}</span></span><span class="cell-right">Antwort</span></summary><div class="disclose-body">${h(c.a)}</div></details>`).join('')}
+    ${stars.length ? `<section class="rv-card"><header class="rv-card-head"><h2>Kommt im Test dran</h2></header><div class="rv-rows">
+      ${stars.map((c) => `<details class="rv-row disclose"><summary>${plainIcon('★', 'gelb')}<span class="row-txt"><span class="row-title">${h(c.q)}</span></span><span class="rv-pill">Antwort</span></summary><div class="disclose-body">${h(c.a)}</div></details>`).join('')}
     </div></section>` : ''}
-    ${group('', cell({ href: `#/lernen/${t.id}/probetest`, icon: modeIcon('probetest', 'exam'), title: 'Probetest schreiben', sub: last ? `Letzte Note: ${last.grade} – ${h(last.gradeText || '')}` : 'Gemischte Aufgaben, Note nach IHK-Schlüssel', cls: modeAvailable('probetest', cards) ? 'strong' : 'disabled' }))}
-    ${tps.length ? group('Abfragen nach Thema', tps.map((tp) => cell({ href: `#/lernen/${t.id}/thema/${encodeURIComponent(tp.key)}`, icon: topicIcon(tp.key), title: h(tp.label), sub: h(tp.sub) })).join('')) : ''}
-    ${group('Üben', modes.map((m) => cell({ href: `#/lernen/${t.id}/${m.key}`, icon: modeIcon(m.key, m.icon), title: m.title, sub: m.text, cls: modeAvailable(m.key, cards) ? '' : 'disabled' })).join(''),
+    ${tps.length ? group('Abfragen nach Thema', tps.map((tp) => cell({ href: `#/lernen/${t.id}/thema/${encodeURIComponent(tp.key)}`, icon: topicIcon(tp.key), title: h(tp.label), sub: h(tp.sub), chev: true })).join('')) : ''}
+    ${group('Üben', modes.map((m) => cell({ href: `#/lernen/${t.id}/${m.key}`, icon: modeIcon(m.key, m.icon), title: m.title, sub: m.text, chev: true, cls: modeAvailable(m.key, cards) ? '' : 'disabled' })).join('') +
+      cell({ href: `#/lernen/${t.id}/probetest`, icon: modeIcon('probetest', 'exam'), title: 'Probetest', sub: last ? `Letzte Note: ${last.grade} – ${h(last.gradeText || '')}` : 'Gemischte Aufgaben, Note nach IHK-Schlüssel', chev: true, cls: modeAvailable('probetest', cards) ? '' : 'disabled' }),
       modeAvailable('schreiben', cards) ? `Lieber selbst formulieren? <a href="#/lernen/${t.id}/schreiben">Antwort schreiben</a>` : '')}`;
 }
 
@@ -2860,7 +2853,7 @@ function searchHtml(q) {
   return rows ? group('Treffer', rows) : '<p class="empty-note">Nichts gefunden.</p>';
 }
 
-return { abbr, longName, tone, ARROW, SEARCH, PEN, BACK, CHEV, PLUS, cardStats, subjectIcon, modeIcon, cell, group, focusTest, focusCard, subjectCell, testCell, testHeader, learnHtml, searchHtml };
+return { abbr, longName, tone, ARROW, SEARCH, PEN, BACK, CHEV, PLUS, BOLT, UPLOAD, DOWN, cardStats, subjectIcon, modeIcon, cell, group, action, hero, focusTest, homeHero, statTiles, subjectCell, testCell, testHero, learnHtml, searchHtml };
 })();
 
 __m.handy = (() => {
@@ -2927,13 +2920,13 @@ function openSheet(html, onSubmit) {
   return f;
 }
 const sheetButtons = (ok, extra = '') => `<div class="sheet-actions">${extra}<button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary" value="ok">${ok}</button></div>`;
-const swatches = (cur) => `<div class="swatches" role="radiogroup" aria-label="Farbe">${COLORS.map((c) => `<label title="${COLOR_NAME[c]}"><input type="radio" name="color" value="${c}" ${c === cur ? 'checked' : ''} aria-label="${COLOR_NAME[c]}"><span class="app-ico" data-tone="${c}"></span></label>`).join('')}</div>`;
+const swatches = (cur) => `<div class="swatches" role="radiogroup" aria-label="Farbe">${COLORS.map((c) => `<label title="${COLOR_NAME[c]}"><input type="radio" name="color" value="${c}" ${c === cur ? 'checked' : ''} aria-label="${COLOR_NAME[c]}"><span class="dot-ico" data-tone="${c}"></span></label>`).join('')}</div>`;
 
 // Aktionsliste wie das iOS-Aktionsmenü
 function actionSheet(title, actions) {
   sheet.innerHTML = `<div class="grabber" aria-hidden="true"></div><div class="stack">
     <p class="sheet-title">${h(title)}</p>
-    <div class="cells">${actions.map((a, i) => `<button class="cell ${a.danger ? 'danger' : ''}" data-i="${i}"><span class="cell-txt"><span class="cell-title">${a.label}</span></span></button>`).join('')}</div>
+    <div class="rv-rows">${actions.map((a, i) => `<button class="rv-row ${a.danger ? 'danger' : ''}" data-i="${i}"><span class="row-txt"><span class="row-title">${a.label}</span></span></button>`).join('')}</div>
     <button class="btn big" data-close>Abbrechen</button></div>`;
   sheet.showModal();
   $$('[data-close]', sheet).forEach((b) => b.onclick = () => sheet.close());
@@ -2944,34 +2937,27 @@ function confirmSheet(text, label, action) {
 }
 
 // ---------- Start ----------
+const topBtn = (attrs, icon, label) => `<${attrs.startsWith('href') ? 'a' : 'button'} class="rv-icon-btn" ${attrs} aria-label="${label}">${icon}</${attrs.startsWith('href') ? 'a' : 'button'}>`;
+const subTop = (back, title, right = '') => `${topBtn(`href="${back}"`, V.BACK, 'Zurück')}<span class="rv-top-title">${title}</span>${right || '<span></span>'}`;
+
 function viewHome() {
   const st = S.get();
-  const now = new Date();
-  const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
-  const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
-  const sure = st.cards.filter((c) => S.progressOf(c.id).box >= 3).length;
-  const streak = S.streakDays();
   const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  const top = `<span class="rv-avatar" aria-hidden="true">L</span>
+    <label class="rv-search">${V.SEARCH}<input type="search" id="find" placeholder="Suchen" aria-label="Fächer und Tests durchsuchen"></label>
+    ${topBtn('id="newSubject"', V.PLUS, 'Fach anlegen')}`;
   main.innerHTML = `
-    ${navbar({ title: 'Lernen', right: navBtn('newSubject', 'Fach anlegen', V.PLUS) })}
-    <header class="page-head">
-      <p class="eyebrow">${WD[now.getDay()]}, ${now.getDate()}. ${MON[now.getMonth()]}</p>
-      <h1 class="large-title">Lernen</h1>
-    </header>
-    <label class="search">${V.SEARCH}<input type="search" id="find" placeholder="Fächer und Tests durchsuchen" aria-label="Fächer und Tests durchsuchen"></label>
-    <div id="results" hidden></div>
-    <div id="homeBody" class="stack-l">
-      ${V.focusCard(V.focusTest())}
-      <a class="stats" href="#/lernen/alle/wiederholen" aria-label="Wiederholen">
-        <span><b>${due || fresh}</b><small>${due ? 'heute fällig' : 'neue Karten'}</small></span>
-        <span><b>${sure}</b><small>sicher gelernt</small></span>
-        <span><b>${streak}</b><small>${streak === 1 ? 'Tag' : 'Tage'} am Stück</small></span>
-      </a>
-      ${upcoming.length ? V.group('Nächste Tests', upcoming.slice(0, 3).map(V.testCell).join('')) : ''}
-      ${V.group('Fächer', st.subjects.map(V.subjectCell).join('') + V.cell({ act: 'x', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Fach anlegen</span>', chev: false, cls: 'add-row' }))}
+    ${V.homeHero(top)}
+    <div class="rv-body">
+      <div id="results" hidden></div>
+      <div id="homeBody" class="stack-l">
+        ${V.statTiles()}
+        ${upcoming.length ? V.group('Nächste Tests', upcoming.slice(0, 3).map(V.testCell).join('')) : ''}
+        ${V.group('Fächer', st.subjects.map(V.subjectCell).join(''), '', '<button class="rv-link" id="addSubject">Hinzufügen</button>')}
+      </div>
     </div>`;
   $('#newSubject').onclick = newSubject;
-  $('.add-row').onclick = newSubject;
+  $('#addSubject').onclick = newSubject;
   const find = $('#find'), res = $('#results'), body = $('#homeBody');
   find.oninput = () => {
     const q = find.value.trim().toLowerCase();
@@ -2992,12 +2978,19 @@ function newSubject() {
 function viewSubject(id) {
   const s = S.subject(id);
   const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+  const cards = S.get().cards.filter((c) => tests.some((t) => t.id === c.testId));
+  const { sure, pct } = V.cardStats(cards);
   main.innerHTML = `
-    ${navbar({ back: '#/', backLabel: 'Lernen', title: h(V.longName(s.name)), right: navBtn('editS', 'Fach bearbeiten', V.PEN) })}
-    <header class="page-head subject-head">${V.subjectIcon(s, 'lg')}<h1 class="large-title">${h(V.longName(s.name))}</h1></header>
-    ${V.group('Tests', tests.map(V.testCell).join('') + V.cell({ act: 'x', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Test anlegen</span>', chev: false, cls: 'add-row' }),
-      tests.length ? '' : 'Lege einen Test an und fotografiere dann deine Arbeitsblätter.')}`;
-  $('.add-row').onclick = () => openSheet(`<h2 class="sheet-h">Neuer Test</h2>
+    ${V.hero({
+      cls: 'small', top: subTop('#/', h(V.longName(s.name)), topBtn('id="editS"', V.PEN, 'Fach bearbeiten')),
+      label: `${h(V.abbr(s.name))} · ${h(V.longName(s.name))}`, big: String(pct), unit: '% sicher',
+      chip: `<span class="rv-chip static">${plural(tests.length, 'Test', 'Tests')} · ${sure} von ${cards.length} Karten</span>`,
+      actions: [V.action({ act: 'x', icon: V.PLUS, label: 'Neuer Test', cls: 'new-test' })],
+    })}
+    <div class="rv-body stack-l">
+      ${tests.length ? V.group('Tests', tests.map(V.testCell).join('')) : '<div class="rv-card empty"><p class="empty-title">Noch kein Test</p><p>Lege einen Test an und fotografiere dann deine Arbeitsblätter.</p></div>'}
+    </div>`;
+  $('.new-test').onclick = () => openSheet(`<h2 class="sheet-h">Neuer Test</h2>
     <label class="field">Thema<input type="text" name="title" required placeholder="z. B. Kaufvertrag, Unit 3"></label>
     <label class="field">Datum <span class="muted small">(optional)</span><input type="date" name="date" min="${isoDate()}"></label>
     ${sheetButtons('Anlegen')}`,
@@ -3013,14 +3006,15 @@ function viewSubject(id) {
 }
 
 // ---------- Test ----------
-const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spick']];
+const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spickzettel']];
 function viewTest(id, tab) {
   const t = S.test(id); const s = S.subject(t.subjectId);
   main.innerHTML = `
-    ${navbar({ back: `#/fach/${s.id}`, backLabel: V.longName(s.name), title: h(t.title), right: navBtn('editT', 'Test bearbeiten', V.PEN) })}
-    ${V.testHeader(t)}
-    <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
-    <div id="tab" class="stack-l"></div>`;
+    ${V.testHero(t, subTop(`#/fach/${s.id}`, h(V.longName(s.name)), topBtn('id="editT"', V.PEN, 'Test bearbeiten')))}
+    <div class="rv-body stack-l">
+      <nav class="rv-pills" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
+      <div id="tab" class="stack-l"></div>
+    </div>`;
   $('#editT').onclick = () => openSheet(`<h2 class="sheet-h">Test bearbeiten</h2>
     <label class="field">Thema<input type="text" name="title" required value="${h(t.title)}"></label>
     <label class="field">Datum<input type="date" name="date" value="${h(t.date)}"></label>
@@ -3035,7 +3029,7 @@ function viewTest(id, tab) {
 
 function tabLearn(el, t) {
   if (!S.cardsOf(t.id).length) {
-    el.innerHTML = `<div class="empty"><p class="empty-title">Noch keine Karten</p><p>Fotografiere deine Arbeitsblätter oder lade PDF- und Word-Dateien hoch. Daraus entstehen die Abfragen.</p>
+    el.innerHTML = `<div class="rv-card empty"><p class="empty-title">Noch keine Karten</p><p>Fotografiere deine Arbeitsblätter oder lade PDF- und Word-Dateien hoch. Daraus entstehen die Abfragen.</p>
       <a class="btn primary big" href="#/test/${t.id}/material">Material hinzufügen</a></div>`;
     return;
   }
@@ -3050,12 +3044,12 @@ function tabMaterial(el, t) {
   const docs = S.docsOf(t.id);
   el.innerHTML = `
     ${V.group('Hinzufügen', [
-      `<label class="cell">${`<span class="app-ico" data-tone="blau">${CAM}</span>`}<span class="cell-txt"><span class="cell-title">Foto aufnehmen</span><span class="cell-sub">Arbeitsblatt, Heftseite, Tafelbild</span></span>${V.CHEV}<input type="file" id="cam" accept="image/*" capture="environment" hidden></label>`,
-      `<label class="cell"><span class="app-ico" data-tone="gruen">${DOC}</span><span class="cell-txt"><span class="cell-title">Datei auswählen</span><span class="cell-sub">PDF, Word, PowerPoint, Bilder – auch aus GoodNotes</span></span>${V.CHEV}<input type="file" id="files" multiple accept="${ACCEPT}" hidden></label>`,
-      V.cell({ act: 'x', icon: `<span class="app-ico" data-tone="grau">${TXT}</span>`, title: 'Text einfügen', sub: 'Mitschrift oder Vokabeln abtippen', cls: 'paste-row' }),
+      `<label class="rv-row">${`<span class="dot-ico" data-tone="blau">${CAM}</span>`}<span class="row-txt"><span class="row-title">Foto aufnehmen</span><span class="row-sub">Arbeitsblatt, Heftseite, Tafelbild</span></span>${V.CHEV}<input type="file" id="cam" accept="image/*" capture="environment" hidden></label>`,
+      `<label class="rv-row"><span class="dot-ico" data-tone="gruen">${DOC}</span><span class="row-txt"><span class="row-title">Datei auswählen</span><span class="row-sub">PDF, Word, PowerPoint, Bilder – auch aus GoodNotes</span></span>${V.CHEV}<input type="file" id="files" multiple accept="${ACCEPT}" hidden></label>`,
+      V.cell({ act: 'x', icon: `<span class="dot-ico" data-tone="grau">${TXT}</span>`, title: 'Text einfügen', sub: 'Mitschrift oder Vokabeln abtippen', cls: 'paste-row' }),
     ].join(''), 'Dateien werden nur auf diesem Gerät gelesen und gespeichert.')}
     <div id="progress"></div>
-    ${docs.length ? V.group('Dokumente', docs.map((d) => V.cell({ act: 'x', icon: `<span class="app-ico" data-tone="${hasOriginal(d) ? 'blau' : 'grau'}">${hasOriginal(d) ? CAM : TXT}</span>`, title: h(d.name), sub: `${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}${hasOriginal(d) ? ' · Blatt vorhanden' : ''}`, cls: 'doc-row" data-doc="' + d.id })).join('')) : ''}`;
+    ${docs.length ? V.group('Dokumente', docs.map((d) => V.cell({ act: 'x', icon: `<span class="dot-ico" data-tone="${hasOriginal(d) ? 'blau' : 'grau'}">${hasOriginal(d) ? CAM : TXT}</span>`, title: h(d.name), sub: `${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}${hasOriginal(d) ? ' · Blatt vorhanden' : ''}`, cls: 'doc-row" data-doc="' + d.id })).join('')) : ''}`;
   $('#cam').onchange = (e) => handleFiles(t, [...e.target.files]);
   $('#files').onchange = (e) => handleFiles(t, [...e.target.files]);
   $('.paste-row').onclick = () => openSheet(`<h2 class="sheet-h">Text einfügen</h2>
@@ -3078,7 +3072,7 @@ async function handleFiles(t, files) {
   const prog = $('#progress');
   let total = 0;
   for (const f of files) {
-    prog.innerHTML = `<div class="progress-card"><b>${h(f.name)}</b><span class="cell-sub" id="pstat">Wird gelesen …</span><div class="meter"><i class="indet"></i></div></div>`;
+    prog.innerHTML = `<div class="progress-card"><b>${h(f.name)}</b><span class="row-sub" id="pstat">Wird gelesen …</span><div class="meter"><i class="indet"></i></div></div>`;
     try {
       const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
       if (!r.text.trim()) throw new Error('Kein Text gefunden. Foto gerade, scharf und hell aufnehmen.');
@@ -3106,7 +3100,7 @@ function readDoc(id) {
     <div class="sheet-actions"><button type="button" class="btn primary" data-close>Fertig</button></div>`, () => {});
 }
 function editDoc(d) {
-  openSheet(`<h2 class="sheet-h">Text korrigieren</h2><p class="cell-sub">Fehler der Texterkennung verbessern. Danach werden die Karten aus diesem Dokument neu erzeugt.</p>
+  openSheet(`<h2 class="sheet-h">Text korrigieren</h2><p class="row-sub">Fehler der Texterkennung verbessern. Danach werden die Karten aus diesem Dokument neu erzeugt.</p>
     <textarea name="text" rows="14">${h(d.text)}</textarea>${sheetButtons('Sichern')}`,
   (fd) => {
     d.text = fd.get('text');
@@ -3126,11 +3120,11 @@ function tabCards(el, t) {
     <div class="seg small" role="group" aria-label="Filter">
       ${[['alle', 'Alle'], ['wichtig', 'Wichtig'], ['eigene', 'Eigene']].map(([k, l]) => `<button data-f="${k}" aria-current="${filter === k ? 'page' : 'false'}">${l}</button>`).join('')}
     </div>
-    ${V.group('', V.cell({ act: 'x', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Eigene Karten hinzufügen</span>', chev: false, cls: 'add-row' }))}
-    ${list.length ? `<section class="group"><div class="cells">${list.slice(0, 200).map((c) => `<div class="cell card-cell" data-card="${c.id}">
-        <span class="cell-txt"><span class="cell-sub">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span><span class="cell-title">${h(c.q)}</span><span class="cell-sub clamp">${h(c.a)}</span></span>
+    ${V.group('', V.cell({ act: 'x', icon: `<span class="dot-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Eigene Karten hinzufügen</span>', chev: false, cls: 'add-row' }))}
+    ${list.length ? `<section class="rv-card"><div class="rv-rows">${list.slice(0, 200).map((c) => `<div class="rv-row card-cell" data-card="${c.id}">
+        <span class="row-txt"><span class="row-sub">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span><span class="row-title">${h(c.q)}</span><span class="row-sub clamp">${h(c.a)}</span></span>
         <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>`).join('')}</div>
-      <p class="group-foot">Automatisch erzeugte Karten können Fehler haben. Karte antippen zum Löschen.</p></section>` : '<p class="empty-note">Keine Karte gefunden.</p>'}`;
+      <p class="rv-foot">Automatisch erzeugte Karten können Fehler haben. Karte antippen zum Löschen.</p></section>` : '<p class="empty-note">Keine Karte gefunden.</p>'}`;
   const q = $('#q');
   q.oninput = () => { query = q.value; const pos = q.selectionStart; tabCards(el, t); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
   $$('[data-f]', el).forEach((b) => b.onclick = () => { filter = b.dataset.f; tabCards(el, t); });
@@ -3143,7 +3137,7 @@ function tabCards(el, t) {
     ]);
   });
   $('.add-row', el).onclick = () => openSheet(`<h2 class="sheet-h">Eigene Karten</h2>
-    <p class="cell-sub">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
+    <p class="row-sub">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
     <textarea name="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
     ${sheetButtons('Hinzufügen')}`,
   (fd) => {
@@ -3172,21 +3166,20 @@ function tabCheat(el, t) {
     return out;
   };
   el.innerHTML = `
-    <section class="group"><h2 class="group-title">Schlüsselbegriffe</h2><div class="terms">${kws.map((k) => `<span class="term">${h(k)}</span>`).join('')}</div></section>
+    <section class="rv-card"><header class="rv-card-head"><h2>Schlüsselbegriffe</h2></header><div class="terms">${kws.map((k) => `<span class="term">${h(k)}</span>`).join('')}</div></section>
     ${gloss.length ? V.group('Begriffe', gloss.map((c) => V.cell({ title: h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, '')), sub: h(c.a), chev: false })).join('')) : ''}
-    <section class="group"><h2 class="group-title">Kernaussagen</h2><ol class="sheet-paper">${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol></section>`;
+    <section class="rv-card"><header class="rv-card-head"><h2>Kernaussagen</h2></header><ol class="sheet-paper">${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol></section>`;
 }
 
 // ---------- Mehr ----------
 function viewMore() {
   const theme = (() => { try { return localStorage.getItem('lernapp.theme') || 'auto'; } catch { return 'auto'; } })();
   main.innerHTML = `
-    ${navbar({ title: 'Mehr' })}
-    <header class="page-head"><h1 class="large-title">Mehr</h1></header>
-    ${V.group('Darstellung', `<div class="cell"><span class="cell-txt"><span class="cell-title">Erscheinungsbild</span></span></div>
-      <div class="cell plainrow"><div class="seg small full" role="group" aria-label="Farbschema">${[['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([k, l]) => `<button data-theme-set="${k}" aria-current="${theme === k ? 'page' : 'false'}">${l}</button>`).join('')}</div></div>`)}
+    <header class="rv-plain-head"><h1>Mehr</h1></header>
+    ${V.group('Darstellung', `<div class="rv-row"><span class="row-txt"><span class="row-title">Erscheinungsbild</span></span></div>
+      <div class="rv-row plainrow"><div class="seg small full" role="group" aria-label="Farbschema">${[['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([k, l]) => `<button data-theme-set="${k}" aria-current="${theme === k ? 'page' : 'false'}">${l}</button>`).join('')}</div></div>`)}
     ${V.group('Sicherung', V.cell({ act: 'x', title: '<span class="link">Sicherung herunterladen</span>', chev: false, cls: 'backup-row' }) +
-      `<label class="cell"><span class="cell-txt"><span class="cell-title link">Sicherung laden</span></span><input type="file" accept=".json,application/json" id="restore" hidden></label>`,
+      `<label class="rv-row"><span class="row-txt"><span class="row-title link">Sicherung laden</span></span><input type="file" accept=".json,application/json" id="restore" hidden></label>`,
       'Dein Lernstand liegt nur in diesem Browser. Lade ab und zu eine Sicherung herunter, z. B. bevor du den Verlauf löschst oder das Handy wechselst.')}
     ${V.group('', V.cell({ act: 'x', title: 'Beispiel laden', sub: 'Deutsch: Eine Frage der Ehre', cls: 'demo-row' }) + V.cell({ href: '../', title: 'PC-Version öffnen', sub: 'Gleiche Funktionen, eigener Speicher' }))}`;
   $('.backup-row').onclick = () => {

@@ -61,13 +61,13 @@ function openSheet(html, onSubmit) {
   return f;
 }
 const sheetButtons = (ok, extra = '') => `<div class="sheet-actions">${extra}<button type="button" class="btn" data-close>Abbrechen</button><button class="btn primary" value="ok">${ok}</button></div>`;
-const swatches = (cur) => `<div class="swatches" role="radiogroup" aria-label="Farbe">${COLORS.map((c) => `<label title="${COLOR_NAME[c]}"><input type="radio" name="color" value="${c}" ${c === cur ? 'checked' : ''} aria-label="${COLOR_NAME[c]}"><span class="app-ico" data-tone="${c}"></span></label>`).join('')}</div>`;
+const swatches = (cur) => `<div class="swatches" role="radiogroup" aria-label="Farbe">${COLORS.map((c) => `<label title="${COLOR_NAME[c]}"><input type="radio" name="color" value="${c}" ${c === cur ? 'checked' : ''} aria-label="${COLOR_NAME[c]}"><span class="dot-ico" data-tone="${c}"></span></label>`).join('')}</div>`;
 
 // Aktionsliste wie das iOS-Aktionsmenü
 function actionSheet(title, actions) {
   sheet.innerHTML = `<div class="grabber" aria-hidden="true"></div><div class="stack">
     <p class="sheet-title">${h(title)}</p>
-    <div class="cells">${actions.map((a, i) => `<button class="cell ${a.danger ? 'danger' : ''}" data-i="${i}"><span class="cell-txt"><span class="cell-title">${a.label}</span></span></button>`).join('')}</div>
+    <div class="rv-rows">${actions.map((a, i) => `<button class="rv-row ${a.danger ? 'danger' : ''}" data-i="${i}"><span class="row-txt"><span class="row-title">${a.label}</span></span></button>`).join('')}</div>
     <button class="btn big" data-close>Abbrechen</button></div>`;
   sheet.showModal();
   $$('[data-close]', sheet).forEach((b) => b.onclick = () => sheet.close());
@@ -78,34 +78,27 @@ function confirmSheet(text, label, action) {
 }
 
 // ---------- Start ----------
+const topBtn = (attrs, icon, label) => `<${attrs.startsWith('href') ? 'a' : 'button'} class="rv-icon-btn" ${attrs} aria-label="${label}">${icon}</${attrs.startsWith('href') ? 'a' : 'button'}>`;
+const subTop = (back, title, right = '') => `${topBtn(`href="${back}"`, V.BACK, 'Zurück')}<span class="rv-top-title">${title}</span>${right || '<span></span>'}`;
+
 function viewHome() {
   const st = S.get();
-  const now = new Date();
-  const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
-  const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
-  const sure = st.cards.filter((c) => S.progressOf(c.id).box >= 3).length;
-  const streak = S.streakDays();
   const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  const top = `<span class="rv-avatar" aria-hidden="true">L</span>
+    <label class="rv-search">${V.SEARCH}<input type="search" id="find" placeholder="Suchen" aria-label="Fächer und Tests durchsuchen"></label>
+    ${topBtn('id="newSubject"', V.PLUS, 'Fach anlegen')}`;
   main.innerHTML = `
-    ${navbar({ title: 'Lernen', right: navBtn('newSubject', 'Fach anlegen', V.PLUS) })}
-    <header class="page-head">
-      <p class="eyebrow">${WD[now.getDay()]}, ${now.getDate()}. ${MON[now.getMonth()]}</p>
-      <h1 class="large-title">Lernen</h1>
-    </header>
-    <label class="search">${V.SEARCH}<input type="search" id="find" placeholder="Fächer und Tests durchsuchen" aria-label="Fächer und Tests durchsuchen"></label>
-    <div id="results" hidden></div>
-    <div id="homeBody" class="stack-l">
-      ${V.focusCard(V.focusTest())}
-      <a class="stats" href="#/lernen/alle/wiederholen" aria-label="Wiederholen">
-        <span><b>${due || fresh}</b><small>${due ? 'heute fällig' : 'neue Karten'}</small></span>
-        <span><b>${sure}</b><small>sicher gelernt</small></span>
-        <span><b>${streak}</b><small>${streak === 1 ? 'Tag' : 'Tage'} am Stück</small></span>
-      </a>
-      ${upcoming.length ? V.group('Nächste Tests', upcoming.slice(0, 3).map(V.testCell).join('')) : ''}
-      ${V.group('Fächer', st.subjects.map(V.subjectCell).join('') + V.cell({ act: 'x', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Fach anlegen</span>', chev: false, cls: 'add-row' }))}
+    ${V.homeHero(top)}
+    <div class="rv-body">
+      <div id="results" hidden></div>
+      <div id="homeBody" class="stack-l">
+        ${V.statTiles()}
+        ${upcoming.length ? V.group('Nächste Tests', upcoming.slice(0, 3).map(V.testCell).join('')) : ''}
+        ${V.group('Fächer', st.subjects.map(V.subjectCell).join(''), '', '<button class="rv-link" id="addSubject">Hinzufügen</button>')}
+      </div>
     </div>`;
   $('#newSubject').onclick = newSubject;
-  $('.add-row').onclick = newSubject;
+  $('#addSubject').onclick = newSubject;
   const find = $('#find'), res = $('#results'), body = $('#homeBody');
   find.oninput = () => {
     const q = find.value.trim().toLowerCase();
@@ -126,12 +119,19 @@ function newSubject() {
 function viewSubject(id) {
   const s = S.subject(id);
   const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+  const cards = S.get().cards.filter((c) => tests.some((t) => t.id === c.testId));
+  const { sure, pct } = V.cardStats(cards);
   main.innerHTML = `
-    ${navbar({ back: '#/', backLabel: 'Lernen', title: h(V.longName(s.name)), right: navBtn('editS', 'Fach bearbeiten', V.PEN) })}
-    <header class="page-head subject-head">${V.subjectIcon(s, 'lg')}<h1 class="large-title">${h(V.longName(s.name))}</h1></header>
-    ${V.group('Tests', tests.map(V.testCell).join('') + V.cell({ act: 'x', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Test anlegen</span>', chev: false, cls: 'add-row' }),
-      tests.length ? '' : 'Lege einen Test an und fotografiere dann deine Arbeitsblätter.')}`;
-  $('.add-row').onclick = () => openSheet(`<h2 class="sheet-h">Neuer Test</h2>
+    ${V.hero({
+      cls: 'small', top: subTop('#/', h(V.longName(s.name)), topBtn('id="editS"', V.PEN, 'Fach bearbeiten')),
+      label: `${h(V.abbr(s.name))} · ${h(V.longName(s.name))}`, big: String(pct), unit: '% sicher',
+      chip: `<span class="rv-chip static">${plural(tests.length, 'Test', 'Tests')} · ${sure} von ${cards.length} Karten</span>`,
+      actions: [V.action({ act: 'x', icon: V.PLUS, label: 'Neuer Test', cls: 'new-test' })],
+    })}
+    <div class="rv-body stack-l">
+      ${tests.length ? V.group('Tests', tests.map(V.testCell).join('')) : '<div class="rv-card empty"><p class="empty-title">Noch kein Test</p><p>Lege einen Test an und fotografiere dann deine Arbeitsblätter.</p></div>'}
+    </div>`;
+  $('.new-test').onclick = () => openSheet(`<h2 class="sheet-h">Neuer Test</h2>
     <label class="field">Thema<input type="text" name="title" required placeholder="z. B. Kaufvertrag, Unit 3"></label>
     <label class="field">Datum <span class="muted small">(optional)</span><input type="date" name="date" min="${isoDate()}"></label>
     ${sheetButtons('Anlegen')}`,
@@ -147,14 +147,15 @@ function viewSubject(id) {
 }
 
 // ---------- Test ----------
-const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spick']];
+const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spickzettel']];
 function viewTest(id, tab) {
   const t = S.test(id); const s = S.subject(t.subjectId);
   main.innerHTML = `
-    ${navbar({ back: `#/fach/${s.id}`, backLabel: V.longName(s.name), title: h(t.title), right: navBtn('editT', 'Test bearbeiten', V.PEN) })}
-    ${V.testHeader(t)}
-    <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
-    <div id="tab" class="stack-l"></div>`;
+    ${V.testHero(t, subTop(`#/fach/${s.id}`, h(V.longName(s.name)), topBtn('id="editT"', V.PEN, 'Test bearbeiten')))}
+    <div class="rv-body stack-l">
+      <nav class="rv-pills" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
+      <div id="tab" class="stack-l"></div>
+    </div>`;
   $('#editT').onclick = () => openSheet(`<h2 class="sheet-h">Test bearbeiten</h2>
     <label class="field">Thema<input type="text" name="title" required value="${h(t.title)}"></label>
     <label class="field">Datum<input type="date" name="date" value="${h(t.date)}"></label>
@@ -169,7 +170,7 @@ function viewTest(id, tab) {
 
 function tabLearn(el, t) {
   if (!S.cardsOf(t.id).length) {
-    el.innerHTML = `<div class="empty"><p class="empty-title">Noch keine Karten</p><p>Fotografiere deine Arbeitsblätter oder lade PDF- und Word-Dateien hoch. Daraus entstehen die Abfragen.</p>
+    el.innerHTML = `<div class="rv-card empty"><p class="empty-title">Noch keine Karten</p><p>Fotografiere deine Arbeitsblätter oder lade PDF- und Word-Dateien hoch. Daraus entstehen die Abfragen.</p>
       <a class="btn primary big" href="#/test/${t.id}/material">Material hinzufügen</a></div>`;
     return;
   }
@@ -184,12 +185,12 @@ function tabMaterial(el, t) {
   const docs = S.docsOf(t.id);
   el.innerHTML = `
     ${V.group('Hinzufügen', [
-      `<label class="cell">${`<span class="app-ico" data-tone="blau">${CAM}</span>`}<span class="cell-txt"><span class="cell-title">Foto aufnehmen</span><span class="cell-sub">Arbeitsblatt, Heftseite, Tafelbild</span></span>${V.CHEV}<input type="file" id="cam" accept="image/*" capture="environment" hidden></label>`,
-      `<label class="cell"><span class="app-ico" data-tone="gruen">${DOC}</span><span class="cell-txt"><span class="cell-title">Datei auswählen</span><span class="cell-sub">PDF, Word, PowerPoint, Bilder – auch aus GoodNotes</span></span>${V.CHEV}<input type="file" id="files" multiple accept="${ACCEPT}" hidden></label>`,
-      V.cell({ act: 'x', icon: `<span class="app-ico" data-tone="grau">${TXT}</span>`, title: 'Text einfügen', sub: 'Mitschrift oder Vokabeln abtippen', cls: 'paste-row' }),
+      `<label class="rv-row">${`<span class="dot-ico" data-tone="blau">${CAM}</span>`}<span class="row-txt"><span class="row-title">Foto aufnehmen</span><span class="row-sub">Arbeitsblatt, Heftseite, Tafelbild</span></span>${V.CHEV}<input type="file" id="cam" accept="image/*" capture="environment" hidden></label>`,
+      `<label class="rv-row"><span class="dot-ico" data-tone="gruen">${DOC}</span><span class="row-txt"><span class="row-title">Datei auswählen</span><span class="row-sub">PDF, Word, PowerPoint, Bilder – auch aus GoodNotes</span></span>${V.CHEV}<input type="file" id="files" multiple accept="${ACCEPT}" hidden></label>`,
+      V.cell({ act: 'x', icon: `<span class="dot-ico" data-tone="grau">${TXT}</span>`, title: 'Text einfügen', sub: 'Mitschrift oder Vokabeln abtippen', cls: 'paste-row' }),
     ].join(''), 'Dateien werden nur auf diesem Gerät gelesen und gespeichert.')}
     <div id="progress"></div>
-    ${docs.length ? V.group('Dokumente', docs.map((d) => V.cell({ act: 'x', icon: `<span class="app-ico" data-tone="${hasOriginal(d) ? 'blau' : 'grau'}">${hasOriginal(d) ? CAM : TXT}</span>`, title: h(d.name), sub: `${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}${hasOriginal(d) ? ' · Blatt vorhanden' : ''}`, cls: 'doc-row" data-doc="' + d.id })).join('')) : ''}`;
+    ${docs.length ? V.group('Dokumente', docs.map((d) => V.cell({ act: 'x', icon: `<span class="dot-ico" data-tone="${hasOriginal(d) ? 'blau' : 'grau'}">${hasOriginal(d) ? CAM : TXT}</span>`, title: h(d.name), sub: `${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}${hasOriginal(d) ? ' · Blatt vorhanden' : ''}`, cls: 'doc-row" data-doc="' + d.id })).join('')) : ''}`;
   $('#cam').onchange = (e) => handleFiles(t, [...e.target.files]);
   $('#files').onchange = (e) => handleFiles(t, [...e.target.files]);
   $('.paste-row').onclick = () => openSheet(`<h2 class="sheet-h">Text einfügen</h2>
@@ -212,7 +213,7 @@ async function handleFiles(t, files) {
   const prog = $('#progress');
   let total = 0;
   for (const f of files) {
-    prog.innerHTML = `<div class="progress-card"><b>${h(f.name)}</b><span class="cell-sub" id="pstat">Wird gelesen …</span><div class="meter"><i class="indet"></i></div></div>`;
+    prog.innerHTML = `<div class="progress-card"><b>${h(f.name)}</b><span class="row-sub" id="pstat">Wird gelesen …</span><div class="meter"><i class="indet"></i></div></div>`;
     try {
       const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
       if (!r.text.trim()) throw new Error('Kein Text gefunden. Foto gerade, scharf und hell aufnehmen.');
@@ -240,7 +241,7 @@ function readDoc(id) {
     <div class="sheet-actions"><button type="button" class="btn primary" data-close>Fertig</button></div>`, () => {});
 }
 function editDoc(d) {
-  openSheet(`<h2 class="sheet-h">Text korrigieren</h2><p class="cell-sub">Fehler der Texterkennung verbessern. Danach werden die Karten aus diesem Dokument neu erzeugt.</p>
+  openSheet(`<h2 class="sheet-h">Text korrigieren</h2><p class="row-sub">Fehler der Texterkennung verbessern. Danach werden die Karten aus diesem Dokument neu erzeugt.</p>
     <textarea name="text" rows="14">${h(d.text)}</textarea>${sheetButtons('Sichern')}`,
   (fd) => {
     d.text = fd.get('text');
@@ -260,11 +261,11 @@ function tabCards(el, t) {
     <div class="seg small" role="group" aria-label="Filter">
       ${[['alle', 'Alle'], ['wichtig', 'Wichtig'], ['eigene', 'Eigene']].map(([k, l]) => `<button data-f="${k}" aria-current="${filter === k ? 'page' : 'false'}">${l}</button>`).join('')}
     </div>
-    ${V.group('', V.cell({ act: 'x', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Eigene Karten hinzufügen</span>', chev: false, cls: 'add-row' }))}
-    ${list.length ? `<section class="group"><div class="cells">${list.slice(0, 200).map((c) => `<div class="cell card-cell" data-card="${c.id}">
-        <span class="cell-txt"><span class="cell-sub">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span><span class="cell-title">${h(c.q)}</span><span class="cell-sub clamp">${h(c.a)}</span></span>
+    ${V.group('', V.cell({ act: 'x', icon: `<span class="dot-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Eigene Karten hinzufügen</span>', chev: false, cls: 'add-row' }))}
+    ${list.length ? `<section class="rv-card"><div class="rv-rows">${list.slice(0, 200).map((c) => `<div class="rv-row card-cell" data-card="${c.id}">
+        <span class="row-txt"><span class="row-sub">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span><span class="row-title">${h(c.q)}</span><span class="row-sub clamp">${h(c.a)}</span></span>
         <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>`).join('')}</div>
-      <p class="group-foot">Automatisch erzeugte Karten können Fehler haben. Karte antippen zum Löschen.</p></section>` : '<p class="empty-note">Keine Karte gefunden.</p>'}`;
+      <p class="rv-foot">Automatisch erzeugte Karten können Fehler haben. Karte antippen zum Löschen.</p></section>` : '<p class="empty-note">Keine Karte gefunden.</p>'}`;
   const q = $('#q');
   q.oninput = () => { query = q.value; const pos = q.selectionStart; tabCards(el, t); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
   $$('[data-f]', el).forEach((b) => b.onclick = () => { filter = b.dataset.f; tabCards(el, t); });
@@ -277,7 +278,7 @@ function tabCards(el, t) {
     ]);
   });
   $('.add-row', el).onclick = () => openSheet(`<h2 class="sheet-h">Eigene Karten</h2>
-    <p class="cell-sub">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
+    <p class="row-sub">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
     <textarea name="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
     ${sheetButtons('Hinzufügen')}`,
   (fd) => {
@@ -306,21 +307,20 @@ function tabCheat(el, t) {
     return out;
   };
   el.innerHTML = `
-    <section class="group"><h2 class="group-title">Schlüsselbegriffe</h2><div class="terms">${kws.map((k) => `<span class="term">${h(k)}</span>`).join('')}</div></section>
+    <section class="rv-card"><header class="rv-card-head"><h2>Schlüsselbegriffe</h2></header><div class="terms">${kws.map((k) => `<span class="term">${h(k)}</span>`).join('')}</div></section>
     ${gloss.length ? V.group('Begriffe', gloss.map((c) => V.cell({ title: h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, '')), sub: h(c.a), chev: false })).join('')) : ''}
-    <section class="group"><h2 class="group-title">Kernaussagen</h2><ol class="sheet-paper">${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol></section>`;
+    <section class="rv-card"><header class="rv-card-head"><h2>Kernaussagen</h2></header><ol class="sheet-paper">${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol></section>`;
 }
 
 // ---------- Mehr ----------
 function viewMore() {
   const theme = (() => { try { return localStorage.getItem('lernapp.theme') || 'auto'; } catch { return 'auto'; } })();
   main.innerHTML = `
-    ${navbar({ title: 'Mehr' })}
-    <header class="page-head"><h1 class="large-title">Mehr</h1></header>
-    ${V.group('Darstellung', `<div class="cell"><span class="cell-txt"><span class="cell-title">Erscheinungsbild</span></span></div>
-      <div class="cell plainrow"><div class="seg small full" role="group" aria-label="Farbschema">${[['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([k, l]) => `<button data-theme-set="${k}" aria-current="${theme === k ? 'page' : 'false'}">${l}</button>`).join('')}</div></div>`)}
+    <header class="rv-plain-head"><h1>Mehr</h1></header>
+    ${V.group('Darstellung', `<div class="rv-row"><span class="row-txt"><span class="row-title">Erscheinungsbild</span></span></div>
+      <div class="rv-row plainrow"><div class="seg small full" role="group" aria-label="Farbschema">${[['auto', 'Automatisch'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([k, l]) => `<button data-theme-set="${k}" aria-current="${theme === k ? 'page' : 'false'}">${l}</button>`).join('')}</div></div>`)}
     ${V.group('Sicherung', V.cell({ act: 'x', title: '<span class="link">Sicherung herunterladen</span>', chev: false, cls: 'backup-row' }) +
-      `<label class="cell"><span class="cell-txt"><span class="cell-title link">Sicherung laden</span></span><input type="file" accept=".json,application/json" id="restore" hidden></label>`,
+      `<label class="rv-row"><span class="row-txt"><span class="row-title link">Sicherung laden</span></span><input type="file" accept=".json,application/json" id="restore" hidden></label>`,
       'Dein Lernstand liegt nur in diesem Browser. Lade ab und zu eine Sicherung herunter, z. B. bevor du den Verlauf löschst oder das Handy wechselst.')}
     ${V.group('', V.cell({ act: 'x', title: 'Beispiel laden', sub: 'Deutsch: Eine Frage der Ehre', cls: 'demo-row' }) + V.cell({ href: '../', title: 'PC-Version öffnen', sub: 'Gleiche Funktionen, eigener Speicher' }))}`;
   $('.backup-row').onclick = () => {

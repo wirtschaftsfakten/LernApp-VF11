@@ -282,7 +282,7 @@ export function listScore(given, answer, need) {
   const found = items.filter((it) => {
     let core = it.split(' ').filter((w) => w.length > 4 && !STOP.has(w) && !/^(richtigen|moment|gute|guten|guter)$/.test(w));
     if (!core.length) core = it.split(' ').filter((w) => w.length > 2);
-    return core.length && core.some((w) => gw.some((v) => v === w || (v.length > 4 && w.length > 4 && levenshtein(v.slice(0, w.length + 1), w) <= 1) || v.startsWith(w.slice(0, Math.max(5, w.length - 2)))));
+    return core.length && core.some((w) => gw.some((v) => v === w || (v.length > 4 && w.length > 4 && levenshtein(v.slice(0, w.length + 1), w) <= 1) || v.startsWith(w.slice(0, Math.max(5, w.length - 2))) || (v.length >= 6 && w.startsWith(v))));
   });
   return { found: found.length, need, score: Math.min(1, found.length / need) };
 }

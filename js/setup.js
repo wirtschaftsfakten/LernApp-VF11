@@ -50,5 +50,24 @@ export function migrate() {
     }
     st.setup.kurzarbeitV1 = true;
   }
+  // Inhalte auf den Stand der Unterlagen bringen (keine selbst formulierten Antworten mehr)
+  if (!st.setup.unterlagenV2) {
+    const t = st.tests.find((x) => x.title === BEISPIEL.test.title);
+    if (t) {
+      t.notes = BEISPIEL.test.notes;
+      // Früher automatisch gesetztes Datum (Anlage + 9 Tage) entfernen; selbst eingetragene Daten bleiben
+      const auto = new Date(t.createdAt + 9 * 864e5);
+      const autoIso = `${auto.getFullYear()}-${String(auto.getMonth() + 1).padStart(2, '0')}-${String(auto.getDate()).padStart(2, '0')}`;
+      if (t.date === autoIso) t.date = '';
+      for (const bd of BEISPIEL.docs) {
+        const d = S.docsOf(t.id).find((x) => x.name === bd.name || (bd.oldNames || []).includes(x.name));
+        if (!d || (d.text === bd.text && d.name === bd.name)) continue;
+        S.get().cards.filter((c) => c.docId === d.id).forEach((c) => S.deleteCard(c.id));
+        S.deleteDoc(d.id);
+        addBeispielDoc(t.id, bd);
+      }
+    }
+    st.setup.unterlagenV2 = true;
+  }
   S.save();
 }

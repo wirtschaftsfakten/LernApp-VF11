@@ -12,24 +12,25 @@ export const FAECHER = [
   { name: 'PuG – Politik und Gesellschaft', color: 'gruen' },
 ];
 
-// Fragen der Kurzarbeit (von der Parallelklasse) – mit Musterantworten aus dem Text
+// Fragen der Kurzarbeit (so von der Parallelklasse weitergegeben).
+// Antworten NUR aus den Unterlagen: Arbeitsblatt Aufgabe 3 und 4 sowie wörtliche Stellen aus dem Lesetext.
 export const KURZARBEIT = {
-  name: 'Kurzarbeit: erwartete Fragen',
+  name: 'Kurzarbeit: Fragen der Parallelklasse',
+  oldNames: ['Kurzarbeit: erwartete Fragen'],
   kind: 'text',
   highlights: [],
-  text: `Nenne 8 Tugenden des ehrbaren Kaufmanns im Mittelalter.
-Ehrlichkeit, Vorsicht, Misstrauen, Wahrung von Geschäftsgeheimnissen, Wagemut im richtigen Moment, Friedensliebe, Ernsthaftigkeit, Höflichkeit, Klugheit, Ordnung, gute Erscheinung, gute Erziehung
+  text: `Nenne 8 Tugenden.
+Arbeitsblatt Aufgabe 4: gutes Erscheinungsbild, gute Erziehung, Ordnungssinn, Klugheit, Höflichkeit, Friedensliebe, Ehrlichkeit, Vorsicht, Misstrauen, Ernsthaftigkeit, Wagemut im richtigen Moment, Wahrung von Geschäftsgeheimnissen
 
-Was haben die ehrbaren Kaufleute für Eigenschaften?
-Humanistische Grundbildung, umfassendes Fachwissen und ein gefestigter Charakter; praktische Fähigkeiten (Rechnen, Lesen, Sprachkenntnisse, Bildung in Warenkunde, Recht, Geografie und Währung); Gewinnstreben, rationale und emotionale Intelligenz, Organisationstalent, politischer Weitblick; ehrbar wurden sie erst durch tugendhaftes Verhalten.
-
-Weshalb war die Gemeinschaft im Mittelalter so wichtig?
-Kaufleute waren in fremden Städten ohne Reputation und galten oft als Betrüger – erst Gilden und Vereinigungen wie die Hanse schufen als Gütesiegel Vertrauen (Treu und Glauben). Ehre galt als soziales Kapital: Wer betrog, verlor Ruf und Kundenvertrauen und damit seine Existenz. Schande bedeutete Ausschluss aus der Gemeinschaft – keine Ämter mehr, im schlimmsten Fall Vertreibung aus der Stadt. Der ehrbare Kaufmann mehrte seinen eigenen Wohlstand und den der Gemeinschaft und übernahm Verantwortung für seine Heimat.`,
+Was haben die ehrbaren Kaufleute für Eigenschaften und weshalb war Gemeinschaft im Mittelalter so wichtig?
+Eigenschaften (Arbeitsblatt Aufgabe 3): Humanistische Grundbildung, umfassendes Fachwissen, gefestigter Charakter.
+Lesetext: „Ein Kaufmann musste über praktische Fähigkeiten verfügen“ – „Rechnen, Lesen, Sprachkenntnisse, Bildung in den Bereichen Warenkunde, Recht, Geografie und Währung wurden ergänzt durch ein ausgeprägtes Gewinnstreben, durch rationale und emotionale Intelligenz, Organisationstalent sowie politischen Weitblick“.
+Gemeinschaft (Lesetext): Wer betrog, täuschte oder Pleite machte, verlor seinen guten Ruf und das Vertrauen seiner Kunden, was unweigerlich zu seinem Ruin führte. Schande sei zudem gleichbedeutend mit dem Ausschluss aus der Gemeinschaft gewesen. So durfte ein schandhafter Kaufmann keine Ämter mehr bekleiden und wurde im schlimmsten Fall aus der Stadt getrieben. „Ein ehrbarer Kaufmann tat sich Gutes, indem er ehrbar wirtschaftete und damit seinen eigenen und den Wohlstand der Gemeinschaft mehrte“.`,
 };
 
 export const BEISPIEL = {
   subject: { name: 'D – Deutsch', color: 'lila' },
-  test: { title: 'Eine Frage der Ehre – Der ehrbare Kaufmann', daysAhead: 9, notes: 'Kurzarbeit: 8 Tugenden, Eigenschaften, Bedeutung der Gemeinschaft. Text, Fragen 1–10, Begriffe.' },
+  test: { title: 'Eine Frage der Ehre – Der ehrbare Kaufmann', daysAhead: 9, notes: 'Kurzarbeit – Fragen der Parallelklasse' },
   docs: [
     KURZARBEIT,
     {
@@ -68,7 +69,7 @@ Andre Gieße – Quelle: Verkehrsrundschau 30/2014`,
       kind: 'text',
       highlights: [],
       text: `1. Welche Probleme hatten die Kaufleute im frühen Mittelalter?
-Das Ansehen in der Bevölkerung war schlecht – man begegnete ihnen mit Skepsis oder hielt sie für Betrüger.
+Das Ansehen in der Bevölkerung war schlecht
 
 2. Wie konnte das Ansehen der Kaufleute verbessert werden?
 Durch die Bildung von Kaufmannsgilden und Vereinigungen (Hanse); sie standen als Gütesiegel für Treu und Glauben.
@@ -77,7 +78,7 @@ Durch die Bildung von Kaufmannsgilden und Vereinigungen (Hanse); sie standen als
 Humanistische Grundbildung, umfassendes Fachwissen, gefestigter Charakter.
 
 4. Was waren im Mittelalter die grundlegenden Tugenden?
-Ehrlichkeit, Vorsicht, Misstrauen, Ernsthaftigkeit, Wahrung von Geschäftsgeheimnissen, Wagemut im richtigen Moment, Friedensliebe, Höflichkeit, Klugheit, Ordnungssinn, gutes Erscheinungsbild, gute Erziehung
+gutes Erscheinungsbild, gute Erziehung, Ordnungssinn, Klugheit, Höflichkeit, Friedensliebe, Ehrlichkeit, Vorsicht, Misstrauen, Ernsthaftigkeit, Wagemut im richtigen Moment, Wahrung von Geschäftsgeheimnissen
 
 5. Welche Kaufleute bildeten im 15. Jahrhundert regelrechte Monopole?
 Fugger & Welser (Süden); Hanse (Norden)
@@ -92,7 +93,8 @@ Zeit der Industrialisierung; gesellschaftliches Ansehen durch größtmöglichen 
 Good Governance, Fair Play, Corporate Social Responsibility
 
 9. Wie sollte sich ein moderner ehrbarer Kaufmann heutzutage verhalten?
-Unternehmensebene: faires Verhalten gegenüber Mitarbeitern, Kunden und Geschäftspartnern – Ziel: langfristige Beziehungen aufbauen. Gesellschaftsebene: Engagement am Standort, Verteidigung der sozialen Marktwirtschaft, Berücksichtigung des Umweltschutzes.`,
+a) Unternehmensebene: Faires Verhalten gegenüber seinen Mitarbeitern, Kunden und Geschäftspartnern. Ziel: Langfristige Beziehung aufbauen.
+b) Gesellschaftsebene: Engagement am Standort des Unternehmens; Verteidigung der sozialen Marktwirtschaft; Berücksichtigung des Umweltschutzes`,
     },
     {
       name: 'Arbeitsblatt: Begriffe (Aufgabe 10)',

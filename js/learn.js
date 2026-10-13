@@ -51,7 +51,9 @@ export function startSession(main, testId, mode) {
   if (!info || !modeAvailable(mode, cards)) { location.hash = back; return; }
 
   const docsText = (all ? S.get().docs : S.docsOf(testId)).map((d) => d.text).join('\n\n');
-  const ctx = { main, t, cards, back, mode, info, kws: keywords(docsText, [], 80), title: all ? 'Alle Fächer' : t.title };
+  const years = [...new Set(docsText.match(/\b(1[0-9]{3}|20[0-9]{2})\b/g) || [])];
+  const centuries = [...new Set(docsText.match(/\b\d{1,2}\. Jahrhundert/g) || [])];
+  const ctx = { main, t, cards, back, mode, info, kws: keywords(docsText, [], 80), years, centuries, title: all ? 'Alle Fächer' : t.title };
 
   ({ karteikarten: flashcards, wiederholen: review, quiz, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
 }
@@ -154,23 +156,17 @@ function runFlash(ctx, queue) {
 }
 
 // ---------- Ablenker (falsche Antworten) ----------
-function numericDistractors(a) {
-  let m = a.match(/^(\d{1,2})\. Jahrhundert(s?)$/);
-  if (m) {
-    const n = +m[1];
-    const set = new Set();
-    for (const d of shuffle([-3, -2, -1, 1, 2, 3])) { if (n + d > 0 && n + d <= 21) set.add(`${n + d}. Jahrhundert${m[2]}`); if (set.size === 3) break; }
-    return [...set];
-  }
-  if (/^\d{3,4}$/.test(a)) {
-    const n = +a, set = new Set();
-    while (set.size < 3) { const d = Math.round((Math.random() * 2 - 1) * (n > 1900 ? 12 : 60)); if (d) set.add(String(n + d)); }
-    return [...set];
-  }
-  return null;
+// Falsche Antwortmöglichkeiten bei Zahlen: nur andere Jahreszahlen/Jahrhunderte aus den eigenen Unterlagen
+function numericDistractors(a, ctx) {
+  const century = /^\d{1,2}\. Jahrhunderts?$/.test(a);
+  const year = /^\d{3,4}$/.test(a);
+  if (!century && !year) return null;
+  const pool = century ? ctx.centuries : ctx.years;
+  const base = a.replace(/s$/, '');
+  return shuffle(pool.filter((x) => x !== base)).slice(0, 3).map((x) => (century && a.endsWith('s') ? x + 's' : x));
 }
 function distractors(card, ctx, n = 3) {
-  const num = numericDistractors(card.a);
+  const num = numericDistractors(card.a, ctx);
   if (num) return num.slice(0, n);
   const norm = (s) => s.toLowerCase().trim();
   const a = norm(card.a);

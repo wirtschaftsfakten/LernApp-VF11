@@ -49,8 +49,8 @@ export function startSession(main, testId, mode, extra) {
   if (!all && !t) { location.hash = '#/'; return; }
   const cards = all ? S.get().cards : S.cardsOf(testId);
   const back = all ? '#/' : `#/test/${testId}`;
-  const info = mode === 'thema' ? { key: 'thema', title: 'Abfrage' } : MODES.find((m) => m.key === mode);
-  if (!info || (mode !== 'thema' && !modeAvailable(mode, cards)) || !cards.length) { location.hash = back; return; }
+  const info = mode === 'thema' ? { key: 'thema', title: 'Abfrage' } : mode === 'fehler' ? { key: 'fehler', title: 'Fehler wiederholen' } : MODES.find((m) => m.key === mode);
+  if (!info || (!['thema', 'fehler'].includes(mode) && !modeAvailable(mode, cards)) || !cards.length) { location.hash = back; return; }
 
   const docsText = (all ? S.get().docs : S.docsOf(testId)).map((d) => d.text).join('\n\n');
   const years = [...new Set(docsText.match(/\b(1[0-9]{3}|20[0-9]{2})\b/g) || [])];
@@ -59,6 +59,12 @@ export function startSession(main, testId, mode, extra) {
   const ctx = { main, t, cards, back, mode, extra, info, hl, kws: keywords(docsText, [], 80), years, centuries, title: all ? 'Alle Fächer' : t.title };
 
   if (mode === 'thema') return thema(ctx, extra);
+  if (mode === 'fehler') {
+    const wrong = cards.filter((c) => S.progressOf(c.id).wrong > 0 && S.progressOf(c.id).box < 3)
+      .sort((a, b) => S.progressOf(b.id).wrong - S.progressOf(a.id).wrong);
+    if (!wrong.length) { location.hash = back; return; }
+    return runFlash(ctx, wrong.slice(0, 30));
+  }
   ({ karteikarten: flashcards, wiederholen: review, quiz, ankreuzen, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
 }
 
@@ -134,9 +140,10 @@ function runFlash(ctx, queue) {
           </div>
         </div>
         <div class="boxes" aria-label="Lernkartei-Fach ${p.box} von 5">${[1, 2, 3, 4, 5].map((b) => `<span class="${p.box >= b ? 'on' : ''}"></span>`).join('')}</div>
-        <div class="answer-row" id="ans" hidden>
-          <button class="btn dont" data-r="0">Nicht gewusst <kbd>1</kbd></button>
-          <button class="btn know" data-r="1">Gewusst <kbd>2</kbd></button>
+        <div class="answer-row three" id="ans" hidden>
+          <button class="btn dont" data-r="0">Wiederholen <kbd>1</kbd></button>
+          <button class="btn hard" data-r="h">Schwierig <kbd>2</kbd></button>
+          <button class="btn know" data-r="1">Wusste ich <kbd>3</kbd></button>
         </div>
       </div>`);
     const flash = $('#flash', stage), ans = $('#ans', stage);
@@ -144,15 +151,17 @@ function runFlash(ctx, queue) {
     flash.onclick = flip;
     const rate = (ok) => {
       S.grade(c.id, ok);
-      if (ok) { if (!again.has(c.id)) right++; }
+      if (ok === 'hard') { if (!again.has(c.id)) right++; }
+      else if (ok) { if (!again.has(c.id)) right++; }
       else if (!again.has(c.id)) { again.add(c.id); queue.push(c); }
       i++; show();
     };
-    $$('[data-r]', stage).forEach((b) => b.onclick = () => rate(b.dataset.r === '1'));
+    $$('[data-r]', stage).forEach((b) => b.onclick = () => rate(b.dataset.r === 'h' ? 'hard' : b.dataset.r === '1'));
     onKey((e) => {
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
       else if (!ans.hidden && (e.key === '1' || e.key === 'ArrowLeft')) rate(false);
-      else if (!ans.hidden && (e.key === '2' || e.key === 'ArrowRight')) rate(true);
+      else if (!ans.hidden && e.key === '2') rate('hard');
+      else if (!ans.hidden && (e.key === '3' || e.key === 'ArrowRight')) rate(true);
     });
     flash.focus({ preventScroll: true });
   };

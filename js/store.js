@@ -11,6 +11,9 @@ const empty = () => ({
   progress: {},   // cardId -> {box, due, right, wrong, last}
   results: [],    // {id, testId, date, points, max, grade, mode}
   streak: { last: null, days: 0 },
+  events: [],     // Lernaktivität: {t, c: cardId, test, ok: 1|0|0.5} – Grundlage für Lernzeit, Sessions, Heatmap
+  tasks: [],      // eigene Aufgaben im Planer: {id, title, date, prio, testId, done}
+  prefs: { name: '', dailyGoal: 20, weeklyGoalMin: 120, examSize: 10 },
 });
 
 let state = load();
@@ -19,7 +22,7 @@ const listeners = new Set();
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return { ...empty(), ...JSON.parse(raw) };
+    if (raw) { const d = JSON.parse(raw); const e = empty(); return { ...e, ...d, prefs: { ...e.prefs, ...(d.prefs || {}) } }; }
   } catch (e) { console.warn('Speicher nicht lesbar', e); }
   return empty();
 }
@@ -109,16 +112,28 @@ const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
 const INTERVAL_DAYS = [0, 1, 2, 4, 8, 16];
 export const progressOf = (cardId) => state.progress[cardId] || { box: 0, due: 0, right: 0, wrong: 0, last: 0 };
 
+// correct: true = gewusst, false = nicht gewusst, 'hard' = schwierig (Fach bleibt, morgen wieder)
 export function grade(cardId, correct, persist = true) {
   const p = { ...progressOf(cardId) };
-  if (correct) { p.box = Math.min(5, p.box + 1); p.right++; }
+  if (correct === 'hard') { p.box = Math.max(1, p.box); p.right++; }
+  else if (correct) { p.box = Math.min(5, p.box + 1); p.right++; }
   else { p.box = 1; p.wrong++; }
   p.last = Date.now();
-  p.due = startOfDay(Date.now()) + INTERVAL_DAYS[p.box] * 864e5;
+  p.due = startOfDay(Date.now()) + (correct === 'hard' ? 1 : INTERVAL_DAYS[p.box]) * 864e5;
   state.progress[cardId] = p;
+  const card = state.cards.find((c) => c.id === cardId);
+  state.events.push({ t: p.last, c: cardId, test: card?.testId || null, ok: correct === 'hard' ? 0.5 : correct ? 1 : 0 });
+  if (state.events.length > 20000) state.events = state.events.slice(-20000);
   touchStreak();
   if (persist) save();
 }
+
+// Planer-Aufgaben
+export function addTask(t) { const x = { id: uid(), done: false, prio: 'mittel', ...t }; state.tasks.push(x); save(); return x; }
+export function updateTask(id, patch) { Object.assign(state.tasks.find((x) => x.id === id), patch); save(); }
+export function deleteTask(id) { state.tasks = state.tasks.filter((x) => x.id !== id); save(); }
+export function setPrefs(patch) { Object.assign(state.prefs, patch); save(); }
+export function updateDoc(id, patch) { Object.assign(state.docs.find((d) => d.id === id), patch); save(); }
 export function isDue(cardId) {
   const p = state.progress[cardId];
   return !p || p.due <= Date.now();
@@ -154,7 +169,8 @@ export function importJSON(text, mode = 'replace') {
   if (!Array.isArray(data.subjects) || !Array.isArray(data.tests)) throw new Error('Das ist keine LernApp-Sicherung.');
   if (mode === 'replace') state = { ...empty(), ...data };
   else {
-    for (const k of ['subjects', 'tests', 'docs', 'cards', 'results']) {
+    for (const k of ['subjects', 'tests', 'docs', 'cards', 'results', 'tasks']) {
+      state[k] ||= [];
       const ids = new Set(state[k].map((x) => x.id));
       state[k].push(...(data[k] || []).filter((x) => !ids.has(x.id)));
     }

@@ -2,23 +2,26 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>LernApp</title>
   <meta name="robots" content="noindex">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='7' width='26' height='18' rx='2' fill='%23fff' stroke='%231A2550' stroke-width='2'/%3E%3Cpath d='M3 12h26' stroke='%23D3263A' stroke-width='2'/%3E%3Cpath d='M8 17h16M8 21h10' stroke='%23BDB4FF' stroke-width='3'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#F8FBFE">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="LernApp">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%2338BDF8'/%3E%3Cpath d='M8 10h6a3 3 0 0 1 3 3v10a2 2 0 0 0-2-2H8zM24 10h-6a3 3 0 0 0-3 3v10a2 2 0 0 1 2-2h7z' fill='none' stroke='%2304263F' stroke-width='1.8' stroke-linejoin='round'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/app.css">
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="css/pc.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/design.css">
 </head>
 <body>
   <a class="skip" href="#main">Zum Inhalt springen</a>
-  <div class="shell">
-    <aside class="rail" id="rail" aria-label="Fächer"></aside>
+  <div class="app">
+    <aside id="side" class="side" aria-label="Navigation"></aside>
     <main id="main" tabindex="-1"></main>
   </div>
+  <nav id="bottom" class="bottom-nav" aria-label="Navigation"></nav>
+  <div class="scrim" aria-hidden="true"></div>
   <div id="toast" role="status" aria-live="polite"></div>
   <dialog id="dialog"></dialog>
 
@@ -27,7 +30,7 @@
       document.getElementById('main').innerHTML =
         '<div class="filewarn"><h1>Bitte über „LernApp starten.bat“ öffnen</h1>' +
         '<p>Die App braucht einen kleinen lokalen Server, damit PDF-Lesen und Texterkennung funktionieren. ' +
-        'Doppelklicke im Ordner <b>lernapp</b> auf <b>LernApp starten.bat</b>. Danach öffnet sich der Browser automatisch.</p></div>';
+        'Doppelklicke im Ordner <b>lernapp</b> auf <b>LernApp starten.bat</b>.</p></div>';
     }
   </script>
   <script type="module" src="js/app.js"></script>

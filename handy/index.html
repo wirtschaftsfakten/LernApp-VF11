@@ -1341,6 +1341,7 @@ const BEISPIEL = {
     KURZARBEIT,
     {
       name: 'Lesetext: Eine Frage der Ehre',
+      urls: ['beispiel-blaetter/lesetext-1.jpg', 'beispiel-blaetter/lesetext-2.jpg'],
       kind: 'text',
       highlights: ['italienischen Venedig', 'norddeutschen Städtebund', 'Christoph Lütge', 'Skepsis', 'Betrüger', 'Kaufmannsgilden', 'Vereinigungen',
         'Verhaltensnormen', 'Grundsatz von Treu und Glauben', 'Gütesiegel', 'praktische Fähigkeiten', 'Warenkunde', 'Recht', 'Geografie', 'Währung',
@@ -1372,6 +1373,7 @@ Andre Gieße – Quelle: Verkehrsrundschau 30/2014`,
     },
     {
       name: 'Arbeitsblatt: Fragen 1–9',
+      urls: ['beispiel-blaetter/arbeitsblatt-1.jpg', 'beispiel-blaetter/arbeitsblatt-2.jpg'],
       kind: 'text',
       highlights: [],
       text: `1. Welche Probleme hatten die Kaufleute im frühen Mittelalter?
@@ -1404,6 +1406,7 @@ b) Gesellschaftsebene: Engagement am Standort des Unternehmens; Verteidigung der
     },
     {
       name: 'Arbeitsblatt: Begriffe (Aufgabe 10)',
+      urls: ['beispiel-blaetter/arbeitsblatt-2.jpg'],
       kind: 'text',
       highlights: [],
       text: `fungieren: verrichten, vollbringen, vollziehen
@@ -1420,6 +1423,7 @@ Anglizismen: Ausdrücke, die aus der englischen Sprache in die deutsche Sprache 
     },
     {
       name: 'Duden-Auszug & § 1 IHK-Gesetz',
+      urls: ['beispiel-blaetter/duden-ihk.jpg'],
       kind: 'text',
       highlights: ['Anstand und Sitte des ehrbaren Kaufmanns'],
       text: `Tugend: eine moralisch gute Eigenschaft; moralisch vorbildliches Verhalten
@@ -1722,7 +1726,7 @@ async function openOriginal(doc) {
   body.innerHTML = '<p class="muted viewer-wait">Blatt wird geladen …</p>';
   v.showModal();
   const items = [];
-  for (const u of doc.urls || []) items.push({ url: new URL(u, location.href).href, type: 'image/jpeg', name: doc.name });
+  for (const u of doc.urls || []) items.push({ url: new URL((window.LERNAPP_BASE || '') + u, location.href).href, type: 'image/jpeg', name: doc.name });
   for (const id of doc.fileIds || []) {
     const f = await getFile(id);
     if (f) items.push({ blob: f, url: URL.createObjectURL(f), type: f.type, name: f.name || doc.name, own: true });
@@ -1788,6 +1792,7 @@ function addGenerated(testId, doc) {
 function addBeispielDoc(testId, bd) {
   const d = S.addDoc(testId, bd.name, bd.kind, bd.text);
   d.highlights = bd.highlights;
+  if (bd.urls) d.urls = bd.urls;
   const n = addGenerated(testId, d);
   // Fragen der Kurzarbeit als wichtig markieren
   if (bd === KURZARBEIT) S.get().cards.filter((c) => c.docId === d.id && c.type === 'frage').forEach((c) => { c.star = true; });
@@ -1845,6 +1850,15 @@ function migrate() {
       }
     }
     st.setup.unterlagenV2 = true;
+  }
+  // Original-Fotos der Beispiel-Blätter verknüpfen
+  if (!st.setup.blaetterV1) {
+    const t = st.tests.find((x) => x.title === BEISPIEL.test.title);
+    if (t) for (const bd of BEISPIEL.docs) {
+      const d = S.docsOf(t.id).find((x) => x.name === bd.name);
+      if (d && bd.urls) d.urls = bd.urls;
+    }
+    st.setup.blaetterV1 = true;
   }
   S.save();
 }

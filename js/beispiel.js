@@ -35,6 +35,7 @@ export const BEISPIEL = {
     KURZARBEIT,
     {
       name: 'Lesetext: Eine Frage der Ehre',
+      urls: ['beispiel-blaetter/lesetext-1.jpg', 'beispiel-blaetter/lesetext-2.jpg'],
       kind: 'text',
       highlights: ['italienischen Venedig', 'norddeutschen Städtebund', 'Christoph Lütge', 'Skepsis', 'Betrüger', 'Kaufmannsgilden', 'Vereinigungen',
         'Verhaltensnormen', 'Grundsatz von Treu und Glauben', 'Gütesiegel', 'praktische Fähigkeiten', 'Warenkunde', 'Recht', 'Geografie', 'Währung',
@@ -66,6 +67,7 @@ Andre Gieße – Quelle: Verkehrsrundschau 30/2014`,
     },
     {
       name: 'Arbeitsblatt: Fragen 1–9',
+      urls: ['beispiel-blaetter/arbeitsblatt-1.jpg', 'beispiel-blaetter/arbeitsblatt-2.jpg'],
       kind: 'text',
       highlights: [],
       text: `1. Welche Probleme hatten die Kaufleute im frühen Mittelalter?
@@ -98,6 +100,7 @@ b) Gesellschaftsebene: Engagement am Standort des Unternehmens; Verteidigung der
     },
     {
       name: 'Arbeitsblatt: Begriffe (Aufgabe 10)',
+      urls: ['beispiel-blaetter/arbeitsblatt-2.jpg'],
       kind: 'text',
       highlights: [],
       text: `fungieren: verrichten, vollbringen, vollziehen
@@ -114,6 +117,7 @@ Anglizismen: Ausdrücke, die aus der englischen Sprache in die deutsche Sprache 
     },
     {
       name: 'Duden-Auszug & § 1 IHK-Gesetz',
+      urls: ['beispiel-blaetter/duden-ihk.jpg'],
       kind: 'text',
       highlights: ['Anstand und Sitte des ehrbaren Kaufmanns'],
       text: `Tugend: eine moralisch gute Eigenschaft; moralisch vorbildliches Verhalten

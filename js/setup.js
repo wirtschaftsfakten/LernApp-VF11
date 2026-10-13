@@ -11,6 +11,7 @@ export function addGenerated(testId, doc) {
 export function addBeispielDoc(testId, bd) {
   const d = S.addDoc(testId, bd.name, bd.kind, bd.text);
   d.highlights = bd.highlights;
+  if (bd.urls) d.urls = bd.urls;
   const n = addGenerated(testId, d);
   // Fragen der Kurzarbeit als wichtig markieren
   if (bd === KURZARBEIT) S.get().cards.filter((c) => c.docId === d.id && c.type === 'frage').forEach((c) => { c.star = true; });
@@ -68,6 +69,15 @@ export function migrate() {
       }
     }
     st.setup.unterlagenV2 = true;
+  }
+  // Original-Fotos der Beispiel-Blätter verknüpfen
+  if (!st.setup.blaetterV1) {
+    const t = st.tests.find((x) => x.title === BEISPIEL.test.title);
+    if (t) for (const bd of BEISPIEL.docs) {
+      const d = S.docsOf(t.id).find((x) => x.name === bd.name);
+      if (d && bd.urls) d.urls = bd.urls;
+    }
+    st.setup.blaetterV1 = true;
   }
   S.save();
 }

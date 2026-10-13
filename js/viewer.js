@@ -36,7 +36,7 @@ export async function openOriginal(doc) {
   body.innerHTML = '<p class="muted viewer-wait">Blatt wird geladen …</p>';
   v.showModal();
   const items = [];
-  for (const u of doc.urls || []) items.push({ url: new URL(u, location.href).href, type: 'image/jpeg', name: doc.name });
+  for (const u of doc.urls || []) items.push({ url: new URL((window.LERNAPP_BASE || '') + u, location.href).href, type: 'image/jpeg', name: doc.name });
   for (const id of doc.fileIds || []) {
     const f = await getFile(id);
     if (f) items.push({ blob: f, url: URL.createObjectURL(f), type: f.type, name: f.name || doc.name, own: true });

@@ -69,10 +69,10 @@ export function moduleCard(t) {
   </div>`;
 }
 
-const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'gruen', schreiben: 'blau' };
+const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', ankreuzen: 'gruen', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'gruen', schreiben: 'blau' };
 const MODE_SHORT = {
-  karteikarten: 'Umdrehen und ehrlich bewerten', quiz: 'Eine von vier ist richtig', wahrfalsch: 'Stimmt die Aussage?',
-  lueckentext: 'Fehlendes Wort eintippen', zuordnen: 'Begriff und Erklärung verbinden', schreiben: 'Frei antworten, vergleichen',
+  karteikarten: 'Umdrehen und ehrlich bewerten', quiz: 'Antworten anklicken', ankreuzen: 'Alle richtigen anklicken', wahrfalsch: 'Stimmt die Aussage?',
+  lueckentext: 'Fehlendes Wort anklicken', zuordnen: 'Begriff und Erklärung verbinden', schreiben: 'Frei antworten, vergleichen',
 };
 
 // Inhalt des Reiters "Lernen": wichtige Fragen, Übungs-Kacheln, Probetest
@@ -86,13 +86,14 @@ export function learnHtml(t) {
       </div></section>` : ''}
     <section><p class="section-label">Üben</p>
       <div class="tiles">
-        ${MODES.filter((m) => !['wiederholen', 'probetest'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
+        ${MODES.filter((m) => !['wiederholen', 'probetest', 'schreiben'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
           <span class="tile-ico">${ICON[m.icon]}</span><b>${m.title}</b><small>${MODE_SHORT[m.key]}</small><span class="pill">Starten</span></a>`).join('')}
       </div>
       <a class="exam-card" href="#/lernen/${t.id}/probetest" ${modeAvailable('probetest', cards) ? '' : 'aria-disabled="true"'}>
         <span class="tile-ico">${ICON.exam}</span>
         <span class="txt"><b>Probetest</b><small>${last ? `Letzte Note: ${last.grade} (${h(last.gradeText || '')})` : 'Gemischte Aufgaben mit Note nach IHK-Schlüssel'}</small></span>
         <span class="arrow-btn">${ARROW}</span></a>
+      ${modeAvailable('schreiben', cards) ? `<a class="write-link" href="#/lernen/${t.id}/schreiben">Lieber selbst formulieren? Antwort schreiben ›</a>` : ''}
     </section>`;
 }
 

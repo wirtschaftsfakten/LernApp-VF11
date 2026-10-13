@@ -670,6 +670,14 @@ dialog.viewer.zoomed .viewer-body { justify-items: start; }
 dialog.viewer.zoomed .viewer-page { width: 220%; max-width: none; }
 .viewer-wait { padding: 40px 16px; text-align: center; display: grid; gap: 14px; justify-items: center; max-width: 480px; margin: 0 auto; }
 
+/* Ankreuzen (mehrere richtige) */
+.opt.check .key { border-radius: 7px; font-weight: 800; color: var(--accent-strong); }
+.opt.check.on { border-color: var(--accent); background: var(--accent-soft); }
+.opt.check.on .key { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.opt.missed { border: 2px dashed #4CC38A; }
+.opt.right .key, .opt.wrong .key { background: var(--surface); }
+.write-link { justify-self: start; color: var(--accent-strong); font: 600 .9rem var(--font-ui); text-decoration: none; padding: 6px 2px; }
+
 </style>
 <main id="main" tabindex="-1"></main>
 <nav id="tabbar" aria-label="Bereiche">
@@ -741,6 +749,7 @@ const ICON = {
   tf: P('<path d="M4 12l4 4 8-9"/><path d="M15 15l5 5M20 15l-5 5"/>'),
   gap: P('<path d="M3 7h6M15 7h6M3 12h4M13 12h8M3 17h9"/><path d="M9 14v-4h4v4"/>'),
   match: P('<rect x="3" y="4" width="7" height="5" rx="1"/><rect x="3" y="15" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="14" y="15" width="7" height="5" rx="1"/><path d="M10 6.5l4 11M10 17.5l4-11"/>'),
+  check: P('<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><path d="M5.5 7l1.2 1.2L9 5.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M5.5 17l1.2 1.2L9 15.8"/><path d="M14 7h7M14 17h7"/>'),
   write: P('<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>'),
   exam: P('<path d="M7 3h10l3 3v15H4V3z"/><path d="M8 9h8M8 13h8M8 17h5"/><path d="M15 17l1.5 1.5L20 15"/>'),
   upload: P('<path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>'),
@@ -1870,18 +1879,20 @@ const shortQA = (c) => !isCloze(c) && c.a.length <= 110 && c.q.length <= 140;
 const MODES = [
   { key: 'karteikarten', title: 'Karteikarten', icon: 'cards', color: 'gelb', text: 'Karte umdrehen, ehrlich bewerten. Was du nicht wusstest, kommt nochmal.', count: (c) => plural(c.length, 'Karte', 'Karten'), missing: '' },
   { key: 'wiederholen', title: 'Lernkartei', icon: 'repeat', color: 'gruen', text: 'Nur was heute dran ist. Gewusste Karten kommen seltener, vergessene öfter.', count: (c, due) => due ? `${due} heute fällig` : 'Alles wiederholt', missing: '' },
-  { key: 'quiz', title: 'Quiz', icon: 'quiz', color: 'blau', text: 'Multiple Choice: eine von vier Antworten ist richtig.', count: (c) => `${Math.min(12, c.length)} Fragen`, missing: 'Braucht mindestens 4 Karten' },
+  { key: 'quiz', title: 'Quiz', icon: 'quiz', color: 'blau', text: 'Alles zum Anklicken: eine richtige Antwort oder mehrere ankreuzen.', count: (c) => `${Math.min(15, c.length)} Fragen`, missing: 'Braucht mindestens 4 Karten' },
+  { key: 'ankreuzen', title: 'Ankreuzen', icon: 'check', color: 'gruen', text: 'Aufzählungen und lange Antworten: alle richtigen anklicken.', count: (c) => plural(c.filter(multiCapable).length, 'Aufgabe', 'Aufgaben'), missing: 'Keine Aufzählungen vorhanden' },
   { key: 'wahrfalsch', title: 'Wahr oder falsch', icon: 'tf', color: 'pink', text: 'Schnelle Runde: Stimmt die Aussage oder nicht?', count: () => '12 Aussagen', missing: 'Braucht mindestens 4 Karten' },
-  { key: 'lueckentext', title: 'Lückentext', icon: 'gap', color: 'orange', text: 'Das fehlende Wort selbst eintippen – wie in der Klassenarbeit.', count: (c) => plural(c.filter(isCloze).length, 'Lücke', 'Lücken'), missing: 'Keine Lückentext-Karten vorhanden' },
+  { key: 'lueckentext', title: 'Lückentext', icon: 'gap', color: 'orange', text: 'Das fehlende Wort aus vier Möglichkeiten anklicken.', count: (c) => plural(c.filter(isCloze).length, 'Lücke', 'Lücken'), missing: 'Keine Lückentext-Karten vorhanden' },
   { key: 'zuordnen', title: 'Zuordnen', icon: 'match', color: 'lila', text: 'Begriffe und Erklärungen paarweise verbinden.', count: (c) => `${Math.min(3, Math.floor(c.filter(shortQA).length / 4))} Runden`, missing: 'Braucht mindestens 4 Begriff-Karten' },
-  { key: 'schreiben', title: 'Antwort schreiben', icon: 'write', color: 'gelb', text: 'Frage lesen, Antwort frei formulieren, mit der Lösung vergleichen.', count: (c) => plural(c.filter((x) => !isCloze(x)).length, 'Frage', 'Fragen'), missing: 'Keine Frage-Karten vorhanden' },
-  { key: 'probetest', title: 'Probetest', icon: 'exam', color: 'blau', text: 'Gemischte Aufgaben wie in einer echten Arbeit – mit Punkten und Note nach IHK-Schlüssel.', count: () => 'Ergebnis mit Note', missing: 'Braucht mindestens 6 Karten' },
+  { key: 'schreiben', title: 'Antwort schreiben', icon: 'write', color: 'gelb', text: 'Freiwillig: Antwort selbst formulieren und mit der Lösung vergleichen.', count: (c) => plural(c.filter((x) => !isCloze(x)).length, 'Frage', 'Fragen'), missing: 'Keine Frage-Karten vorhanden' },
+  { key: 'probetest', title: 'Probetest', icon: 'exam', color: 'blau', text: 'Gemischte Aufgaben zum Anklicken – mit Punkten und Note nach IHK-Schlüssel.', count: () => 'Ergebnis mit Note', missing: 'Braucht mindestens 6 Karten' },
 ];
 
 function modeAvailable(key, cards) {
   if (key === 'karteikarten' || key === 'wiederholen') return cards.length > 0;
   if (key === 'quiz' || key === 'wahrfalsch') return cards.length >= 4;
   if (key === 'lueckentext') return cards.some(isCloze);
+  if (key === 'ankreuzen') return cards.some(multiCapable);
   if (key === 'zuordnen') return cards.filter(shortQA).length >= 4;
   if (key === 'schreiben') return cards.some((c) => !isCloze(c));
   if (key === 'probetest') return cards.length >= 6;
@@ -1910,9 +1921,10 @@ function startSession(main, testId, mode) {
   const docsText = (all ? S.get().docs : S.docsOf(testId)).map((d) => d.text).join('\n\n');
   const years = [...new Set(docsText.match(/\b(1[0-9]{3}|20[0-9]{2})\b/g) || [])];
   const centuries = [...new Set(docsText.match(/\b\d{1,2}\. Jahrhundert/g) || [])];
-  const ctx = { main, t, cards, back, mode, info, kws: keywords(docsText, [], 80), years, centuries, title: all ? 'Alle Fächer' : t.title };
+  const hl = [...new Set((all ? S.get().docs : S.docsOf(testId)).flatMap((d) => d.highlights || []))].filter((x) => x.split(' ').length <= 5);
+  const ctx = { main, t, cards, back, mode, info, hl, kws: keywords(docsText, [], 80), years, centuries, title: all ? 'Alle Fächer' : t.title };
 
-  ({ karteikarten: flashcards, wiederholen: review, quiz, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
+  ({ karteikarten: flashcards, wiederholen: review, quiz, ankreuzen, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
 }
 
 function frame(ctx, i, n, body) {
@@ -2044,14 +2056,132 @@ function sourceHtml(c) {
   return c.source && !c.source.startsWith('Antwort aus') && c.source !== c.q ? `<div class="src">Aus dem Text: „${h(c.source.length > 260 ? c.source.slice(0, 260) + '…' : c.source)}“</div>` : '';
 }
 
-// ---------- Quiz ----------
+// ---------- Ankreuz-Aufgaben (mehrere richtige) ----------
+const stems = (s) => String(s).toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+  .replace(/[^a-z ]/g, ' ').split(/\s+/).filter((w) => w.length > 4);
+const overlaps = (x, y) => { const b = stems(y); return stems(x).some((w) => b.some((v) => v.slice(0, 5) === w.slice(0, 5))); };
+
+// Aufzählung in einzelne Punkte zerlegen ("Ehrlichkeit, Vorsicht, …")
+function listItems(a, min = 4) {
+  const body = a.replace(/^[^:]{2,45}:\s*/, '');
+  if (/[.!?]\s+[A-ZÄÖÜ„]/.test(body)) return [];
+  const items = body.split(/\s*[,;]\s*/).map((x) => x.replace(/^(und|sowie)\s+/i, '').replace(/\.$/, '').trim()).filter((x) => x.length >= 3 && x.length <= 60);
+  return items.length >= min ? [...new Set(items)] : [];
+}
+// Lange Antwort in einzelne Aussagen zerlegen
+function statements(a) {
+  return a.split(/(?<=[.!?“])\s+(?=[A-ZÄÖÜ„])|;\s+/).map((s) => s.trim())
+    .filter((s) => s.length >= 30 && s.length <= 280 && (s.match(/,/g) || []).length < 4);
+}
+const multiCapable = (c) => !isCloze(c) && (listItems(c.a).length > 0 || (c.a.length > 110 && statements(c.a).length >= 2));
+
+// Falsche Kreuze kommen nur aus den eigenen Unterlagen (andere Karten, Schlüsselbegriffe)
+function multiTask(c, ctx) {
+  const items = listItems(c.a);
+  if (items.length) {
+    const nOk = Math.min(items.length, c.need || 6);
+    // zuerst Punkte aus anderen Antworten und markierte Begriffe, nur notfalls einzelne Schlüsselwörter
+    const fits = (x) => x.length <= 60 && !items.some((i) => overlaps(i, x)) && !overlaps(c.q, x);
+    let pool = [];
+    for (const o of ctx.cards) if (o.id !== c.id && !isCloze(o)) pool.push(...listItems(o.a, 2));
+    pool.push(...ctx.hl);
+    pool = [...new Set(pool)].filter(fits);
+    const want = Math.min(5, Math.max(3, Math.round(nOk / 2)));
+    let wrong = sample(pool, want);
+    if (wrong.length < want) {
+      const kw = ctx.kws.filter((k) => fits(k) && !/(ischen|lichen|igen|alen|ens)$/.test(k) && !wrong.includes(k));
+      wrong = wrong.concat(sample(kw, want - wrong.length));
+    }
+    if (wrong.length < 2) return null;
+    return { prompt: `Wähle alle richtigen aus – ${nOk} sind richtig.`, options: shuffle([...sample(items, nOk).map((t) => ({ t, ok: true })), ...wrong.map((t) => ({ t, ok: false }))]) };
+  }
+  const st = statements(c.a);
+  if (st.length < 2) return null;
+  let pool = [];
+  for (const o of ctx.cards) if (o.id !== c.id && !isCloze(o)) pool.push(...statements(o.a));
+  pool = [...new Set(pool)].filter((x) => !st.includes(x));
+  const wrong = sample(pool, 2);
+  if (!wrong.length) return null;
+  const right = sample(st, Math.min(3, st.length));
+  return { prompt: `Welche Aussagen gehören zur Antwort? ${right.length} sind richtig.`, options: shuffle([...right.map((t) => ({ t, ok: true })), ...wrong.map((t) => ({ t, ok: false }))]) };
+}
+// Bewertung: richtige Kreuze minus falsche Kreuze, bezogen auf die Zahl der richtigen
+function multiScore(task, sel) {
+  const nOk = task.options.filter((o) => o.ok).length;
+  let hit = 0, bad = 0;
+  task.options.forEach((o, i) => { if (sel.has(i)) { if (o.ok) hit++; else bad++; } });
+  return Math.max(0, (hit - bad) / nOk);
+}
+const multiHtml = (task, sel, solved = false) => `<p class="small muted">${h(task.prompt)}</p><div class="opts multi">${task.options.map((o, k) => {
+  const cls = !solved ? (sel.has(k) ? 'on' : '') : o.ok && sel.has(k) ? 'right' : !o.ok && sel.has(k) ? 'wrong' : o.ok ? 'missed' : '';
+  return `<button type="button" class="opt check ${cls}" data-m="${k}" aria-pressed="${sel.has(k)}" ${solved ? 'disabled' : ''}><span class="key">${sel.has(k) ? '✓' : ''}</span><span>${h(o.t)}</span></button>`;
+}).join('')}</div>`;
+
+// ---------- Quiz (alles zum Anklicken) ----------
 function quiz(ctx) {
-  const list = sample(ctx.cards.filter((c) => c.a.length <= 160), 12);
+  const stars = shuffle(ctx.cards.filter((c) => c.star));
+  const rest = shuffle(ctx.cards.filter((c) => !c.star));
+  const list = [];
+  for (const c of [...stars.slice(0, 3), ...rest]) {
+    if (list.length >= 15) break;
+    const multi = (c.need || c.a.length > 110 || (listItems(c.a).length && Math.random() < 0.6)) ? multiTask(c, ctx) : null;
+    if (multi) list.push({ c, multi });
+    else if (c.a.length <= 160) list.push({ c });
+  }
+  runChoice(ctx, list);
+}
+
+function ankreuzen(ctx) {
+  const cand = [...shuffle(ctx.cards.filter((c) => c.star)), ...shuffle(ctx.cards.filter((c) => !c.star))].filter(multiCapable);
+  const list = [];
+  for (const c of cand) {
+    if (list.length >= 10) break;
+    const multi = multiTask(c, ctx);
+    if (multi) list.push({ c, multi });
+  }
+  runChoice(ctx, list);
+}
+
+function runChoice(ctx, list) {
   let i = 0, right = 0;
   const wrongs = [];
+  const next = () => { i++; show(); };
+  const after = (stage, ok, c, given, extra = '') => {
+    if (ok) right++; else wrongs.push({ c, given });
+    S.grade(c.id, ok);
+    $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Nicht ganz.'}</b> ${extra}${sourceHtml(c)}</div>
+      <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
+    $('#next').onclick = next;
+    $('#next').focus();
+  };
   const show = () => {
     if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
-    const c = list[i];
+    const { c, multi } = list[i];
+    if (multi) {
+      const sel = new Set();
+      const stage = frame(ctx, i, list.length, `
+        <div class="sheet question">
+          <div class="qtext">${questionHtml(c)}</div>
+          <div id="mbox">${multiHtml(multi, sel)}</div>
+          <div class="row end" id="act"><button class="btn primary" id="check">Prüfen</button></div>
+          <div id="fb"></div>
+        </div>`);
+      const bind = () => $$('[data-m]', stage).forEach((b) => b.onclick = () => {
+        const k = +b.dataset.m; if (sel.has(k)) sel.delete(k); else sel.add(k);
+        $('#mbox', stage).innerHTML = multiHtml(multi, sel); bind();
+      });
+      bind();
+      $('#check', stage).onclick = () => {
+        const nOk = multi.options.filter((o) => o.ok).length;
+        const hit = multi.options.filter((o, k) => o.ok && sel.has(k)).length;
+        const ok = multiScore(multi, sel) === 1;
+        $('#mbox', stage).innerHTML = multiHtml(multi, sel, true);
+        $('#act', stage).hidden = true;
+        after(stage, ok, c, [...sel].map((k) => multi.options[k].t).join(', ') || '–', ok ? '' : `${hit} von ${nOk} richtigen gefunden. Grün umrandet = hättest du ankreuzen müssen.`);
+      };
+      onKey((e) => { if (e.key === 'Enter' && !$('#act', stage).hidden) $('#check', stage).click(); });
+      return;
+    }
     const opts = shuffle([c.a, ...distractors(c, ctx)]);
     const stage = frame(ctx, i, list.length, `
       <div class="sheet question">
@@ -2064,13 +2194,8 @@ function quiz(ctx) {
       if (answered || k >= opts.length) return;
       answered = true;
       const ok = opts[k] === c.a;
-      if (ok) right++; else wrongs.push({ c, given: opts[k] });
-      S.grade(c.id, ok);
       $$('.opt', stage).forEach((b, j) => { b.disabled = true; if (opts[j] === c.a) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); });
-      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Leider falsch.'}</b> ${ok ? '' : `Richtig ist: ${h(c.a)}`}${sourceHtml(c)}</div>
-        <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
-      $('#next').onclick = () => { i++; show(); };
-      $('#next').focus();
+      after(stage, ok, c, opts[k], ok ? '' : `Richtig ist: ${h(c.a)}`);
     };
     $$('.opt', stage).forEach((b) => b.onclick = () => pick(+b.dataset.o));
     onKey((e) => {
@@ -2079,6 +2204,7 @@ function quiz(ctx) {
       else if (!answered && /^[1-4]$/.test(e.key)) pick(+e.key - 1);
     });
   };
+  if (!list.length) { finish(ctx, 0, 0); return; }
   show();
 }
 
@@ -2122,45 +2248,9 @@ function trueFalse(ctx) {
   show();
 }
 
-// ---------- Lückentext ----------
+// ---------- Lückentext (Wort anklicken) ----------
 function cloze(ctx) {
-  const list = sample(ctx.cards.filter(isCloze), 12);
-  let i = 0, right = 0;
-  const wrongs = [];
-  const show = () => {
-    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
-    const c = list[i];
-    const hint = c.a.length > 3 ? `${c.a[0]}${'·'.repeat(Math.min(c.a.length - 1, 14))}` : '';
-    const stage = frame(ctx, i, list.length, `
-      <form class="sheet question" id="f">
-        <div class="qtext">${questionHtml(c)}</div>
-        <label class="field">Fehlendes Wort<input type="text" id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${h(hint)}"></label>
-        <div class="row end"><button type="button" class="btn ghost" id="skip">Weiß ich nicht</button><button class="btn primary">Prüfen <kbd>Enter</kbd></button></div>
-        <div id="fb"></div>
-      </form>`);
-    const inp = $('#inp', stage);
-    inp.focus();
-    let answered = false;
-    const check = (given) => {
-      if (answered) { i++; return show(); }
-      answered = true;
-      const sim = similarity(given, c.a);
-      const ok = sim >= 0.85;
-      const close = !ok && sim >= 0.6;
-      if (ok) right++; else wrongs.push({ c, given: given || '–' });
-      S.grade(c.id, ok);
-      inp.readOnly = true;
-      $('#skip', stage).hidden = true;
-      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? (sim < 1 ? 'Richtig (kleiner Tippfehler)!' : 'Richtig!') : close ? 'Knapp daneben.' : 'Nicht ganz.'}</b> Lösung: <b>${h(c.a)}</b></div>
-        ${!ok && given ? '<div class="row end" style="margin-top:10px"><button type="button" class="btn small ghost" id="override">Meine Antwort war auch richtig</button></div>' : ''}`;
-      $('#override', stage)?.addEventListener('click', () => { right++; wrongs.pop(); S.grade(c.id, true); toast('Als richtig gewertet'); i++; show(); });
-      $('button.primary', stage).innerHTML = 'Weiter <kbd>Enter</kbd>';
-    };
-    $('#f', stage).onsubmit = (e) => { e.preventDefault(); check(inp.value.trim()); };
-    $('#skip', stage).onclick = () => check('');
-    onKey(() => {});
-  };
-  show();
+  runChoice(ctx, sample(ctx.cards.filter(isCloze), 15).map((c) => ({ c })));
 }
 
 // ---------- Zuordnen ----------
@@ -2249,7 +2339,7 @@ function exam(ctx) {
       <div class="sheet pad stack">
         <span class="small muted">${h(ctx.title)}</span>
         <h1>Probetest</h1>
-        <p>Gemischte Aufgaben: Multiple Choice, Wahr/Falsch, Lückentext und offene Fragen. Du siehst die Lösungen erst am Ende – wie in einer echten Arbeit. Bewertet wird nach dem IHK-Notenschlüssel.</p>
+        <p>Gemischte Aufgaben zum Anklicken: eine richtige Antwort, mehrere ankreuzen, wahr oder falsch. Kein Tippen. Die Lösungen siehst du erst am Ende – wie in einer echten Arbeit. Bewertet wird nach dem IHK-Notenschlüssel.</p>
         <form id="cfg" class="stack">
           <div class="field"><span style="font:600 .92rem var(--font-ui)">Anzahl Aufgaben</span>
             <div class="row" role="radiogroup">${[10, 15, 20, 30].filter((n) => n <= Math.max(max, 10)).map((n, k) => `<label class="chip"><input type="radio" name="n" value="${n}" ${k === 0 ? 'checked' : ''} style="margin-right:6px">${Math.min(n, max)}</label>`).join('')}</div></div>
@@ -2266,19 +2356,25 @@ function exam(ctx) {
 }
 
 function runExam(ctx, n, timer) {
-  const starred = shuffle(ctx.cards.filter((c) => c.star)).slice(0, n);
-  const picked = [...starred, ...sample(ctx.cards.filter((c) => !c.star), n - starred.length)];
-  const tasks = picked.map((c, k) => {
-    const r = k / n;
-    let kind;
-    if (isCloze(c)) kind = r < 0.35 ? 'mc' : 'gap';
-    else if (c.a.length > 110 || c.need || c.star) kind = 'open';
-    else kind = r < 0.5 ? 'mc' : r < 0.75 ? 'tf' : 'open';
-    const task = { c, kind, pts: { mc: 2, tf: 1, gap: 2, open: 3 }[kind], given: null };
-    if (kind === 'mc') task.opts = shuffle([c.a, ...distractors(c, ctx)]);
-    if (kind === 'tf') { task.truth = Math.random() < 0.5; task.shown = task.truth ? c.a : (distractors(c, ctx, 1)[0] || c.a); if (task.shown === c.a) task.truth = true; }
-    return task;
-  });
+  const order = [...shuffle(ctx.cards.filter((c) => c.star)), ...shuffle(ctx.cards.filter((c) => !c.star))];
+  const tasks = [];
+  for (const c of order) {
+    if (tasks.length >= n) break;
+    const r = tasks.length / n;
+    let task = null;
+    if (!isCloze(c) && (c.need || c.star || c.a.length > 110 || listItems(c.a).length)) {
+      const m = multiTask(c, ctx);
+      if (m) task = { c, kind: 'multi', pts: 3, multi: m, given: new Set() };
+    }
+    if (!task && c.a.length > 160) continue;
+    if (!task) {
+      const kind = !isCloze(c) && r >= 0.6 ? 'tf' : 'mc';
+      task = { c, kind, pts: kind === 'mc' ? 2 : 1, given: null };
+      if (kind === 'mc') task.opts = shuffle([c.a, ...distractors(c, ctx)]);
+      else { task.truth = Math.random() < 0.5; task.shown = task.truth ? c.a : (distractors(c, ctx, 1)[0] || c.a); if (task.shown === c.a) task.truth = true; }
+    }
+    tasks.push(task);
+  }
   shuffle(tasks);
   const start = Date.now();
   let i = 0, tick;
@@ -2286,12 +2382,11 @@ function runExam(ctx, n, timer) {
     clearInterval(tick);
     if (i >= tasks.length) return gradeExam(ctx, tasks, Date.now() - start);
     const tk = tasks[i], c = tk.c;
-    const label = { mc: 'Kreuze die richtige Antwort an', tf: 'Wahr oder falsch?', gap: 'Ergänze die Lücke', open: 'Beantworte die Frage' }[tk.kind];
+    const label = { mc: 'Kreuze die richtige Antwort an', tf: 'Wahr oder falsch?', multi: 'Kreuze alle richtigen an' }[tk.kind];
     let body = '';
     if (tk.kind === 'mc') body = `<div class="opts">${tk.opts.map((o, k) => `<button type="button" class="opt" data-o="${k}"><span class="key">${'ABCD'[k]}</span><span>${h(o)}</span></button>`).join('')}</div>`;
     if (tk.kind === 'tf') body = `<div class="tf"><button type="button" class="btn know" data-v="1">Wahr</button><button type="button" class="btn dont" data-v="0">Falsch</button></div>`;
-    if (tk.kind === 'gap') body = `<input type="text" id="inp" autocomplete="off" spellcheck="false" aria-label="Lücke">`;
-    if (tk.kind === 'open') body = `<textarea id="inp" rows="4" aria-label="Antwort"></textarea>`;
+    if (tk.kind === 'multi') body = `<div id="mbox">${multiHtml(tk.multi, tk.given)}</div>`;
     const q = tk.kind === 'tf'
       ? (isCloze(c) ? h(c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(c.q)}<div style="margin-top:10px;font-weight:400">→ ${h(tk.shown)}</div>`)
       : questionHtml(c);
@@ -2317,12 +2412,17 @@ function runExam(ctx, n, timer) {
       if (tk.given === (b.dataset.v === '1')) b.style.outline = '3px solid var(--blue)';
       b.onclick = () => { tk.given = b.dataset.v === '1'; $$('[data-v]', stage).forEach((x) => x.style.outline = ''); b.style.outline = '3px solid var(--blue)'; };
     });
+    const bindMulti = () => $$('[data-m]', stage).forEach((b) => b.onclick = () => {
+      const k = +b.dataset.m; if (tk.given.has(k)) tk.given.delete(k); else tk.given.add(k);
+      $('#mbox', stage).innerHTML = multiHtml(tk.multi, tk.given); bindMulti();
+    });
+    if (tk.kind === 'multi') bindMulti();
     const save = () => { if (inp) tk.given = inp.value.trim(); };
     $('#prev', stage)?.addEventListener('click', () => { save(); i--; show(); });
     $('#f', stage).onsubmit = (e) => {
       e.preventDefault(); save();
       if (i === tasks.length - 1) {
-        const open = tasks.filter((t) => t.given === null || t.given === '').length;
+        const open = tasks.filter((t) => t.given === null || t.given === '' || (t.given instanceof Set && !t.given.size)).length;
         const btn = $('#f button.primary', stage);
         // Rückfrage direkt im Knopf (Browser-Dialoge sind auf manchen Handys gesperrt)
         if (open && !btn.dataset.sure) {
@@ -2345,18 +2445,19 @@ function gradeExam(ctx, tasks, ms) {
     const c = tk.c;
     if (tk.kind === 'mc') tk.score = tk.given !== null && tk.opts[tk.given] === c.a ? tk.pts : 0;
     if (tk.kind === 'tf') tk.score = tk.given === tk.truth ? tk.pts : 0;
-    if (tk.kind === 'gap') tk.score = tk.given && similarity(tk.given, c.a) >= 0.85 ? tk.pts : 0;
-    if (tk.kind === 'open') { const s = tk.given ? score(tk.given, c) : 0; tk.score = s >= 0.75 ? 3 : s >= 0.5 ? 2 : s >= 0.3 ? 1 : 0; }
+    if (tk.kind === 'multi') tk.score = Math.round(tk.pts * multiScore(tk.multi, tk.given) * 2) / 2;
     points += tk.score;
     S.grade(c.id, tk.score === tk.pts, false);
   }
   const pct = Math.round(points / max * 100);
   const g = gradeFor(pct);
+  const num = (x) => x.toLocaleString('de-DE');
   if (ctx.t) S.addResult({ testId: ctx.t.id, points, max, grade: g.note, gradeText: g.text, mode: 'probetest', ms });
   else S.save();
   const min = Math.round(ms / 60000);
   const givenText = (tk) => {
-    if (tk.given === null || tk.given === '') return '– (leer)';
+    if (tk.given === null || tk.given === '' || (tk.given instanceof Set && !tk.given.size)) return '– (leer)';
+    if (tk.kind === 'multi') return [...tk.given].map((k) => tk.multi.options[k].t).join(' · ');
     if (tk.kind === 'mc') return tk.opts[tk.given];
     if (tk.kind === 'tf') return tk.given ? 'wahr' : 'falsch';
     return tk.given;
@@ -2366,14 +2467,14 @@ function gradeExam(ctx, tasks, ms) {
       <div class="sheet result">
         <span class="small muted">${h(ctx.title)} · Probetest</span>
         <div class="grade" aria-label="Note ${g.note}">${g.note}</div>
-        <h2>${g.text} – ${points} von ${max} Punkten (${pct} %)</h2>
-        <p class="muted">${plural(tasks.length, 'Aufgabe', 'Aufgaben')}${min ? ` in ${min} Min.` : ''}. Offene Antworten wurden automatisch verglichen – prüf sie unten selbst nach.</p>
+        <h2>${g.text} – ${num(points)} von ${max} Punkten (${pct} %)</h2>
+        <p class="muted">${plural(tasks.length, 'Aufgabe', 'Aufgaben')}${min ? ` in ${min} Min.` : ''}. Beim Ankreuzen gibt es Teilpunkte, falsche Kreuze ziehen ab.</p>
         <div class="review">
           ${tasks.map((tk, k) => `<div class="item ${tk.score === tk.pts ? 'ok' : ''}">
-            <div class="row" style="justify-content:space-between"><span class="small muted">Aufgabe ${k + 1}</span><b class="small">${tk.score} / ${tk.pts}</b></div>
+            <div class="row" style="justify-content:space-between"><span class="small muted">Aufgabe ${k + 1}</span><b class="small">${num(tk.score)} / ${tk.pts}</b></div>
             <div style="font-weight:700;margin:4px 0">${tk.kind === 'tf' && isCloze(tk.c) ? h(tk.c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : tk.kind === 'tf' ? `${h(tk.c.q)} → ${h(tk.shown)}` : questionHtml(tk.c)}</div>
             <div class="small">Deine Antwort: ${h(givenText(tk))}</div>
-            ${tk.score === tk.pts ? '' : `<div class="small"><b>Richtig:</b> ${tk.kind === 'tf' ? (tk.truth ? 'wahr' : `falsch – richtig ist: ${h(tk.c.a)}`) : h(tk.c.a)}</div>`}
+            ${tk.score === tk.pts ? '' : `<div class="small"><b>Richtig:</b> ${tk.kind === 'tf' ? (tk.truth ? 'wahr' : `falsch – richtig ist: ${h(tk.c.a)}`) : tk.kind === 'multi' ? h(tk.multi.options.filter((o) => o.ok).map((o) => o.t).join(' · ')) : h(tk.c.a)}</div>`}
           </div>`).join('')}
         </div>
         <div class="row" style="justify-content:center">
@@ -2467,10 +2568,10 @@ function moduleCard(t) {
   </div>`;
 }
 
-const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'gruen', schreiben: 'blau' };
+const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', ankreuzen: 'gruen', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'gruen', schreiben: 'blau' };
 const MODE_SHORT = {
-  karteikarten: 'Umdrehen und ehrlich bewerten', quiz: 'Eine von vier ist richtig', wahrfalsch: 'Stimmt die Aussage?',
-  lueckentext: 'Fehlendes Wort eintippen', zuordnen: 'Begriff und Erklärung verbinden', schreiben: 'Frei antworten, vergleichen',
+  karteikarten: 'Umdrehen und ehrlich bewerten', quiz: 'Antworten anklicken', ankreuzen: 'Alle richtigen anklicken', wahrfalsch: 'Stimmt die Aussage?',
+  lueckentext: 'Fehlendes Wort anklicken', zuordnen: 'Begriff und Erklärung verbinden', schreiben: 'Frei antworten, vergleichen',
 };
 
 // Inhalt des Reiters "Lernen": wichtige Fragen, Übungs-Kacheln, Probetest
@@ -2484,13 +2585,14 @@ function learnHtml(t) {
       </div></section>` : ''}
     <section><p class="section-label">Üben</p>
       <div class="tiles">
-        ${MODES.filter((m) => !['wiederholen', 'probetest'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
+        ${MODES.filter((m) => !['wiederholen', 'probetest', 'schreiben'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
           <span class="tile-ico">${ICON[m.icon]}</span><b>${m.title}</b><small>${MODE_SHORT[m.key]}</small><span class="pill">Starten</span></a>`).join('')}
       </div>
       <a class="exam-card" href="#/lernen/${t.id}/probetest" ${modeAvailable('probetest', cards) ? '' : 'aria-disabled="true"'}>
         <span class="tile-ico">${ICON.exam}</span>
         <span class="txt"><b>Probetest</b><small>${last ? `Letzte Note: ${last.grade} (${h(last.gradeText || '')})` : 'Gemischte Aufgaben mit Note nach IHK-Schlüssel'}</small></span>
         <span class="arrow-btn">${ARROW}</span></a>
+      ${modeAvailable('schreiben', cards) ? `<a class="write-link" href="#/lernen/${t.id}/schreiben">Lieber selbst formulieren? Antwort schreiben ›</a>` : ''}
     </section>`;
 }
 

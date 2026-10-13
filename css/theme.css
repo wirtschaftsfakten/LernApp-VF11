@@ -297,3 +297,11 @@ dialog.viewer::backdrop { background: rgba(14, 19, 29, .6); }
 dialog.viewer.zoomed .viewer-body { justify-items: start; }
 dialog.viewer.zoomed .viewer-page { width: 220%; max-width: none; }
 .viewer-wait { padding: 40px 16px; text-align: center; display: grid; gap: 14px; justify-items: center; max-width: 480px; margin: 0 auto; }
+
+/* Ankreuzen (mehrere richtige) */
+.opt.check .key { border-radius: 7px; font-weight: 800; color: var(--accent-strong); }
+.opt.check.on { border-color: var(--accent); background: var(--accent-soft); }
+.opt.check.on .key { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.opt.missed { border: 2px dashed #4CC38A; }
+.opt.right .key, .opt.wrong .key { background: var(--surface); }
+.write-link { justify-self: start; color: var(--accent-strong); font: 600 .9rem var(--font-ui); text-decoration: none; padding: 6px 2px; }

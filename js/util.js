@@ -56,6 +56,7 @@ export const ICON = {
   tf: P('<path d="M4 12l4 4 8-9"/><path d="M15 15l5 5M20 15l-5 5"/>'),
   gap: P('<path d="M3 7h6M15 7h6M3 12h4M13 12h8M3 17h9"/><path d="M9 14v-4h4v4"/>'),
   match: P('<rect x="3" y="4" width="7" height="5" rx="1"/><rect x="3" y="15" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="14" y="15" width="7" height="5" rx="1"/><path d="M10 6.5l4 11M10 17.5l4-11"/>'),
+  check: P('<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><path d="M5.5 7l1.2 1.2L9 5.8"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M5.5 17l1.2 1.2L9 15.8"/><path d="M14 7h7M14 17h7"/>'),
   write: P('<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>'),
   exam: P('<path d="M7 3h10l3 3v15H4V3z"/><path d="M8 9h8M8 13h8M8 17h5"/><path d="M15 17l1.5 1.5L20 15"/>'),
   upload: P('<path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>'),

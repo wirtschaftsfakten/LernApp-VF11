@@ -15,12 +15,12 @@ const sheet = $('#sheet');
 
 // ---------- Router ----------
 function route() {
-  const [view, id, sub] = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+  const [view, id, sub, extra] = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   window.scrollTo(0, 0);
   if (sheet.open) sheet.close();
   if (view === 'lernen') {
     document.body.classList.add('in-session'); nav.hidden = true;
-    return startSession(main, id, sub);
+    return startSession(main, id, sub, extra);
   }
   document.body.classList.remove('in-session'); nav.hidden = false;
   const tab = view === 'mehr' ? 'mehr' : 'start';

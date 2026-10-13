@@ -20,7 +20,7 @@ function route() {
   window.scrollTo(0, 0);
   if (view === 'fach' && S.subject(id)) return viewSubject(id);
   if (view === 'test' && S.test(id)) return viewTest(id, sub || 'lernen');
-  if (view === 'lernen') return startSession(main, id, sub);
+  if (view === 'lernen') return startSession(main, id, sub, parts[3]);
   if (view === 'einstellungen') return viewSettings();
   return viewHome();
 }

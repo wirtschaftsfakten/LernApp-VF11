@@ -1,6 +1,6 @@
 // Gemeinsame Bausteine im neuen Design (PC- und Handy-Version)
 import * as S from './store.js';
-import { MODES, modeAvailable } from './learn.js';
+import { MODES, modeAvailable, topicsOf } from './learn.js';
 import { h, plural, countdownText, daysUntil, fmtDate, ICON } from './util.js';
 
 export const abbr = (name) => (name.split(/\s+[–-]\s+/)[0] || name).slice(0, 4);
@@ -84,6 +84,12 @@ export function learnHtml(t) {
     ${stars.length ? `<section><p class="section-label">Kommt im Test dran</p><div class="cards">
       ${stars.map((c, i) => `<details class="item-card star-q"><summary><span class="txt"><small>Frage ${i + 1}</small><b>${h(c.q)}</b></span><span class="pill">Antwort</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
       </div></section>` : ''}
+    ${(() => {
+      const tps = topicsOf(cards, S.docsOf(t.id));
+      return tps.length ? `<section><p class="section-label">Abfragen nach Thema</p><div class="cards topic-cards">
+        ${tps.map((tp) => `<a class="item-card topic" href="#/lernen/${t.id}/thema/${encodeURIComponent(tp.key)}"><span class="txt"><small>Thema</small><b>${h(tp.label)}</b><span>${h(tp.sub)}</span></span><span class="pill">Abfragen</span></a>`).join('')}
+      </div></section>` : '';
+    })()}
     <section><p class="section-label">Üben</p>
       <div class="tiles">
         ${MODES.filter((m) => !['wiederholen', 'probetest', 'schreiben'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>

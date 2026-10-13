@@ -1909,21 +1909,22 @@ function onKey(fn) {
 window.addEventListener('hashchange', () => { if (cleanup) { cleanup(); cleanup = null; } });
 
 // ---------- Einstieg ----------
-function startSession(main, testId, mode) {
+function startSession(main, testId, mode, extra) {
   const all = testId === 'alle';
   const t = all ? null : S.test(testId);
   if (!all && !t) { location.hash = '#/'; return; }
   const cards = all ? S.get().cards : S.cardsOf(testId);
   const back = all ? '#/' : `#/test/${testId}`;
-  const info = MODES.find((m) => m.key === mode);
-  if (!info || !modeAvailable(mode, cards)) { location.hash = back; return; }
+  const info = mode === 'thema' ? { key: 'thema', title: 'Abfrage' } : MODES.find((m) => m.key === mode);
+  if (!info || (mode !== 'thema' && !modeAvailable(mode, cards)) || !cards.length) { location.hash = back; return; }
 
   const docsText = (all ? S.get().docs : S.docsOf(testId)).map((d) => d.text).join('\n\n');
   const years = [...new Set(docsText.match(/\b(1[0-9]{3}|20[0-9]{2})\b/g) || [])];
   const centuries = [...new Set(docsText.match(/\b\d{1,2}\. Jahrhundert/g) || [])];
   const hl = [...new Set((all ? S.get().docs : S.docsOf(testId)).flatMap((d) => d.highlights || []))].filter((x) => x.split(' ').length <= 5);
-  const ctx = { main, t, cards, back, mode, info, hl, kws: keywords(docsText, [], 80), years, centuries, title: all ? 'Alle Fächer' : t.title };
+  const ctx = { main, t, cards, back, mode, extra, info, hl, kws: keywords(docsText, [], 80), years, centuries, title: all ? 'Alle Fächer' : t.title };
 
+  if (mode === 'thema') return thema(ctx, extra);
   ({ karteikarten: flashcards, wiederholen: review, quiz, ankreuzen, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
 }
 
@@ -1958,7 +1959,7 @@ function finish(ctx, right, total, extra = '') {
         </div>
       </div>
     </div>`;
-  $('[data-again]').onclick = (e) => { e.preventDefault(); startSession(ctx.main, ctx.t ? ctx.t.id : 'alle', ctx.mode); };
+  $('[data-again]').onclick = (e) => { e.preventDefault(); startSession(ctx.main, ctx.t ? ctx.t.id : 'alle', ctx.mode, ctx.extra); };
 }
 
 // ---------- Karteikarten & Lernkartei ----------
@@ -2148,7 +2149,7 @@ function runChoice(ctx, list) {
   const next = () => { i++; show(); };
   const after = (stage, ok, c, given, extra = '') => {
     if (ok) right++; else wrongs.push({ c, given });
-    S.grade(c.id, ok);
+    if (c.id) S.grade(c.id, ok);
     $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Nicht ganz.'}</b> ${extra}${sourceHtml(c)}</div>
       <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
     $('#next').onclick = next;
@@ -2156,7 +2157,27 @@ function runChoice(ctx, list) {
   };
   const show = () => {
     if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
-    const { c, multi } = list[i];
+    const item = list[i];
+    const { c, multi } = item;
+    if (item.tf) {
+      const { truth, text } = item.tf;
+      const stage = frame(ctx, i, list.length, `
+        <div class="sheet question">
+          <span class="small muted">Stimmt das?</span>
+          <div class="qtext">${h(text)}</div>
+          <div class="tf"><button class="btn know" data-v="1">Wahr</button><button class="btn dont" data-v="0">Falsch</button></div>
+          <div id="fb"></div>
+        </div>`);
+      let done = false;
+      const pick = (v) => {
+        if (done) return; done = true;
+        $$('[data-v]', stage).forEach((b) => b.disabled = true);
+        after(stage, v === truth, { ...c, q: text, a: truth ? 'wahr' : (c.id ? `falsch – richtig: ${c.a}` : 'falsch') }, v ? 'wahr' : 'falsch', `Die Aussage ist ${truth ? 'wahr' : 'falsch'}.${!truth && c.id ? ` Richtig: ${h(c.a)}` : ''}`);
+      };
+      $$('[data-v]', stage).forEach((b) => b.onclick = () => pick(b.dataset.v === '1'));
+      onKey((e) => { const k = e.key.toLowerCase(); if (k === 'w') pick(true); else if (k === 'f') pick(false); });
+      return;
+    }
     if (multi) {
       const sel = new Set();
       const stage = frame(ctx, i, list.length, `
@@ -2182,7 +2203,7 @@ function runChoice(ctx, list) {
       onKey((e) => { if (e.key === 'Enter' && !$('#act', stage).hidden) $('#check', stage).click(); });
       return;
     }
-    const opts = shuffle([c.a, ...distractors(c, ctx)]);
+    const opts = item.opts || shuffle([c.a, ...distractors(c, ctx)]);
     const stage = frame(ctx, i, list.length, `
       <div class="sheet question">
         <div class="qtext">${questionHtml(c)}</div>
@@ -2246,6 +2267,115 @@ function trueFalse(ctx) {
     onKey((e) => { const k = e.key.toLowerCase(); if (k === 'w' || k === 'arrowleft') pick(true); else if (k === 'f' || k === 'arrowright') pick(false); });
   };
   show();
+}
+
+// ---------- Themen-Abfragen ----------
+const GLOSSAR = new Set(['begriff', 'abkuerzung', 'definition']);
+const NOT_TOPIC = /^(Nenne|Nennen|Welche|Welcher|Welches|Was|Wie|Warum|Wann|Wo|Wer|Inwiefern|Zähle|Beschreibe|Erkläre|Mittelalter|Jahrhundert|Text|Arbeitsblatt|Aufgabe)$/;
+
+// Thema einer Aufzählungs-Frage: letztes Substantiv der Frage ("Nenne 8 Tugenden." → "Tugenden")
+function topicLabel(q) {
+  const nouns = (q.match(/[A-ZÄÖÜ][a-zäöüß]{3,}/g) || []).filter((w) => !NOT_TOPIC.test(w));
+  return nouns.at(-1) || null;
+}
+
+function topicsOf(cards, docs = []) {
+  const out = [];
+  const gl = cards.filter((c) => GLOSSAR.has(c.type) && c.a.length <= 140);
+  if (gl.length >= 4) out.push({ key: 'begriffe', label: 'Begriffe', sub: `${gl.length} Begriffe und ihre Bedeutung` });
+  const lists = new Map();
+  for (const c of cards) {
+    if (isCloze(c) || !listItems(c.a).length) continue;
+    const label = topicLabel(c.q);
+    if (!label) continue;
+    const key = label.toLowerCase();
+    if (!lists.has(key)) lists.set(key, { label, items: [] });
+    for (const it of listItems(c.a)) if (!lists.get(key).items.some((x) => overlaps(x, it) || x === it)) lists.get(key).items.push(it);
+  }
+  for (const [key, v] of lists) out.push({ key: 'liste:' + key, label: v.label, sub: `${v.items.length} Punkte – was gehört dazu, was nicht?` });
+  const zeit = cards.filter((c) => c.type === 'zeit');
+  if (zeit.length >= 4) out.push({ key: 'zeit', label: 'Jahreszahlen', sub: `${zeit.length} Zeitangaben aus dem Text` });
+  for (const d of docs) {
+    const n = cards.filter((c) => c.docId === d.id).length;
+    if (n >= 4) out.push({ key: 'doc:' + d.id, label: d.name.replace(/^(Lesetext|Arbeitsblatt|Kurzarbeit): ?/, ''), sub: `Abfrage zu „${d.name}“ · ${plural(n, 'Karte', 'Karten')}` });
+  }
+  return out;
+}
+
+const askTerm = (c) => (c.type === 'begriff' ? `Was bedeutet „${c.q}“?` : c.q);
+
+function topicQuestions(key, ctx) {
+  const cards = ctx.cards;
+  const list = [];
+  if (key === 'begriffe') {
+    const gl = shuffle(cards.filter((c) => GLOSSAR.has(c.type) && c.a.length <= 140));
+    gl.slice(0, 14).forEach((c, i) => {
+      const others = gl.filter((o) => o.id !== c.id);
+      const form = i % 3;
+      if (form === 0 || others.length < 3) list.push({ c: { ...c, q: askTerm(c) }, opts: shuffle([c.a, ...sample(others.map((o) => o.a), 3)]) });
+      else if (form === 1 && c.type === 'begriff') list.push({ c: { ...c, q: `Welcher Begriff passt zu: „${c.a}“?`, a: c.q }, opts: shuffle([c.q, ...sample(others.filter((o) => o.type === 'begriff').map((o) => o.q), 3)]) });
+      else if (c.type === 'begriff') {
+        const truth = Math.random() < 0.5;
+        const shown = truth ? c.a : sample(others, 1)[0].a;
+        list.push({ c, tf: { truth, text: `„${c.q}“ bedeutet: ${shown}` } });
+      } else list.push({ c: { ...c, q: askTerm(c) }, opts: shuffle([c.a, ...sample(others.map((o) => o.a), 3)]) });
+    });
+    return list;
+  }
+  if (key.startsWith('liste:')) {
+    const topicKey = key.slice(6);
+    const src = cards.filter((c) => !isCloze(c) && listItems(c.a).length && topicLabel(c.q)?.toLowerCase() === topicKey);
+    if (!src.length) return list;
+    const label = topicLabel(src[0].q);
+    const items = [];
+    for (const c of src) for (const it of listItems(c.a)) if (!items.some((x) => overlaps(x, it) || x === it)) items.push(it);
+    const fits = (x) => x.length <= 60 && !items.some((i) => overlaps(i, x)) && !overlaps(label, x);
+    let pool = [];
+    for (const o of cards) if (!src.includes(o) && !isCloze(o)) pool.push(...listItems(o.a, 2));
+    pool.push(...ctx.hl);
+    pool = [...new Set(pool)].filter(fits);
+    if (pool.length < 4) pool = pool.concat(ctx.kws.filter((k) => fits(k) && !/(ischen|lichen|igen|alen|ens)$/.test(k) && !pool.includes(k)));
+    if (pool.length < 3) return list;
+    const base = src[0];
+    const its = shuffle(items);
+    for (let i = 0; i < Math.min(4, its.length); i++) {
+      const ok = its[i];
+      list.push({ c: { id: null, q: `Was gehört zu den ${label}?`, a: ok, source: '' }, opts: shuffle([ok, ...sample(pool, 3)]) });
+    }
+    for (let i = 0; i < 3; i++) {
+      const odd = sample(pool, 1)[0];
+      list.push({ c: { id: null, q: `Was gehört NICHT zu den ${label}?`, a: odd, source: '' }, opts: shuffle([odd, ...sample(items, 3)]) });
+    }
+    for (let i = 0; i < 4; i++) {
+      const truth = Math.random() < 0.5;
+      const x = truth ? its[(i + 4) % its.length] : sample(pool, 1)[0];
+      list.push({ c: { id: null, q: `„${x}“ gehört zu den ${label}.`, a: truth ? 'wahr' : `falsch – „${x}“ gehört nicht dazu`, source: '' }, tf: { truth, text: `„${x}“ gehört zu den ${label}.` } });
+    }
+    const m = multiTask(base, ctx);
+    if (m) list.push({ c: base, multi: m });
+    // Textstellen, in denen die Punkte vorkommen
+    for (const c of shuffle(cards.filter((c) => isCloze(c) && items.some((it) => overlaps(it, c.a)))).slice(0, 3)) list.push({ c });
+    return shuffle(list);
+  }
+  if (key === 'zeit') return sample(cards.filter((c) => c.type === 'zeit'), 12).map((c) => ({ c }));
+  if (key.startsWith('doc:')) {
+    const id = key.slice(4);
+    for (const c of shuffle(cards.filter((c) => c.docId === id))) {
+      if (list.length >= 15) break;
+      const multi = (c.need || c.a.length > 110) ? multiTask(c, ctx) : null;
+      if (multi) list.push({ c, multi });
+      else if (c.a.length <= 160) list.push({ c: c.type === 'begriff' ? { ...c, q: askTerm(c) } : c });
+    }
+    return list;
+  }
+  return list;
+}
+
+function thema(ctx, key) {
+  const list = topicQuestions(key, ctx);
+  const tp = topicsOf(ctx.cards, ctx.t ? S.docsOf(ctx.t.id) : []).find((x) => x.key === key);
+  ctx.info = { ...ctx.info, title: tp ? `Abfrage: ${tp.label}` : 'Abfrage' };
+  runChoice(ctx, list);
 }
 
 // ---------- Lückentext (Wort anklicken) ----------
@@ -2493,13 +2623,13 @@ function reviewList(wrongs) {
     <div class="item"><div style="font-weight:700">${questionHtml(c)}</div><div class="small">Deine Antwort: ${h(given)}</div><div class="small"><b>Richtig:</b> ${h(c.a)}</div></div>`).join('')}</div>`;
 }
 
-return { MODES, modeAvailable, startSession };
+return { MODES, modeAvailable, startSession, topicsOf };
 })();
 
 __m.views = (() => {
 // Gemeinsame Bausteine im neuen Design (PC- und Handy-Version)
 const S = __m.store;
-const { MODES, modeAvailable } = __m.learn;
+const { MODES, modeAvailable, topicsOf } = __m.learn;
 const { h, plural, countdownText, daysUntil, fmtDate, ICON } = __m.util;
 
 const abbr = (name) => (name.split(/\s+[–-]\s+/)[0] || name).slice(0, 4);
@@ -2583,6 +2713,12 @@ function learnHtml(t) {
     ${stars.length ? `<section><p class="section-label">Kommt im Test dran</p><div class="cards">
       ${stars.map((c, i) => `<details class="item-card star-q"><summary><span class="txt"><small>Frage ${i + 1}</small><b>${h(c.q)}</b></span><span class="pill">Antwort</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
       </div></section>` : ''}
+    ${(() => {
+      const tps = topicsOf(cards, S.docsOf(t.id));
+      return tps.length ? `<section><p class="section-label">Abfragen nach Thema</p><div class="cards topic-cards">
+        ${tps.map((tp) => `<a class="item-card topic" href="#/lernen/${t.id}/thema/${encodeURIComponent(tp.key)}"><span class="txt"><small>Thema</small><b>${h(tp.label)}</b><span>${h(tp.sub)}</span></span><span class="pill">Abfragen</span></a>`).join('')}
+      </div></section>` : '';
+    })()}
     <section><p class="section-label">Üben</p>
       <div class="tiles">
         ${MODES.filter((m) => !['wiederholen', 'probetest', 'schreiben'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
@@ -2628,12 +2764,12 @@ const sheet = $('#sheet');
 
 // ---------- Router ----------
 function route() {
-  const [view, id, sub] = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
+  const [view, id, sub, extra] = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   window.scrollTo(0, 0);
   if (sheet.open) sheet.close();
   if (view === 'lernen') {
     document.body.classList.add('in-session'); nav.hidden = true;
-    return startSession(main, id, sub);
+    return startSession(main, id, sub, extra);
   }
   document.body.classList.remove('in-session'); nav.hidden = false;
   const tab = view === 'mehr' ? 'mehr' : 'start';

@@ -81,3 +81,4 @@ table.results th { color: var(--text-3); }
   .nav-head { grid-template-columns: auto 1fr; }
   .nav-head > .row { grid-column: 1 / -1; }
 }
+.topic-cards { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }

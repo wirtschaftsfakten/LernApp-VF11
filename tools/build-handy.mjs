@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const order = ['util', 'store', 'gen', 'beispiel', 'learn', 'handy'];
+const order = ['util', 'store', 'gen', 'beispiel', 'extract', 'setup', 'learn', 'handy'];
 
 // ES-Module in Funktionsblöcke verwandeln: import → Zugriff auf __m, export → Rückgabe
 function wrap(name) {
@@ -22,7 +22,7 @@ const css = readFileSync(join(root, 'css', 'app.css'), 'utf8') + '\n' + readFile
 const js = 'const __m = {};\n' + order.map(wrap).join('\n\n');
 const tab = (href, key, label, path) => `<a href="${href}" data-tab="${key}"><svg viewBox="0 0 24 24" aria-hidden="true">${path}</svg>${label}</a>`;
 
-const html = `<title>LernApp Ehrbarer Kaufmann</title>
+const html = `<title>LernApp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
@@ -31,10 +31,9 @@ ${css}
 </style>
 <main id="main" tabindex="-1"></main>
 <nav id="tabbar" aria-label="Bereiche">
-  ${tab('#/', 'start', 'Lernen', '<path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 8h6M8 12h4"/>')}
-  ${tab('#/karten', 'karten', 'Karten', '<rect x="3" y="6" width="14" height="12" rx="1.5"/><path d="M7 3h13a1 1 0 0 1 1 1v11"/><path d="M3 10h14"/>')}
-  ${tab('#/text', 'text', 'Texte', '<path d="M7 3h10l3 3v15H4V3z"/><path d="M8 9h8M8 13h8M8 17h5"/>')}
-  ${tab('#/spick', 'spick', 'Spickzettel', '<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>')}
+  ${tab('#/', 'start', 'Fächer', '<path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 8h6M8 12h4"/>')}
+  ${tab('#/lernen/alle/wiederholen', 'heute', 'Wiederholen', '<path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/>')}
+  ${tab('#/mehr', 'mehr', 'Mehr', '<circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>')}
 </nav>
 <div id="toast" role="status" aria-live="polite"></div>
 <dialog id="sheet"></dialog>
@@ -60,6 +59,7 @@ const site = `<!doctype html>
 <style>:root{padding-top:env(safe-area-inset-top,0px)}[hidden]{display:none!important}body{margin:0}</style>
 </head>
 <body>
+<script>window.LERNAPP_BASE = '../';</script>
 ${html}
 </body>
 </html>

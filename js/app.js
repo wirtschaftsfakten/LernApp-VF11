@@ -1,7 +1,7 @@
 import * as S from './store.js';
 import { generate, keywords, keySentences, TYPE_LABEL } from './gen.js';
 import { extractFile, ACCEPT } from './extract.js';
-import { BEISPIEL, FAECHER, KURZARBEIT } from './beispiel.js';
+import { addGenerated, loadBeispiel, migrate } from './setup.js';
 import { startSession, MODES, modeAvailable } from './learn.js';
 import { h, $, $$, toast, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, plural, ICON } from './util.js';
 
@@ -272,10 +272,6 @@ async function handleFiles(t, files) {
   route();
 }
 
-function addGenerated(testId, doc) {
-  const gen = generate(doc.text, { highlights: doc.highlights || [] });
-  return S.addCards(gen.map((c) => ({ ...c, testId, docId: doc.id })));
-}
 
 // Karten
 let cardFilter = 'alle';
@@ -592,55 +588,10 @@ function regenerateDoc(d, keepExisting = false) {
 }
 
 function loadDemo() {
-  const st = S.get();
-  if (st.tests.some((t) => t.title === BEISPIEL.test.title)) { toast('Beispiel ist schon geladen'); return; }
-  const s = st.subjects.find((x) => x.name === BEISPIEL.subject.name) || S.addSubject(BEISPIEL.subject.name, BEISPIEL.subject.color);
-  const t = S.addTest(s.id, BEISPIEL.test.title, isoDate(BEISPIEL.test.daysAhead), BEISPIEL.test.notes);
-  let n = 0;
-  for (const bd of BEISPIEL.docs) n += addBeispielDoc(t.id, bd);
-  toast(`Beispiel geladen: ${n} Karten`);
+  const t = loadBeispiel();
+  if (!t) { toast('Beispiel ist schon geladen'); return; }
+  toast(`Beispiel geladen: ${S.cardsOf(t.id).length} Karten`);
   go(`#/test/${t.id}`);
-}
-
-function addBeispielDoc(testId, bd) {
-  const d = S.addDoc(testId, bd.name, bd.kind, bd.text);
-  d.highlights = bd.highlights;
-  const n = addGenerated(testId, d);
-  // Fragen der Kurzarbeit als wichtig markieren
-  if (bd === KURZARBEIT) S.get().cards.filter((c) => c.docId === d.id && c.type === 'frage').forEach((c) => { c.star = true; });
-  S.save();
-  return n;
-}
-
-// Einmalige Einrichtung: Fächer laut Stundenplan, Beispiel ins Fach Deutsch, Kurzarbeit-Fragen ergänzen
-function migrate() {
-  const st = S.get();
-  st.setup ||= {};
-  if (!st.setup.faecherV1) {
-    const old = st.subjects.find((s) => s.name === 'Deutsch / Kommunikation');
-    if (old) old.name = 'D – Deutsch';
-    for (const f of FAECHER) if (!st.subjects.some((s) => s.name === f.name)) st.subjects.push({ id: S.uid(), ...f });
-    st.setup.faecherV1 = true;
-  }
-  // Deutsch-Test mit Lesetext direkt mitliefern (einmalig, falls noch nicht da)
-  if (!st.setup.beispielAutoV1) {
-    st.setup.beispielAutoV1 = true;
-    if (!st.tests.some((t) => t.title === BEISPIEL.test.title)) {
-      const s = st.subjects.find((x) => x.name === BEISPIEL.subject.name);
-      const t = S.addTest(s.id, BEISPIEL.test.title, isoDate(BEISPIEL.test.daysAhead), BEISPIEL.test.notes);
-      for (const bd of BEISPIEL.docs) addBeispielDoc(t.id, bd);
-      st.setup.kurzarbeitV1 = true;
-    }
-  }
-  if (!st.setup.kurzarbeitV1) {
-    const t = st.tests.find((x) => x.title === BEISPIEL.test.title);
-    if (t && !S.docsOf(t.id).some((d) => d.name === KURZARBEIT.name)) {
-      addBeispielDoc(t.id, KURZARBEIT);
-      t.notes = BEISPIEL.test.notes;
-    }
-    st.setup.kurzarbeitV1 = true;
-  }
-  S.save();
 }
 
 document.addEventListener('click', (e) => {

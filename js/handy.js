@@ -1,176 +1,299 @@
-// Handy-Version: ein Lernset, Tab-Leiste unten, große Knöpfe.
+// Handy-Version: alle Fächer und Tests, Upload, Lernen – eine Spalte, Tab-Leiste unten.
 import * as S from './store.js';
-import { generate, keywords, keySentences, TYPE_LABEL } from './gen.js';
-import { BEISPIEL, KURZARBEIT } from './beispiel.js';
+import { keywords, keySentences, TYPE_LABEL } from './gen.js';
+import { extractFile, ACCEPT } from './extract.js';
+import { addGenerated, loadBeispiel, migrate } from './setup.js';
 import { startSession, MODES, modeAvailable } from './learn.js';
-import { h, $, $$, toast, plural, ICON } from './util.js';
+import { h, $, $$, toast, plural, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, ICON } from './util.js';
 
 const main = $('#main');
 const nav = $('#tabbar');
-
-// ---------- Lernset beim ersten Öffnen anlegen ----------
-function ensureSet() {
-  const st = S.get();
-  let t = st.tests.find((x) => x.title === BEISPIEL.test.title);
-  if (t) return t;
-  const s = st.subjects.find((x) => x.name === BEISPIEL.subject.name) || S.addSubject(BEISPIEL.subject.name, BEISPIEL.subject.color);
-  t = S.addTest(s.id, BEISPIEL.test.title, '', BEISPIEL.test.notes);
-  for (const bd of BEISPIEL.docs) {
-    const d = S.addDoc(t.id, bd.name, bd.kind, bd.text);
-    d.highlights = bd.highlights;
-    const gen = generate(d.text, { highlights: d.highlights });
-    S.addCards(gen.map((c) => ({ ...c, testId: t.id, docId: d.id, star: bd === KURZARBEIT && c.type === 'frage' })));
-  }
-  S.save();
-  return t;
-}
-const T = ensureSet();
+const sheet = $('#sheet');
 
 // ---------- Router ----------
 function route() {
-  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-  const [view, , mode] = parts;
+  const [view, id, sub] = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   window.scrollTo(0, 0);
+  if (sheet.open) sheet.close();
   if (view === 'lernen') {
-    document.body.classList.add('in-session');
-    nav.hidden = true;
-    return startSession(main, T.id, mode);
+    document.body.classList.add('in-session'); nav.hidden = true;
+    return startSession(main, id, sub);
   }
-  document.body.classList.remove('in-session');
-  nav.hidden = false;
-  const tab = ['karten', 'text', 'spick'].includes(view) ? view : 'start';
+  document.body.classList.remove('in-session'); nav.hidden = false;
+  const tab = view === 'mehr' ? 'mehr' : 'start';
   $$('a', nav).forEach((a) => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
-  ({ start: viewStart, karten: viewCards, text: viewText, spick: viewCheat })[tab]();
+  if (view === 'fach' && S.subject(id)) return viewSubject(id);
+  if (view === 'test' && S.test(id)) return viewTest(id, sub || 'lernen');
+  if (view === 'mehr') return viewMore();
+  viewHome();
 }
 window.addEventListener('hashchange', route);
+const go = (hash) => { if (location.hash === hash) route(); else location.hash = hash; };
 
-const stats = () => {
-  const cards = S.cardsOf(T.id);
+const cardStats = (cards) => {
   const sure = cards.filter((c) => S.progressOf(c.id).box >= 3).length;
-  const due = cards.filter((c) => S.isDue(c.id)).length;
-  return { cards, sure, due, pct: cards.length ? Math.round(sure / cards.length * 100) : 0 };
+  return { sure, pct: cards.length ? Math.round(sure / cards.length * 100) : 0, due: cards.filter((c) => S.isDue(c.id)).length };
 };
+const bar = (pct) => `<div class="bar"><i style="width:${pct}%"></i></div>`;
+
+// ---------- Bottom-Sheet ----------
+function openSheet(html, onSubmit) {
+  sheet.innerHTML = `<form class="stack" id="sf">${html}</form>`;
+  sheet.showModal();
+  const f = $('#sf');
+  $$('[data-close]', f).forEach((b) => b.onclick = () => sheet.close());
+  f.onsubmit = (e) => {
+    e.preventDefault();
+    if (onSubmit(new FormData(f), e.submitter?.value) !== false) sheet.close();
+  };
+  return f;
+}
+const sheetButtons = (ok, extra = '') => `<div class="row end">${extra}<button type="button" class="btn ghost" data-close>Abbrechen</button><button class="btn primary" value="ok">${ok}</button></div>`;
+const swatches = (cur) => `<div class="swatches" role="radiogroup" aria-label="Farbe">${COLORS.map((c) => `<label title="${COLOR_NAME[c]}"><input type="radio" name="color" value="${c}" ${c === cur ? 'checked' : ''} aria-label="${COLOR_NAME[c]}"><span style="--c:${cvar(c)}"></span></label>`).join('')}</div>`;
+
+// Löschen mit Rückfrage im Sheet (Browser-Dialoge sind auf manchen Handys gesperrt)
+function confirmSheet(text, label, action) {
+  openSheet(`<h2>${h(text)}</h2><p class="muted">Das lässt sich nicht rückgängig machen.</p>${sheetButtons(label).replace('btn primary', 'btn danger')}`, () => { action(); });
+}
 
 // ---------- Start ----------
-function viewStart() {
-  const { cards, sure, due, pct } = stats();
-  const stars = cards.filter((c) => c.star);
-  const last = S.resultsOf(T.id).at(-1);
+function viewHome() {
+  const st = S.get();
+  const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
+  const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
+  const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   const streak = S.streakDays();
-  const ring = 2 * Math.PI * 34;
   main.innerHTML = `
-    <header class="hero">
-      <span class="subject"><span class="mk" data-c="lila">D – Deutsch</span> · Kurzarbeit</span>
-      <h1>Eine Frage der Ehre</h1>
-      <p class="muted">Der ehrbare Kaufmann – Tugenden, Eigenschaften, Gemeinschaft</p>
-      <div class="progress-row">
-        <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="ring-bg"/><circle cx="40" cy="40" r="34" class="ring-fg" stroke-dasharray="${ring}" stroke-dashoffset="${ring * (1 - pct / 100)}"/><text x="40" y="46" text-anchor="middle">${pct}%</text></svg>
-        <div>
-          <b>${sure} von ${cards.length} Karten sicher</b>
-          <div class="muted small">${due ? `${due} heute dran` : 'Für heute alles wiederholt'}${last ? ` · letzter Probetest: Note ${last.grade}` : ''}</div>
-          ${streak ? `<span class="margin-note blue">${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück</span>` : ''}
-        </div>
-      </div>
-      <a class="btn primary big" href="#/lernen/${T.id}/wiederholen">${sure ? 'Weiterlernen' : 'Loslernen'}</a>
-    </header>
+    <header class="page-title"><h1>Meine Fächer</h1>${streak ? `<span class="margin-note blue">${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück</span>` : ''}</header>
+
+    ${st.cards.length ? `<a class="sheet today-card" href="#/lernen/alle/wiederholen">
+      <span class="num">${due || fresh}</span>
+      <span class="txt"><b>${due ? 'Karten heute wiederholen' : 'Neue Karten lernen'}</b><span class="muted small">aus allen Fächern</span></span>
+      <span class="chev" aria-hidden="true">›</span></a>` : ''}
+
+    ${upcoming.length ? `<section><h2>Nächste Tests</h2><div class="list">${upcoming.slice(0, 4).map((t) => {
+      const p = dateParts(t.date); const s = S.subject(t.subjectId);
+      return `<a class="row-link" href="#/test/${t.id}"><span class="date-chip"><span>${p.wd}</span><b>${p.day}</b><span>${p.mon}</span></span>
+        <span class="txt"><b>${h(t.title)}</b><span class="small muted"><span class="mk" style="--c:${cvar(s?.color)}">${h(s?.name)}</span></span></span>
+        <span class="margin-note">${countdownText(t.date)}</span></a>`;
+    }).join('')}</div></section>` : ''}
 
     <section>
-      <h2>Kommt in der Kurzarbeit dran</h2>
-      <div class="stars">
-        ${stars.map((c) => `<details class="sheet star-q"><summary><span class="star-icon" aria-hidden="true">★</span><span>${h(c.q)}</span></summary>
-          <div class="star-a">${h(c.a)}</div></details>`).join('')}
-      </div>
-      <a class="btn wide" href="#/lernen/${T.id}/schreiben">Diese Fragen selbst beantworten</a>
-    </section>
-
-    <section>
-      <h2>Üben</h2>
-      <div class="mode-list">
-        ${MODES.filter((m) => m.key !== 'wiederholen').map((m) => {
-          const ok = modeAvailable(m.key, cards);
-          return `<a class="mode-row ${m.key === 'probetest' ? 'exam' : ''}" href="#/lernen/${T.id}/${m.key}" style="--c:var(--m-${m.color})" ${ok ? '' : 'aria-disabled="true"'}>
-            <span class="ico">${ICON[m.icon]}</span>
-            <span class="txt"><b>${m.title}</b><span>${m.text}</span></span>
-            <span class="chev" aria-hidden="true">›</span></a>`;
-        }).join('')}
-      </div>
+      <h2>Fächer</h2>
+      <div class="list">${st.subjects.map((s) => {
+        const tests = S.testsOf(s.id);
+        const cards = st.cards.filter((c) => tests.some((t) => t.id === c.testId));
+        return `<a class="row-link subj" href="#/fach/${s.id}" style="--c:${cvar(s.color)}">
+          <span class="txt"><b>${h(s.name)}</b><span class="small muted">${tests.length ? `${plural(tests.length, 'Test', 'Tests')} · ${plural(cards.length, 'Karte', 'Karten')}` : 'Noch kein Test'}</span></span>
+          <span class="chev" aria-hidden="true">›</span></a>`;
+      }).join('') || '<p class="pad muted">Noch keine Fächer.</p>'}</div>
+      <button class="btn wide" id="newSubject">${ICON.plus} Fach anlegen</button>
     </section>`;
+  $('#newSubject').onclick = newSubject;
 }
 
-// ---------- Karten ----------
-let filter = 'alle', query = '';
-function viewCards() {
-  const all = S.cardsOf(T.id);
-  const list = all.filter((c) => (filter === 'alle' || (filter === 'wichtig' ? c.star : filter === 'eigene' ? ['manuell', 'import'].includes(c.type) : true))
-    && (!query || (c.q + ' ' + c.a).toLowerCase().includes(query.toLowerCase())));
+function newSubject() {
+  const used = S.get().subjects.map((s) => s.color);
+  openSheet(`<h2>Fach anlegen</h2>
+    <label class="field">Name<input type="text" name="name" required placeholder="z. B. BGP – Geschäftsprozesse"></label>
+    <div class="field"><span>Farbe</span>${swatches(COLORS.find((c) => !used.includes(c)) || COLORS[0])}</div>${sheetButtons('Anlegen')}`,
+  (fd) => { const s = S.addSubject(fd.get('name'), fd.get('color')); go(`#/fach/${s.id}`); });
+}
+
+// ---------- Fach ----------
+function viewSubject(id) {
+  const s = S.subject(id);
+  const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
   main.innerHTML = `
-    <header class="page-title"><h1>Karten</h1><button class="btn small" id="add">+ Eigene</button></header>
-    <input type="search" id="q" placeholder="Karten durchsuchen" value="${h(query)}" aria-label="Karten durchsuchen">
-    <div class="chips" role="group" aria-label="Filter">
-      ${[['alle', `Alle ${all.length}`], ['wichtig', `★ Wichtig ${all.filter((c) => c.star).length}`], ['eigene', 'Eigene']].map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}
+    <a class="back" href="#/">‹ Fächer</a>
+    <header class="page-title"><h1><span class="mk" style="--c:${cvar(s.color)}">${h(s.name)}</span></h1><button class="btn small ghost" id="editS">Bearbeiten</button></header>
+    ${tests.length ? `<div class="list">${tests.map((t) => {
+      const cards = S.cardsOf(t.id); const { pct } = cardStats(cards);
+      return `<a class="row-link test" href="#/test/${t.id}">
+        <span class="txt"><b>${h(t.title)}</b><span class="small muted">${t.date ? `${fmtDate(new Date(t.date + 'T00:00'))} · ` : ''}${plural(cards.length, 'Karte', 'Karten')}</span>${cards.length ? bar(pct) : ''}</span>
+        ${t.date ? `<span class="margin-note">${countdownText(t.date)}</span>` : '<span class="chev" aria-hidden="true">›</span>'}</a>`;
+    }).join('')}</div>` : `<div class="sheet empty"><span class="margin-note">Welcher Test steht an?</span>
+      <p>Lege einen Test an und lade dann Arbeitsblätter oder Fotos hoch. Daraus macht die App Karteikarten, Quiz und einen Probetest.</p></div>`}
+    <button class="btn primary wide big" id="newTest">${ICON.plus} Test anlegen</button>`;
+  $('#newTest').onclick = () => openSheet(`<h2>Test anlegen</h2>
+    <label class="field">Thema<input type="text" name="title" required placeholder="z. B. Kaufvertrag, Unit 3"></label>
+    <label class="field">Datum <span class="muted small">(optional)</span><input type="date" name="date" min="${isoDate()}"></label>
+    ${sheetButtons('Anlegen')}`,
+  (fd) => { const t = S.addTest(id, fd.get('title'), fd.get('date')); go(`#/test/${t.id}/material`); });
+  $('#editS').onclick = () => openSheet(`<h2>Fach bearbeiten</h2>
+    <label class="field">Name<input type="text" name="name" required value="${h(s.name)}"></label>
+    <div class="field"><span>Farbe</span>${swatches(s.color)}</div>
+    ${sheetButtons('Speichern', '<button type="submit" class="btn ghost danger-text" value="delete" formnovalidate style="margin-right:auto">Löschen</button>')}`,
+  (fd, btn) => {
+    if (btn === 'delete') { setTimeout(() => confirmSheet(`„${s.name}“ mit allen Tests löschen?`, 'Fach löschen', () => { S.deleteSubject(id); go('#/'); })); return; }
+    S.updateSubject(id, { name: fd.get('name').trim(), color: fd.get('color') }); route();
+  });
+}
+
+// ---------- Test ----------
+const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spickzettel']];
+function viewTest(id, tab) {
+  const t = S.test(id); const s = S.subject(t.subjectId);
+  main.innerHTML = `
+    <a class="back" href="#/fach/${s.id}">‹ ${h(s.name)}</a>
+    <header class="test-head">
+      <h1>${h(t.title)}</h1>
+      <div class="row"><span class="muted small">${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))}` : 'Ohne Datum'}</span>${t.date ? `<span class="margin-note">${countdownText(t.date)}</span>` : ''}<button class="btn small ghost" id="editT">Bearbeiten</button></div>
+    </header>
+    <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
+    <div id="tab" class="tabbody"></div>`;
+  $('#editT').onclick = () => openSheet(`<h2>Test bearbeiten</h2>
+    <label class="field">Thema<input type="text" name="title" required value="${h(t.title)}"></label>
+    <label class="field">Datum<input type="date" name="date" value="${h(t.date)}"></label>
+    ${sheetButtons('Speichern', '<button type="submit" class="btn ghost danger-text" value="delete" formnovalidate style="margin-right:auto">Löschen</button>')}`,
+  (fd, btn) => {
+    if (btn === 'delete') { setTimeout(() => confirmSheet(`„${t.title}“ löschen?`, 'Test löschen', () => { S.deleteTest(id); go(`#/fach/${s.id}`); })); return; }
+    S.updateTest(id, { title: fd.get('title').trim(), date: fd.get('date') }); route();
+  });
+  const el = $('#tab');
+  ({ lernen: tabLearn, material: tabMaterial, karten: tabCards, spick: tabCheat }[tab] || tabLearn)(el, t);
+}
+
+function tabLearn(el, t) {
+  const cards = S.cardsOf(t.id);
+  if (!cards.length) {
+    el.innerHTML = `<div class="sheet empty"><span class="margin-note">Erst Material, dann lernen</span>
+      <p>Fotografiere deine Arbeitsblätter oder lade PDF/Word-Dateien hoch.</p>
+      <a class="btn primary" href="#/test/${t.id}/material">${ICON.upload} Material hochladen</a></div>`;
+    return;
+  }
+  const { sure, pct, due } = cardStats(cards);
+  const stars = cards.filter((c) => c.star);
+  const last = S.resultsOf(t.id).at(-1);
+  const ring = 2 * Math.PI * 34;
+  el.innerHTML = `
+    <div class="progress-row">
+      <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="ring-bg"/><circle cx="40" cy="40" r="34" class="ring-fg" stroke-dasharray="${ring}" stroke-dashoffset="${ring * (1 - pct / 100)}"/><text x="40" y="46" text-anchor="middle">${pct}%</text></svg>
+      <div><b>${sure} von ${cards.length} Karten sicher</b><div class="muted small">${due ? `${due} heute dran` : 'Für heute alles wiederholt'}${last ? ` · letzter Probetest: Note ${last.grade}` : ''}</div></div>
     </div>
-    <div class="clist">
-      ${list.map((c) => `<article class="sheet citem">
-        <div class="ctop"><span class="t">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span>
-          <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>
-        <div class="cq">${h(c.q)}</div><div class="ca">${h(c.a)}</div>
-        ${['manuell', 'import'].includes(c.type) ? `<button class="btn ghost small" data-del="${c.id}">Löschen</button>` : ''}
-      </article>`).join('') || '<p class="muted">Keine Karte gefunden.</p>'}
-    </div>`;
-  const q = $('#q');
-  q.oninput = () => { query = q.value; const pos = q.selectionStart; viewCards(); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
-  $$('[data-f]').forEach((b) => b.onclick = () => { filter = b.dataset.f; viewCards(); });
-  $$('[data-star]').forEach((b) => b.onclick = () => { const c = all.find((x) => x.id === b.dataset.star); S.updateCard(c.id, { star: !c.star }); viewCards(); });
-  $$('[data-del]').forEach((b) => b.onclick = () => { S.deleteCard(b.dataset.del); viewCards(); });
-  $('#add').onclick = openAdd;
+    <a class="btn primary big" href="#/lernen/${t.id}/wiederholen">${sure ? 'Weiterlernen' : 'Loslernen'}</a>
+    ${stars.length ? `<section><h2>Wichtig für den Test</h2><div class="stars">
+      ${stars.map((c) => `<details class="sheet star-q"><summary><span class="star-icon" aria-hidden="true">★</span><span>${h(c.q)}</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
+      </div></section>` : ''}
+    <section><h2>Üben</h2><div class="mode-list">
+      ${MODES.filter((m) => m.key !== 'wiederholen').map((m) => `<a class="mode-row ${m.key === 'probetest' ? 'exam' : ''}" href="#/lernen/${t.id}/${m.key}" style="--c:var(--m-${m.color})" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
+        <span class="ico">${ICON[m.icon]}</span><span class="txt"><b>${m.title}</b><span>${m.text}</span></span><span class="chev" aria-hidden="true">›</span></a>`).join('')}
+    </div></section>`;
 }
 
-function openAdd() {
-  const dlg = $('#sheet');
-  dlg.innerHTML = `<form id="addf" class="stack">
-    <h2>Eigene Karten</h2>
-    <p class="small muted">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
-    <textarea id="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
-    <div class="row end"><button type="button" class="btn ghost" id="cancel">Abbrechen</button><button class="btn primary">Hinzufügen</button></div>
-  </form>`;
-  dlg.showModal();
-  $('#cancel').onclick = () => dlg.close();
-  $('#addf').onsubmit = (e) => {
-    e.preventDefault();
-    const rows = $('#list').value.split('\n').map((l) => l.split(/\s*(?:\||\t|;)\s*/)).filter((p) => p.length >= 2 && p[0].trim() && p[1].trim());
-    if (!rows.length) { toast('Bitte so schreiben: Frage | Antwort'); return; }
-    const n = S.addCards(rows.map(([q, ...a]) => ({ testId: T.id, type: 'manuell', q: q.trim(), a: a.join('; ').trim() })));
-    dlg.close(); toast(`${plural(n, 'Karte', 'Karten')} hinzugefügt`); filter = 'eigene'; viewCards();
-  };
+// Material
+function tabMaterial(el, t) {
+  const docs = S.docsOf(t.id);
+  el.innerHTML = `
+    <div class="upload">
+      <label class="btn primary big">${ICON.upload} Foto aufnehmen<input type="file" id="cam" accept="image/*" capture="environment" hidden></label>
+      <label class="btn big">Dateien auswählen<input type="file" id="files" multiple accept="${ACCEPT}" hidden></label>
+      <button class="btn ghost" id="paste">Text einfügen</button>
+      <p class="small muted">PDF, Word, PowerPoint, Text oder Fotos. Wird nur auf deinem Handy gelesen, nichts wird hochgeladen.</p>
+    </div>
+    <div id="progress"></div>
+    <section><h2>Dokumente</h2>
+      ${docs.length ? `<div class="list">${docs.map((d) => `<div class="row-link doc">
+        <span class="txt"><b>${h(d.name)}</b><span class="small muted">${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}</span></span>
+        <span class="row"><button class="btn small" data-read="${d.id}">Lesen</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
+    </section>`;
+  $('#cam').onchange = (e) => handleFiles(t, [...e.target.files]);
+  $('#files').onchange = (e) => handleFiles(t, [...e.target.files]);
+  $('#paste').onclick = () => openSheet(`<h2>Text einfügen</h2>
+    <label class="field">Titel<input type="text" name="name" required value="Mitschrift ${fmtDate(Date.now())}"></label>
+    <label class="field">Text<textarea name="text" required rows="9" placeholder="Tipp: „Begriff: Erklärung“ pro Zeile wird eine Karteikarte."></textarea></label>
+    ${sheetButtons('Karten erzeugen')}`,
+  (fd) => { const d = S.addDoc(t.id, fd.get('name'), 'text', fd.get('text')); toast(`${plural(addGenerated(t.id, d), 'neue Karte', 'neue Karten')}`); route(); });
+  $$('[data-read]').forEach((b) => b.onclick = () => readDoc(b.dataset.read));
+  $$('[data-del]').forEach((b) => b.onclick = () => {
+    const d = S.get().docs.find((x) => x.id === b.dataset.del);
+    confirmSheet(`„${d.name}“ und die Karten daraus entfernen?`, 'Entfernen', () => { S.deleteDoc(d.id, true); route(); });
+  });
 }
 
-// ---------- Texte ----------
-let docIdx = 0;
-function viewText() {
-  const docs = S.docsOf(T.id);
-  docIdx = Math.min(docIdx, docs.length - 1);
-  const d = docs[docIdx];
+async function handleFiles(t, files) {
+  const prog = $('#progress');
+  let total = 0;
+  for (const f of files) {
+    prog.innerHTML = `<div class="sheet progress-line"><b>${h(f.name)}</b><span class="muted small" id="pstat">Wird gelesen …</span><div class="bar"><i class="indet"></i></div></div>`;
+    try {
+      const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
+      if (!r.text.trim()) throw new Error('Kein Text gefunden. Foto gerade, scharf und hell aufnehmen.');
+      const d = S.addDoc(t.id, f.name === 'image.jpg' ? `Foto ${fmtDate(Date.now())}` : f.name, r.kind, r.text);
+      d.highlights = r.highlights; S.save();
+      total += addGenerated(t.id, d);
+    } catch (e) { console.error(e); toast(`${f.name}: ${e.message}`); }
+  }
+  prog.innerHTML = '';
+  toast(`${plural(total, 'neue Karte', 'neue Karten')} erstellt`);
+  route();
+}
+
+function readDoc(id) {
+  const d = S.get().docs.find((x) => x.id === id);
   let body = h(d.text);
   for (const m of (d.highlights || []).slice().sort((a, b) => b.length - a.length)) {
     const e = h(m).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     body = body.replace(new RegExp(`(?<!<span class="mk">[^<]*)${e}`), `<span class="mk">${h(m)}</span>`);
   }
   body = body.split(/\n\s*\n/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-  main.innerHTML = `
-    <header class="page-title"><h1>Texte</h1></header>
-    <div class="chips scroll" role="tablist">${docs.map((x, i) => `<button class="chip" role="tab" data-d="${i}" aria-selected="${i === docIdx}" aria-pressed="${i === docIdx}">${h(x.name.replace(/^(Lesetext|Arbeitsblatt|Kurzarbeit): ?/, ''))}</button>`).join('')}</div>
-    <article class="sheet reader"><h2>${h(d.name)}</h2>${body}</article>`;
-  $$('[data-d]').forEach((b) => b.onclick = () => { docIdx = +b.dataset.d; viewText(); });
+  const f = openSheet(`<h2>${h(d.name)}</h2><div class="reader-text">${body}</div>
+    <div class="row end"><button type="button" class="btn" id="editDoc">Text korrigieren</button><button type="button" class="btn primary" data-close>Schließen</button></div>`, () => {});
+  $('#editDoc', f).onclick = () => openSheet(`<h2>Text korrigieren</h2><p class="small muted">Fehler der Texterkennung verbessern. Danach werden die Karten aus diesem Dokument neu erzeugt.</p>
+    <textarea name="text" rows="14">${h(d.text)}</textarea>${sheetButtons('Speichern')}`,
+  (fd) => {
+    d.text = fd.get('text');
+    S.get().cards.filter((c) => c.docId === d.id && !['manuell', 'import'].includes(c.type)).forEach((c) => S.deleteCard(c.id));
+    toast(`${plural(addGenerated(d.testId, d), 'Karte', 'Karten')} neu erzeugt`); route();
+  });
 }
 
-// ---------- Spickzettel ----------
-function viewCheat() {
-  const docs = S.docsOf(T.id);
+// Karten
+let filter = 'alle', query = '';
+function tabCards(el, t) {
+  const all = S.cardsOf(t.id);
+  const list = all.filter((c) => (filter === 'alle' || (filter === 'wichtig' ? c.star : ['manuell', 'import'].includes(c.type)))
+    && (!query || (c.q + ' ' + c.a).toLowerCase().includes(query.toLowerCase())));
+  el.innerHTML = `
+    <div class="row"><input type="search" id="q" placeholder="Karten durchsuchen" value="${h(query)}" aria-label="Karten durchsuchen" style="flex:1"><button class="btn" id="add">+ Eigene</button></div>
+    <div class="chips" role="group" aria-label="Filter">
+      ${[['alle', `Alle ${all.length}`], ['wichtig', `★ Wichtig ${all.filter((c) => c.star).length}`], ['eigene', 'Eigene']].map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}
+    </div>
+    <p class="small muted">Automatisch erzeugte Karten können Fehler haben – unpassende einfach löschen.</p>
+    <div class="clist">
+      ${list.map((c) => `<article class="sheet citem">
+        <div class="ctop"><span class="t">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span>
+          <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>
+        <div class="cq">${h(c.q)}</div><div class="ca">${h(c.a)}</div>
+        <button class="btn ghost small" data-delc="${c.id}">Löschen</button>
+      </article>`).join('') || '<p class="muted">Keine Karte gefunden.</p>'}
+    </div>`;
+  const q = $('#q');
+  q.oninput = () => { query = q.value; const pos = q.selectionStart; tabCards(el, t); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
+  $$('[data-f]', el).forEach((b) => b.onclick = () => { filter = b.dataset.f; tabCards(el, t); });
+  $$('[data-star]', el).forEach((b) => b.onclick = () => { const c = all.find((x) => x.id === b.dataset.star); S.updateCard(c.id, { star: !c.star }); tabCards(el, t); });
+  $$('[data-delc]', el).forEach((b) => b.onclick = () => { S.deleteCard(b.dataset.delc); b.closest('.citem').remove(); });
+  $('#add').onclick = () => openSheet(`<h2>Eigene Karten</h2>
+    <p class="small muted">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
+    <textarea name="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
+    ${sheetButtons('Hinzufügen')}`,
+  (fd) => {
+    const rows = fd.get('list').split('\n').map((l) => l.split(/\s*(?:\||\t|;)\s*/)).filter((p) => p.length >= 2 && p[0].trim() && p[1].trim());
+    if (!rows.length) { toast('Bitte so schreiben: Frage | Antwort'); return false; }
+    const n = S.addCards(rows.map(([qq, ...a]) => ({ testId: t.id, type: 'manuell', q: qq.trim(), a: a.join('; ').trim() })));
+    toast(`${plural(n, 'Karte', 'Karten')} hinzugefügt`); filter = 'eigene'; tabCards(el, t);
+  });
+}
+
+// Spickzettel
+function tabCheat(el, t) {
+  const docs = S.docsOf(t.id);
+  if (!docs.length) { el.innerHTML = '<p class="muted">Lade zuerst Material hoch.</p>'; return; }
   const text = docs.map((d) => d.text).join('\n\n');
   const hl = docs.flatMap((d) => d.highlights || []);
   const kws = keywords(text, hl, 24);
   const sents = keySentences(text, hl, 12);
-  const gloss = S.cardsOf(T.id).filter((c) => ['begriff', 'abkuerzung'].includes(c.type) && c.a.length < 160);
+  const gloss = S.cardsOf(t.id).filter((c) => ['begriff', 'abkuerzung'].includes(c.type) && c.a.length < 160);
   const colors = ['gelb', 'gruen', 'pink', 'blau', 'orange', 'lila'];
   const mark = (s) => {
     let out = h(s);
@@ -180,17 +303,63 @@ function viewCheat() {
     });
     return out;
   };
-  main.innerHTML = `
-    <header class="page-title"><h1>Spickzettel</h1></header>
-    <article class="sheet cheat">
-      <h3>Schlüsselbegriffe</h3>
-      <div class="terms">${kws.map((k, i) => `<span class="mk" data-c="${colors[i % 6]}">${h(k)}</span>`).join('')}</div>
-      <h3>Begriffe</h3>
-      <dl class="glossary">${gloss.map((c) => `<dt>${h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, ''))}</dt><dd>${h(c.a)}</dd>`).join('')}</dl>
-      <h3>Kernaussagen</h3>
-      <ol>${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol>
-    </article>`;
+  el.innerHTML = `<article class="sheet cheat">
+    <h3>Schlüsselbegriffe</h3>
+    <div class="terms">${kws.map((k, i) => `<span class="mk" data-c="${colors[i % 6]}">${h(k)}</span>`).join('')}</div>
+    ${gloss.length ? `<h3>Begriffe</h3><dl class="glossary">${gloss.map((c) => `<dt>${h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, ''))}</dt><dd>${h(c.a)}</dd>`).join('')}</dl>` : ''}
+    <h3>Kernaussagen</h3>
+    <ol>${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol>
+  </article>`;
 }
 
-document.addEventListener('lernapp:savefail', () => toast('Speichern nicht möglich – privater Modus?'));
+// ---------- Mehr ----------
+function viewMore() {
+  const theme = (() => { try { return localStorage.getItem('lernapp.theme') || 'auto'; } catch { return 'auto'; } })();
+  main.innerHTML = `
+    <header class="page-title"><h1>Mehr</h1></header>
+    <section class="sheet pad stack">
+      <h2>Sicherung</h2>
+      <p class="muted">Dein Lernstand liegt nur in diesem Browser. Lade ab und zu eine Sicherung herunter – z. B. bevor du den Browser-Verlauf löschst oder das Handy wechselst.</p>
+      <button class="btn primary" id="backup">Sicherung herunterladen</button>
+      <label class="btn">Sicherung laden<input type="file" accept=".json,application/json" id="restore" hidden></label>
+    </section>
+    <section class="sheet pad stack">
+      <h2>Darstellung</h2>
+      <div class="chips" role="group" aria-label="Farbschema">${[['auto', 'Wie Handy'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([k, l]) => `<button class="chip" data-theme-set="${k}" aria-pressed="${theme === k}">${l}</button>`).join('')}</div>
+    </section>
+    <section class="sheet pad stack">
+      <h2>Beispiel</h2>
+      <p class="muted">Deutsch-Test „Eine Frage der Ehre“ mit Lesetext und Kurzarbeit-Fragen.</p>
+      <button class="btn" id="demo">Beispiel laden</button>
+    </section>
+    <section class="sheet pad stack">
+      <h2>Am PC lernen</h2>
+      <p class="muted">Die große Version mit Seitenleiste – gleiche Funktionen, eigener Speicher.</p>
+      <a class="btn" href="../">PC-Version öffnen</a>
+    </section>`;
+  $('#backup').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([S.exportJSON()], { type: 'application/json' }));
+    a.download = `lernapp-sicherung-${isoDate()}.json`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  $('#restore').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const text = await f.text();
+    openSheet(`<h2>Sicherung laden</h2><p class="muted">Mit deinen vorhandenen Daten zusammenführen oder alles ersetzen?</p>
+      <div class="row end"><button type="submit" class="btn" value="replace">Ersetzen</button><button class="btn primary" value="merge">Zusammenführen</button></div>`,
+    (fd, btn) => { try { S.importJSON(text, btn === 'replace' ? 'replace' : 'merge'); toast('Sicherung geladen'); go('#/'); } catch (err) { toast(err.message); } });
+  };
+  $$('[data-theme-set]').forEach((b) => b.onclick = () => { setTheme(b.dataset.themeSet); viewMore(); });
+  $('#demo').onclick = () => { const t = loadBeispiel(); if (!t) toast('Beispiel ist schon da'); else go(`#/test/${t.id}`); };
+}
+function setTheme(k) {
+  try { localStorage.setItem('lernapp.theme', k); } catch {}
+  if (k === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme = k;
+}
+try { setTheme(localStorage.getItem('lernapp.theme') || 'auto'); } catch {}
+
+document.addEventListener('lernapp:savefail', () => toast('Speichern nicht möglich – Speicher voll oder privater Modus.'));
+migrate();
 route();

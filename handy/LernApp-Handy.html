@@ -1,4 +1,4 @@
-<title>LernApp Ehrbarer Kaufmann</title>
+<title>LernApp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
@@ -451,7 +451,7 @@ h2 { font-size: 1.25rem; text-wrap: balance; }
 /* Tab-Leiste */
 #tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-  display: grid; grid-template-columns: repeat(4, 1fr);
+  display: grid; grid-template-columns: repeat(3, 1fr);
   background: var(--sheet); border-top: 1px solid var(--rule);
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
 }
@@ -482,13 +482,53 @@ body.in-session #toast { bottom: 24px; }
 .kbd-hint { display: none; }
 .flash-inner { min-height: 380px; }
 
+/* Allgemeine Handy-App: Listen, Navigation */
+.list { display: grid; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); overflow: hidden; }
+.row-link { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; min-height: 64px; color: var(--ink); text-decoration: none; border-top: 1px solid var(--rule); }
+.row-link:first-child { border-top: 0; }
+.row-link:active { background: var(--paper); }
+.row-link .txt { display: grid; gap: 4px; min-width: 0; }
+.row-link .txt b { font: 700 1.02rem/1.3 var(--font-ui); overflow-wrap: anywhere; hyphens: auto; }
+.row-link .chev, .today-card .chev { font-size: 1.6rem; color: var(--ink-3); line-height: 1; }
+.row-link .margin-note { font-size: 1.25rem; white-space: nowrap; }
+.row-link:has(.date-chip) { grid-template-columns: 52px 1fr auto; }
+.row-link.subj { position: relative; padding-left: 26px; }
+.row-link.subj::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 10px; border-radius: 0 6px 6px 0; background: var(--c); }
+.row-link.doc .row { flex-wrap: nowrap; gap: 6px; }
+.today-card { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 16px 18px; text-decoration: none; color: var(--ink); background: var(--ink); border-color: var(--ink); }
+.today-card .num { font: 800 2.4rem/1 var(--font-ui); color: var(--paper); font-variant-numeric: tabular-nums; }
+.today-card .txt { display: grid; gap: 2px; }
+.today-card b { font: 700 1.05rem var(--font-ui); color: var(--paper); }
+.today-card .muted, .today-card .chev { color: color-mix(in srgb, var(--paper) 70%, transparent); }
+.back { font: 600 .95rem var(--font-ui); color: var(--blue); text-decoration: none; margin-bottom: -18px; justify-self: start; padding: 6px 0; }
+.page-title h1 { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+.test-head { display: grid; gap: 6px; }
+.test-head .row { gap: 10px; }
+.test-head .margin-note { font-size: 1.3rem; }
+.test-head .btn { margin-left: auto; }
+.seg { display: flex; gap: 4px; padding: 4px; background: var(--grid); border-radius: 12px; overflow-x: auto; scrollbar-width: none; margin-bottom: -10px; }
+.seg a { flex: 1 0 auto; text-align: center; padding: 9px 12px; border-radius: 9px; text-decoration: none; color: var(--ink-2); font: 600 .9rem var(--font-ui); white-space: nowrap; }
+.seg a[aria-current="page"] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 3px rgba(26,37,80,.15); }
+.tabbody { display: grid; gap: 22px; }
+.tabbody > section { display: grid; gap: 12px; }
+.upload { display: grid; gap: 10px; }
+.upload .btn.big { width: 100%; }
+.bar i.indet { width: 35%; background: var(--blue); animation: indet 1.2s ease-in-out infinite alternate; }
+@keyframes indet { from { margin-left: 0; } to { margin-left: 65%; } }
+.danger-text { color: var(--red); }
+.empty { padding: 22px 18px; }
+#sheet { max-height: 92vh; overflow-y: auto; }
+#sheet .reader-text { max-height: none; }
+#sheet h2 { overflow-wrap: anywhere; }
+.date-chip b { font-size: 1.35rem; }
+body:not(.in-session) #toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+
 </style>
 <main id="main" tabindex="-1"></main>
 <nav id="tabbar" aria-label="Bereiche">
-  <a href="#/" data-tab="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 8h6M8 12h4"/></svg>Lernen</a>
-  <a href="#/karten" data-tab="karten"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="1.5"/><path d="M7 3h13a1 1 0 0 1 1 1v11"/><path d="M3 10h14"/></svg>Karten</a>
-  <a href="#/text" data-tab="text"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10l3 3v15H4V3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Texte</a>
-  <a href="#/spick" data-tab="spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>Spickzettel</a>
+  <a href="#/" data-tab="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 8h6M8 12h4"/></svg>Fächer</a>
+  <a href="#/lernen/alle/wiederholen" data-tab="heute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>Wiederholen</a>
+  <a href="#/mehr" data-tab="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Mehr</a>
 </nav>
 <div id="toast" role="status" aria-live="polite"></div>
 <dialog id="sheet"></dialog>
@@ -1192,6 +1232,310 @@ Die Industrie- und Handelskammer (IHK) sind 1956 vom Gesetzgeber beauftragt word
 return { FAECHER, KURZARBEIT, BEISPIEL };
 })();
 
+__m.extract = (() => {
+// Text aus hochgeladenen Dateien holen – komplett lokal im Browser.
+// PDF: pdf.js (Textebene, bei Scans OCR) · Word/PowerPoint/OpenOffice: ZIP+XML · Bilder: Tesseract OCR (Deutsch)
+// Bei Fotos werden zusätzlich farbig markierte Wörter (Textmarker) erkannt.
+
+// Pfad zu lib/ – die Handy-Version liegt eine Ebene tiefer und setzt window.LERNAPP_BASE = '../'
+const abs = (p) => new URL((window.LERNAPP_BASE || '') + p, location.href).href;
+
+const ACCEPT = '.pdf,.docx,.pptx,.odt,.odp,.txt,.md,.csv,.rtf,.png,.jpg,.jpeg,.webp,.bmp,.gif,.heic';
+
+async function extractFile(file, onStatus = () => {}) {
+  const name = file.name;
+  const ext = name.split('.').pop().toLowerCase();
+  if (['txt', 'md', 'csv'].includes(ext)) return { kind: 'text', text: await file.text(), highlights: [] };
+  if (ext === 'rtf') return { kind: 'text', text: rtfToText(await file.text()), highlights: [] };
+  if (ext === 'pdf') return extractPdf(file, onStatus);
+  if (['docx', 'pptx', 'odt', 'odp'].includes(ext)) return { kind: ext, text: await extractOffice(file, ext), highlights: [] };
+  if (file.type.startsWith('image/') || ['png', 'jpg', 'jpeg', 'webp', 'bmp', 'gif'].includes(ext)) {
+    onStatus('Bild wird gelesen (Texterkennung) …');
+    const bmp = await loadImage(file);
+    return { kind: 'bild', ...(await ocrCanvas(bmp, onStatus)) };
+  }
+  throw new Error(`Dateityp .${ext} wird nicht unterstützt.`);
+}
+
+// ---------- PDF ----------
+let pdfjs;
+async function extractPdf(file, onStatus) {
+  if (!pdfjs) {
+    pdfjs = await import(abs('lib/pdfjs/pdf.min.mjs'));
+    pdfjs.GlobalWorkerOptions.workerSrc = abs('lib/pdfjs/pdf.worker.min.mjs');
+  }
+  const doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const parts = [];
+  const highlights = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    onStatus(`PDF Seite ${i} von ${doc.numPages} …`);
+    const page = await doc.getPage(i);
+    const tc = await page.getTextContent();
+    let text = '';
+    for (const it of tc.items) text += it.str + (it.hasEOL ? '\n' : (it.str.endsWith(' ') ? '' : ' '));
+    if (text.replace(/\s/g, '').length < 40) {
+      // gescannte Seite → rendern und OCR
+      const vp = page.getViewport({ scale: 2.2 });
+      const canvas = document.createElement('canvas');
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      const r = await ocrCanvas(canvas, (s) => onStatus(`PDF Seite ${i}: ${s}`));
+      text = r.text; highlights.push(...r.highlights);
+    }
+    parts.push(text);
+  }
+  return { kind: 'pdf', text: parts.join('\n\n'), highlights };
+}
+
+// ---------- Office (ZIP + XML) ----------
+async function extractOffice(file, ext) {
+  const zip = await readZip(await file.arrayBuffer());
+  const xmlText = (xml, paraTag, textTag) => {
+    const doc = new DOMParser().parseFromString(xml, 'application/xml');
+    const out = [];
+    for (const p of doc.getElementsByTagName(paraTag)) {
+      let line = '';
+      const walk = (n) => {
+        for (const c of n.childNodes) {
+          if (c.nodeType !== 1) continue;
+          if (c.tagName === textTag) line += c.textContent;
+          else if (c.localName === 'tab') line += '\t';
+          else if (c.localName === 'br' || c.localName === 'line-break') line += '\n';
+          else walk(c);
+        }
+      };
+      walk(p);
+      out.push(line);
+    }
+    return out.join('\n');
+  };
+  if (ext === 'docx') {
+    const xml = await zip.text('word/document.xml');
+    // Tabellenzellen in einer Zeile mit Tab trennen
+    const prepared = xml.replace(/<\/w:p>\s*<\/w:tc>\s*<w:tc>/g, '</w:p><w:p><w:r><w:t>\u0001</w:t></w:r></w:p>');
+    return xmlText(prepared, 'w:p', 'w:t').replace(/\n\u0001\n/g, '\t').replace(/\u0001/g, '\t');
+  }
+  if (ext === 'pptx') {
+    const slides = zip.names.filter((n) => /^ppt\/slides\/slide\d+\.xml$/.test(n))
+      .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+    const out = [];
+    for (const s of slides) out.push(xmlText(await zip.text(s), 'a:p', 'a:t'));
+    return out.join('\n\n');
+  }
+  // ODT / ODP
+  const xml = await zip.text('content.xml');
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  const out = [];
+  const all = doc.getElementsByTagName('*');
+  for (const el of all) if (el.localName === 'p' || el.localName === 'h') out.push(el.textContent);
+  return out.join('\n');
+}
+
+async function readZip(buf) {
+  const dv = new DataView(buf);
+  let eocd = -1;
+  for (let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 65557); i--) {
+    if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('Datei ist beschädigt oder kein Office-Dokument.');
+  const count = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+  const entries = {};
+  const dec = new TextDecoder();
+  for (let i = 0; i < count; i++) {
+    const method = dv.getUint16(p + 10, true);
+    const csize = dv.getUint32(p + 20, true);
+    const nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true);
+    const local = dv.getUint32(p + 42, true);
+    const name = dec.decode(new Uint8Array(buf, p + 46, nlen));
+    entries[name] = { method, csize, local };
+    p += 46 + nlen + xlen + clen;
+  }
+  return {
+    names: Object.keys(entries),
+    async text(name) {
+      const e = entries[name];
+      if (!e) throw new Error(`${name} fehlt im Dokument.`);
+      const lnl = dv.getUint16(e.local + 26, true), lxl = dv.getUint16(e.local + 28, true);
+      const data = new Uint8Array(buf, e.local + 30 + lnl + lxl, e.csize);
+      if (e.method === 0) return dec.decode(data);
+      const stream = new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return new Response(stream).text();
+    },
+  };
+}
+
+function rtfToText(rtf) {
+  return rtf.replace(/\\par[d]?/g, '\n').replace(/\\'([0-9a-f]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/\\[a-z]+-?\d* ?/gi, '').replace(/[{}]/g, '').trim();
+}
+
+// ---------- Bilder / OCR ----------
+async function loadImage(file) {
+  try {
+    return await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch {
+    throw new Error('Bild konnte nicht geöffnet werden (HEIC bitte vorher als JPG speichern).');
+  }
+}
+
+let workerPromise;
+function getWorker(onStatus) {
+  if (!workerPromise) {
+    onStatus('Texterkennung wird geladen …');
+    workerPromise = (async () => {
+      await loadScript(abs('lib/tesseract/tesseract.min.js'));
+      return window.Tesseract.createWorker('deu', 1, {
+        workerPath: abs('lib/tesseract/worker.min.js'),
+        corePath: abs('lib/tesseract/core'),
+        langPath: abs('lib/tesseract/lang'),
+        gzip: true,
+        workerBlobURL: false,
+        logger: (m) => {
+          if (m.status === 'recognizing text') currentStatus(`Texterkennung ${Math.round(m.progress * 100)} %`);
+        },
+      });
+    })();
+    workerPromise.catch(() => { workerPromise = null; });
+  }
+  return workerPromise;
+}
+let currentStatus = () => {};
+
+function loadScript(src) {
+  return new Promise((res, rej) => {
+    if ([...document.scripts].some((s) => s.src === src)) return res();
+    const s = document.createElement('script');
+    s.src = src; s.onload = res; s.onerror = () => rej(new Error('Texterkennung konnte nicht geladen werden.'));
+    document.head.appendChild(s);
+  });
+}
+
+async function ocrCanvas(source, onStatus) {
+  currentStatus = onStatus;
+  const worker = await getWorker(onStatus);
+  // auf sinnvolle Größe bringen: lange Seite ca. 2400 px
+  const w0 = source.width, h0 = source.height;
+  const scale = Math.min(2.5, 2400 / Math.max(w0, h0));
+  const W = Math.round(w0 * scale), H = Math.round(h0 * scale);
+  const color = document.createElement('canvas');
+  color.width = W; color.height = H;
+  const cctx = color.getContext('2d', { willReadFrequently: true });
+  cctx.drawImage(source, 0, 0, W, H);
+  const rgba = cctx.getImageData(0, 0, W, H);
+
+  // Graustufen + Kontrast; Textmarker-Farbe wird zu Weiß, damit sie die Erkennung nicht stört
+  const gray = document.createElement('canvas');
+  gray.width = W; gray.height = H;
+  const gctx = gray.getContext('2d');
+  const out = gctx.createImageData(W, H);
+  const mark = new Uint8Array(W * H);
+  const d = rgba.data, o = out.data;
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+    const r = d[i], g = d[i + 1], b = d[i + 2];
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    const sat = max ? (max - min) / max : 0;
+    let y = 0.299 * r + 0.587 * g + 0.114 * b;
+    if (sat > 0.18 && max > 120) { mark[j] = 1; y = Math.min(255, y * 1.25 + 20); }
+    o[i] = o[i + 1] = o[i + 2] = y; o[i + 3] = 255;
+  }
+  gctx.putImageData(out, 0, 0);
+
+  onStatus('Texterkennung läuft …');
+  const { data } = await worker.recognize(gray, {}, { text: true, blocks: true });
+  const highlights = findHighlights(data, mark, W);
+  return { text: cleanOcr(data.text), highlights };
+}
+
+function findHighlights(data, mark, W) {
+  const phrases = [];
+  let cur = [];
+  const flush = () => { if (cur.length) phrases.push(cur.join(' ')); cur = []; };
+  for (const block of data.blocks || []) for (const para of block.paragraphs) for (const line of para.lines) {
+    for (const word of line.words) {
+      const { x0, y0, x1, y1 } = word.bbox;
+      let hit = 0, n = 0;
+      for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) { n++; hit += mark[y * W + x]; }
+      const clean = word.text.replace(/^[„"“(»]+|[“"”),.;:!?«]+$/g, '');
+      if (n && hit / n > 0.22 && word.confidence > 55 && clean.length > 1) cur.push(clean);
+      else flush();
+    }
+    flush();
+  }
+  return [...new Set(phrases.filter((p) => p.length > 3 && /[A-Za-zÄÖÜäöüß]{3}/.test(p)))];
+}
+
+function cleanOcr(t) {
+  return t
+    .replace(/[|]/g, '')
+    .split('\n')
+    .map((l) => l.replace(/^(?:[IiOo'=\-_~,.:;]{1,2}\s+)+(?=\S{3})/, '').replace(/(?:\s+[IiOo'=\-_~,.:;]{1,2})+$/, '').trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n').trim();
+}
+
+return { ACCEPT, extractFile };
+})();
+
+__m.setup = (() => {
+// Gemeinsame Einrichtung für PC- und Handy-Version
+const S = __m.store;
+const { generate } = __m.gen;
+const { BEISPIEL, FAECHER, KURZARBEIT } = __m.beispiel;
+
+function addGenerated(testId, doc) {
+  const gen = generate(doc.text, { highlights: doc.highlights || [] });
+  return S.addCards(gen.map((c) => ({ ...c, testId, docId: doc.id })));
+}
+
+function addBeispielDoc(testId, bd) {
+  const d = S.addDoc(testId, bd.name, bd.kind, bd.text);
+  d.highlights = bd.highlights;
+  const n = addGenerated(testId, d);
+  // Fragen der Kurzarbeit als wichtig markieren
+  if (bd === KURZARBEIT) S.get().cards.filter((c) => c.docId === d.id && c.type === 'frage').forEach((c) => { c.star = true; });
+  S.save();
+  return n;
+}
+
+// Legt den Deutsch-Test an; gibt null zurück, wenn er schon existiert
+function loadBeispiel() {
+  const st = S.get();
+  if (st.tests.some((t) => t.title === BEISPIEL.test.title)) return null;
+  const s = st.subjects.find((x) => x.name === BEISPIEL.subject.name) || S.addSubject(BEISPIEL.subject.name, BEISPIEL.subject.color);
+  const t = S.addTest(s.id, BEISPIEL.test.title, '', BEISPIEL.test.notes);
+  for (const bd of BEISPIEL.docs) addBeispielDoc(t.id, bd);
+  return t;
+}
+
+// Einmalige Einrichtung: Fächer laut Stundenplan, Deutsch-Test, Kurzarbeit-Fragen
+function migrate() {
+  const st = S.get();
+  st.setup ||= {};
+  if (!st.setup.faecherV1) {
+    const old = st.subjects.find((s) => s.name === 'Deutsch / Kommunikation');
+    if (old) old.name = 'D – Deutsch';
+    for (const f of FAECHER) if (!st.subjects.some((s) => s.name === f.name)) st.subjects.push({ id: S.uid(), ...f });
+    st.setup.faecherV1 = true;
+  }
+  if (!st.setup.beispielAutoV1) {
+    st.setup.beispielAutoV1 = true;
+    if (loadBeispiel()) st.setup.kurzarbeitV1 = true;
+  }
+  if (!st.setup.kurzarbeitV1) {
+    const t = st.tests.find((x) => x.title === BEISPIEL.test.title);
+    if (t && !S.docsOf(t.id).some((d) => d.name === KURZARBEIT.name)) {
+      addBeispielDoc(t.id, KURZARBEIT);
+      t.notes = BEISPIEL.test.notes;
+    }
+    st.setup.kurzarbeitV1 = true;
+  }
+  S.save();
+}
+
+return { addGenerated, addBeispielDoc, loadBeispiel, migrate };
+})();
+
 __m.learn = (() => {
 // Lernmodi: Karteikarten, Wiederholen, Quiz, Wahr/Falsch, Lückentext, Zuordnen, Schreiben, Probetest
 const S = __m.store;
@@ -1738,179 +2082,302 @@ return { MODES, modeAvailable, startSession };
 })();
 
 __m.handy = (() => {
-// Handy-Version: ein Lernset, Tab-Leiste unten, große Knöpfe.
+// Handy-Version: alle Fächer und Tests, Upload, Lernen – eine Spalte, Tab-Leiste unten.
 const S = __m.store;
-const { generate, keywords, keySentences, TYPE_LABEL } = __m.gen;
-const { BEISPIEL, KURZARBEIT } = __m.beispiel;
+const { keywords, keySentences, TYPE_LABEL } = __m.gen;
+const { extractFile, ACCEPT } = __m.extract;
+const { addGenerated, loadBeispiel, migrate } = __m.setup;
 const { startSession, MODES, modeAvailable } = __m.learn;
-const { h, $, $$, toast, plural, ICON } = __m.util;
+const { h, $, $$, toast, plural, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, ICON } = __m.util;
 
 const main = $('#main');
 const nav = $('#tabbar');
-
-// ---------- Lernset beim ersten Öffnen anlegen ----------
-function ensureSet() {
-  const st = S.get();
-  let t = st.tests.find((x) => x.title === BEISPIEL.test.title);
-  if (t) return t;
-  const s = st.subjects.find((x) => x.name === BEISPIEL.subject.name) || S.addSubject(BEISPIEL.subject.name, BEISPIEL.subject.color);
-  t = S.addTest(s.id, BEISPIEL.test.title, '', BEISPIEL.test.notes);
-  for (const bd of BEISPIEL.docs) {
-    const d = S.addDoc(t.id, bd.name, bd.kind, bd.text);
-    d.highlights = bd.highlights;
-    const gen = generate(d.text, { highlights: d.highlights });
-    S.addCards(gen.map((c) => ({ ...c, testId: t.id, docId: d.id, star: bd === KURZARBEIT && c.type === 'frage' })));
-  }
-  S.save();
-  return t;
-}
-const T = ensureSet();
+const sheet = $('#sheet');
 
 // ---------- Router ----------
 function route() {
-  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-  const [view, , mode] = parts;
+  const [view, id, sub] = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent);
   window.scrollTo(0, 0);
+  if (sheet.open) sheet.close();
   if (view === 'lernen') {
-    document.body.classList.add('in-session');
-    nav.hidden = true;
-    return startSession(main, T.id, mode);
+    document.body.classList.add('in-session'); nav.hidden = true;
+    return startSession(main, id, sub);
   }
-  document.body.classList.remove('in-session');
-  nav.hidden = false;
-  const tab = ['karten', 'text', 'spick'].includes(view) ? view : 'start';
+  document.body.classList.remove('in-session'); nav.hidden = false;
+  const tab = view === 'mehr' ? 'mehr' : 'start';
   $$('a', nav).forEach((a) => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
-  ({ start: viewStart, karten: viewCards, text: viewText, spick: viewCheat })[tab]();
+  if (view === 'fach' && S.subject(id)) return viewSubject(id);
+  if (view === 'test' && S.test(id)) return viewTest(id, sub || 'lernen');
+  if (view === 'mehr') return viewMore();
+  viewHome();
 }
 window.addEventListener('hashchange', route);
+const go = (hash) => { if (location.hash === hash) route(); else location.hash = hash; };
 
-const stats = () => {
-  const cards = S.cardsOf(T.id);
+const cardStats = (cards) => {
   const sure = cards.filter((c) => S.progressOf(c.id).box >= 3).length;
-  const due = cards.filter((c) => S.isDue(c.id)).length;
-  return { cards, sure, due, pct: cards.length ? Math.round(sure / cards.length * 100) : 0 };
+  return { sure, pct: cards.length ? Math.round(sure / cards.length * 100) : 0, due: cards.filter((c) => S.isDue(c.id)).length };
 };
+const bar = (pct) => `<div class="bar"><i style="width:${pct}%"></i></div>`;
+
+// ---------- Bottom-Sheet ----------
+function openSheet(html, onSubmit) {
+  sheet.innerHTML = `<form class="stack" id="sf">${html}</form>`;
+  sheet.showModal();
+  const f = $('#sf');
+  $$('[data-close]', f).forEach((b) => b.onclick = () => sheet.close());
+  f.onsubmit = (e) => {
+    e.preventDefault();
+    if (onSubmit(new FormData(f), e.submitter?.value) !== false) sheet.close();
+  };
+  return f;
+}
+const sheetButtons = (ok, extra = '') => `<div class="row end">${extra}<button type="button" class="btn ghost" data-close>Abbrechen</button><button class="btn primary" value="ok">${ok}</button></div>`;
+const swatches = (cur) => `<div class="swatches" role="radiogroup" aria-label="Farbe">${COLORS.map((c) => `<label title="${COLOR_NAME[c]}"><input type="radio" name="color" value="${c}" ${c === cur ? 'checked' : ''} aria-label="${COLOR_NAME[c]}"><span style="--c:${cvar(c)}"></span></label>`).join('')}</div>`;
+
+// Löschen mit Rückfrage im Sheet (Browser-Dialoge sind auf manchen Handys gesperrt)
+function confirmSheet(text, label, action) {
+  openSheet(`<h2>${h(text)}</h2><p class="muted">Das lässt sich nicht rückgängig machen.</p>${sheetButtons(label).replace('btn primary', 'btn danger')}`, () => { action(); });
+}
 
 // ---------- Start ----------
-function viewStart() {
-  const { cards, sure, due, pct } = stats();
-  const stars = cards.filter((c) => c.star);
-  const last = S.resultsOf(T.id).at(-1);
+function viewHome() {
+  const st = S.get();
+  const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
+  const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
+  const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   const streak = S.streakDays();
-  const ring = 2 * Math.PI * 34;
   main.innerHTML = `
-    <header class="hero">
-      <span class="subject"><span class="mk" data-c="lila">D – Deutsch</span> · Kurzarbeit</span>
-      <h1>Eine Frage der Ehre</h1>
-      <p class="muted">Der ehrbare Kaufmann – Tugenden, Eigenschaften, Gemeinschaft</p>
-      <div class="progress-row">
-        <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="ring-bg"/><circle cx="40" cy="40" r="34" class="ring-fg" stroke-dasharray="${ring}" stroke-dashoffset="${ring * (1 - pct / 100)}"/><text x="40" y="46" text-anchor="middle">${pct}%</text></svg>
-        <div>
-          <b>${sure} von ${cards.length} Karten sicher</b>
-          <div class="muted small">${due ? `${due} heute dran` : 'Für heute alles wiederholt'}${last ? ` · letzter Probetest: Note ${last.grade}` : ''}</div>
-          ${streak ? `<span class="margin-note blue">${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück</span>` : ''}
-        </div>
-      </div>
-      <a class="btn primary big" href="#/lernen/${T.id}/wiederholen">${sure ? 'Weiterlernen' : 'Loslernen'}</a>
-    </header>
+    <header class="page-title"><h1>Meine Fächer</h1>${streak ? `<span class="margin-note blue">${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück</span>` : ''}</header>
+
+    ${st.cards.length ? `<a class="sheet today-card" href="#/lernen/alle/wiederholen">
+      <span class="num">${due || fresh}</span>
+      <span class="txt"><b>${due ? 'Karten heute wiederholen' : 'Neue Karten lernen'}</b><span class="muted small">aus allen Fächern</span></span>
+      <span class="chev" aria-hidden="true">›</span></a>` : ''}
+
+    ${upcoming.length ? `<section><h2>Nächste Tests</h2><div class="list">${upcoming.slice(0, 4).map((t) => {
+      const p = dateParts(t.date); const s = S.subject(t.subjectId);
+      return `<a class="row-link" href="#/test/${t.id}"><span class="date-chip"><span>${p.wd}</span><b>${p.day}</b><span>${p.mon}</span></span>
+        <span class="txt"><b>${h(t.title)}</b><span class="small muted"><span class="mk" style="--c:${cvar(s?.color)}">${h(s?.name)}</span></span></span>
+        <span class="margin-note">${countdownText(t.date)}</span></a>`;
+    }).join('')}</div></section>` : ''}
 
     <section>
-      <h2>Kommt in der Kurzarbeit dran</h2>
-      <div class="stars">
-        ${stars.map((c) => `<details class="sheet star-q"><summary><span class="star-icon" aria-hidden="true">★</span><span>${h(c.q)}</span></summary>
-          <div class="star-a">${h(c.a)}</div></details>`).join('')}
-      </div>
-      <a class="btn wide" href="#/lernen/${T.id}/schreiben">Diese Fragen selbst beantworten</a>
-    </section>
-
-    <section>
-      <h2>Üben</h2>
-      <div class="mode-list">
-        ${MODES.filter((m) => m.key !== 'wiederholen').map((m) => {
-          const ok = modeAvailable(m.key, cards);
-          return `<a class="mode-row ${m.key === 'probetest' ? 'exam' : ''}" href="#/lernen/${T.id}/${m.key}" style="--c:var(--m-${m.color})" ${ok ? '' : 'aria-disabled="true"'}>
-            <span class="ico">${ICON[m.icon]}</span>
-            <span class="txt"><b>${m.title}</b><span>${m.text}</span></span>
-            <span class="chev" aria-hidden="true">›</span></a>`;
-        }).join('')}
-      </div>
+      <h2>Fächer</h2>
+      <div class="list">${st.subjects.map((s) => {
+        const tests = S.testsOf(s.id);
+        const cards = st.cards.filter((c) => tests.some((t) => t.id === c.testId));
+        return `<a class="row-link subj" href="#/fach/${s.id}" style="--c:${cvar(s.color)}">
+          <span class="txt"><b>${h(s.name)}</b><span class="small muted">${tests.length ? `${plural(tests.length, 'Test', 'Tests')} · ${plural(cards.length, 'Karte', 'Karten')}` : 'Noch kein Test'}</span></span>
+          <span class="chev" aria-hidden="true">›</span></a>`;
+      }).join('') || '<p class="pad muted">Noch keine Fächer.</p>'}</div>
+      <button class="btn wide" id="newSubject">${ICON.plus} Fach anlegen</button>
     </section>`;
+  $('#newSubject').onclick = newSubject;
 }
 
-// ---------- Karten ----------
-let filter = 'alle', query = '';
-function viewCards() {
-  const all = S.cardsOf(T.id);
-  const list = all.filter((c) => (filter === 'alle' || (filter === 'wichtig' ? c.star : filter === 'eigene' ? ['manuell', 'import'].includes(c.type) : true))
-    && (!query || (c.q + ' ' + c.a).toLowerCase().includes(query.toLowerCase())));
+function newSubject() {
+  const used = S.get().subjects.map((s) => s.color);
+  openSheet(`<h2>Fach anlegen</h2>
+    <label class="field">Name<input type="text" name="name" required placeholder="z. B. BGP – Geschäftsprozesse"></label>
+    <div class="field"><span>Farbe</span>${swatches(COLORS.find((c) => !used.includes(c)) || COLORS[0])}</div>${sheetButtons('Anlegen')}`,
+  (fd) => { const s = S.addSubject(fd.get('name'), fd.get('color')); go(`#/fach/${s.id}`); });
+}
+
+// ---------- Fach ----------
+function viewSubject(id) {
+  const s = S.subject(id);
+  const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
   main.innerHTML = `
-    <header class="page-title"><h1>Karten</h1><button class="btn small" id="add">+ Eigene</button></header>
-    <input type="search" id="q" placeholder="Karten durchsuchen" value="${h(query)}" aria-label="Karten durchsuchen">
-    <div class="chips" role="group" aria-label="Filter">
-      ${[['alle', `Alle ${all.length}`], ['wichtig', `★ Wichtig ${all.filter((c) => c.star).length}`], ['eigene', 'Eigene']].map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}
+    <a class="back" href="#/">‹ Fächer</a>
+    <header class="page-title"><h1><span class="mk" style="--c:${cvar(s.color)}">${h(s.name)}</span></h1><button class="btn small ghost" id="editS">Bearbeiten</button></header>
+    ${tests.length ? `<div class="list">${tests.map((t) => {
+      const cards = S.cardsOf(t.id); const { pct } = cardStats(cards);
+      return `<a class="row-link test" href="#/test/${t.id}">
+        <span class="txt"><b>${h(t.title)}</b><span class="small muted">${t.date ? `${fmtDate(new Date(t.date + 'T00:00'))} · ` : ''}${plural(cards.length, 'Karte', 'Karten')}</span>${cards.length ? bar(pct) : ''}</span>
+        ${t.date ? `<span class="margin-note">${countdownText(t.date)}</span>` : '<span class="chev" aria-hidden="true">›</span>'}</a>`;
+    }).join('')}</div>` : `<div class="sheet empty"><span class="margin-note">Welcher Test steht an?</span>
+      <p>Lege einen Test an und lade dann Arbeitsblätter oder Fotos hoch. Daraus macht die App Karteikarten, Quiz und einen Probetest.</p></div>`}
+    <button class="btn primary wide big" id="newTest">${ICON.plus} Test anlegen</button>`;
+  $('#newTest').onclick = () => openSheet(`<h2>Test anlegen</h2>
+    <label class="field">Thema<input type="text" name="title" required placeholder="z. B. Kaufvertrag, Unit 3"></label>
+    <label class="field">Datum <span class="muted small">(optional)</span><input type="date" name="date" min="${isoDate()}"></label>
+    ${sheetButtons('Anlegen')}`,
+  (fd) => { const t = S.addTest(id, fd.get('title'), fd.get('date')); go(`#/test/${t.id}/material`); });
+  $('#editS').onclick = () => openSheet(`<h2>Fach bearbeiten</h2>
+    <label class="field">Name<input type="text" name="name" required value="${h(s.name)}"></label>
+    <div class="field"><span>Farbe</span>${swatches(s.color)}</div>
+    ${sheetButtons('Speichern', '<button type="submit" class="btn ghost danger-text" value="delete" formnovalidate style="margin-right:auto">Löschen</button>')}`,
+  (fd, btn) => {
+    if (btn === 'delete') { setTimeout(() => confirmSheet(`„${s.name}“ mit allen Tests löschen?`, 'Fach löschen', () => { S.deleteSubject(id); go('#/'); })); return; }
+    S.updateSubject(id, { name: fd.get('name').trim(), color: fd.get('color') }); route();
+  });
+}
+
+// ---------- Test ----------
+const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spickzettel']];
+function viewTest(id, tab) {
+  const t = S.test(id); const s = S.subject(t.subjectId);
+  main.innerHTML = `
+    <a class="back" href="#/fach/${s.id}">‹ ${h(s.name)}</a>
+    <header class="test-head">
+      <h1>${h(t.title)}</h1>
+      <div class="row"><span class="muted small">${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))}` : 'Ohne Datum'}</span>${t.date ? `<span class="margin-note">${countdownText(t.date)}</span>` : ''}<button class="btn small ghost" id="editT">Bearbeiten</button></div>
+    </header>
+    <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
+    <div id="tab" class="tabbody"></div>`;
+  $('#editT').onclick = () => openSheet(`<h2>Test bearbeiten</h2>
+    <label class="field">Thema<input type="text" name="title" required value="${h(t.title)}"></label>
+    <label class="field">Datum<input type="date" name="date" value="${h(t.date)}"></label>
+    ${sheetButtons('Speichern', '<button type="submit" class="btn ghost danger-text" value="delete" formnovalidate style="margin-right:auto">Löschen</button>')}`,
+  (fd, btn) => {
+    if (btn === 'delete') { setTimeout(() => confirmSheet(`„${t.title}“ löschen?`, 'Test löschen', () => { S.deleteTest(id); go(`#/fach/${s.id}`); })); return; }
+    S.updateTest(id, { title: fd.get('title').trim(), date: fd.get('date') }); route();
+  });
+  const el = $('#tab');
+  ({ lernen: tabLearn, material: tabMaterial, karten: tabCards, spick: tabCheat }[tab] || tabLearn)(el, t);
+}
+
+function tabLearn(el, t) {
+  const cards = S.cardsOf(t.id);
+  if (!cards.length) {
+    el.innerHTML = `<div class="sheet empty"><span class="margin-note">Erst Material, dann lernen</span>
+      <p>Fotografiere deine Arbeitsblätter oder lade PDF/Word-Dateien hoch.</p>
+      <a class="btn primary" href="#/test/${t.id}/material">${ICON.upload} Material hochladen</a></div>`;
+    return;
+  }
+  const { sure, pct, due } = cardStats(cards);
+  const stars = cards.filter((c) => c.star);
+  const last = S.resultsOf(t.id).at(-1);
+  const ring = 2 * Math.PI * 34;
+  el.innerHTML = `
+    <div class="progress-row">
+      <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="ring-bg"/><circle cx="40" cy="40" r="34" class="ring-fg" stroke-dasharray="${ring}" stroke-dashoffset="${ring * (1 - pct / 100)}"/><text x="40" y="46" text-anchor="middle">${pct}%</text></svg>
+      <div><b>${sure} von ${cards.length} Karten sicher</b><div class="muted small">${due ? `${due} heute dran` : 'Für heute alles wiederholt'}${last ? ` · letzter Probetest: Note ${last.grade}` : ''}</div></div>
     </div>
-    <div class="clist">
-      ${list.map((c) => `<article class="sheet citem">
-        <div class="ctop"><span class="t">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span>
-          <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>
-        <div class="cq">${h(c.q)}</div><div class="ca">${h(c.a)}</div>
-        ${['manuell', 'import'].includes(c.type) ? `<button class="btn ghost small" data-del="${c.id}">Löschen</button>` : ''}
-      </article>`).join('') || '<p class="muted">Keine Karte gefunden.</p>'}
-    </div>`;
-  const q = $('#q');
-  q.oninput = () => { query = q.value; const pos = q.selectionStart; viewCards(); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
-  $$('[data-f]').forEach((b) => b.onclick = () => { filter = b.dataset.f; viewCards(); });
-  $$('[data-star]').forEach((b) => b.onclick = () => { const c = all.find((x) => x.id === b.dataset.star); S.updateCard(c.id, { star: !c.star }); viewCards(); });
-  $$('[data-del]').forEach((b) => b.onclick = () => { S.deleteCard(b.dataset.del); viewCards(); });
-  $('#add').onclick = openAdd;
+    <a class="btn primary big" href="#/lernen/${t.id}/wiederholen">${sure ? 'Weiterlernen' : 'Loslernen'}</a>
+    ${stars.length ? `<section><h2>Wichtig für den Test</h2><div class="stars">
+      ${stars.map((c) => `<details class="sheet star-q"><summary><span class="star-icon" aria-hidden="true">★</span><span>${h(c.q)}</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
+      </div></section>` : ''}
+    <section><h2>Üben</h2><div class="mode-list">
+      ${MODES.filter((m) => m.key !== 'wiederholen').map((m) => `<a class="mode-row ${m.key === 'probetest' ? 'exam' : ''}" href="#/lernen/${t.id}/${m.key}" style="--c:var(--m-${m.color})" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
+        <span class="ico">${ICON[m.icon]}</span><span class="txt"><b>${m.title}</b><span>${m.text}</span></span><span class="chev" aria-hidden="true">›</span></a>`).join('')}
+    </div></section>`;
 }
 
-function openAdd() {
-  const dlg = $('#sheet');
-  dlg.innerHTML = `<form id="addf" class="stack">
-    <h2>Eigene Karten</h2>
-    <p class="small muted">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
-    <textarea id="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
-    <div class="row end"><button type="button" class="btn ghost" id="cancel">Abbrechen</button><button class="btn primary">Hinzufügen</button></div>
-  </form>`;
-  dlg.showModal();
-  $('#cancel').onclick = () => dlg.close();
-  $('#addf').onsubmit = (e) => {
-    e.preventDefault();
-    const rows = $('#list').value.split('\n').map((l) => l.split(/\s*(?:\||\t|;)\s*/)).filter((p) => p.length >= 2 && p[0].trim() && p[1].trim());
-    if (!rows.length) { toast('Bitte so schreiben: Frage | Antwort'); return; }
-    const n = S.addCards(rows.map(([q, ...a]) => ({ testId: T.id, type: 'manuell', q: q.trim(), a: a.join('; ').trim() })));
-    dlg.close(); toast(`${plural(n, 'Karte', 'Karten')} hinzugefügt`); filter = 'eigene'; viewCards();
-  };
+// Material
+function tabMaterial(el, t) {
+  const docs = S.docsOf(t.id);
+  el.innerHTML = `
+    <div class="upload">
+      <label class="btn primary big">${ICON.upload} Foto aufnehmen<input type="file" id="cam" accept="image/*" capture="environment" hidden></label>
+      <label class="btn big">Dateien auswählen<input type="file" id="files" multiple accept="${ACCEPT}" hidden></label>
+      <button class="btn ghost" id="paste">Text einfügen</button>
+      <p class="small muted">PDF, Word, PowerPoint, Text oder Fotos. Wird nur auf deinem Handy gelesen, nichts wird hochgeladen.</p>
+    </div>
+    <div id="progress"></div>
+    <section><h2>Dokumente</h2>
+      ${docs.length ? `<div class="list">${docs.map((d) => `<div class="row-link doc">
+        <span class="txt"><b>${h(d.name)}</b><span class="small muted">${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}</span></span>
+        <span class="row"><button class="btn small" data-read="${d.id}">Lesen</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
+    </section>`;
+  $('#cam').onchange = (e) => handleFiles(t, [...e.target.files]);
+  $('#files').onchange = (e) => handleFiles(t, [...e.target.files]);
+  $('#paste').onclick = () => openSheet(`<h2>Text einfügen</h2>
+    <label class="field">Titel<input type="text" name="name" required value="Mitschrift ${fmtDate(Date.now())}"></label>
+    <label class="field">Text<textarea name="text" required rows="9" placeholder="Tipp: „Begriff: Erklärung“ pro Zeile wird eine Karteikarte."></textarea></label>
+    ${sheetButtons('Karten erzeugen')}`,
+  (fd) => { const d = S.addDoc(t.id, fd.get('name'), 'text', fd.get('text')); toast(`${plural(addGenerated(t.id, d), 'neue Karte', 'neue Karten')}`); route(); });
+  $$('[data-read]').forEach((b) => b.onclick = () => readDoc(b.dataset.read));
+  $$('[data-del]').forEach((b) => b.onclick = () => {
+    const d = S.get().docs.find((x) => x.id === b.dataset.del);
+    confirmSheet(`„${d.name}“ und die Karten daraus entfernen?`, 'Entfernen', () => { S.deleteDoc(d.id, true); route(); });
+  });
 }
 
-// ---------- Texte ----------
-let docIdx = 0;
-function viewText() {
-  const docs = S.docsOf(T.id);
-  docIdx = Math.min(docIdx, docs.length - 1);
-  const d = docs[docIdx];
+async function handleFiles(t, files) {
+  const prog = $('#progress');
+  let total = 0;
+  for (const f of files) {
+    prog.innerHTML = `<div class="sheet progress-line"><b>${h(f.name)}</b><span class="muted small" id="pstat">Wird gelesen …</span><div class="bar"><i class="indet"></i></div></div>`;
+    try {
+      const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
+      if (!r.text.trim()) throw new Error('Kein Text gefunden. Foto gerade, scharf und hell aufnehmen.');
+      const d = S.addDoc(t.id, f.name === 'image.jpg' ? `Foto ${fmtDate(Date.now())}` : f.name, r.kind, r.text);
+      d.highlights = r.highlights; S.save();
+      total += addGenerated(t.id, d);
+    } catch (e) { console.error(e); toast(`${f.name}: ${e.message}`); }
+  }
+  prog.innerHTML = '';
+  toast(`${plural(total, 'neue Karte', 'neue Karten')} erstellt`);
+  route();
+}
+
+function readDoc(id) {
+  const d = S.get().docs.find((x) => x.id === id);
   let body = h(d.text);
   for (const m of (d.highlights || []).slice().sort((a, b) => b.length - a.length)) {
     const e = h(m).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     body = body.replace(new RegExp(`(?<!<span class="mk">[^<]*)${e}`), `<span class="mk">${h(m)}</span>`);
   }
   body = body.split(/\n\s*\n/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
-  main.innerHTML = `
-    <header class="page-title"><h1>Texte</h1></header>
-    <div class="chips scroll" role="tablist">${docs.map((x, i) => `<button class="chip" role="tab" data-d="${i}" aria-selected="${i === docIdx}" aria-pressed="${i === docIdx}">${h(x.name.replace(/^(Lesetext|Arbeitsblatt|Kurzarbeit): ?/, ''))}</button>`).join('')}</div>
-    <article class="sheet reader"><h2>${h(d.name)}</h2>${body}</article>`;
-  $$('[data-d]').forEach((b) => b.onclick = () => { docIdx = +b.dataset.d; viewText(); });
+  const f = openSheet(`<h2>${h(d.name)}</h2><div class="reader-text">${body}</div>
+    <div class="row end"><button type="button" class="btn" id="editDoc">Text korrigieren</button><button type="button" class="btn primary" data-close>Schließen</button></div>`, () => {});
+  $('#editDoc', f).onclick = () => openSheet(`<h2>Text korrigieren</h2><p class="small muted">Fehler der Texterkennung verbessern. Danach werden die Karten aus diesem Dokument neu erzeugt.</p>
+    <textarea name="text" rows="14">${h(d.text)}</textarea>${sheetButtons('Speichern')}`,
+  (fd) => {
+    d.text = fd.get('text');
+    S.get().cards.filter((c) => c.docId === d.id && !['manuell', 'import'].includes(c.type)).forEach((c) => S.deleteCard(c.id));
+    toast(`${plural(addGenerated(d.testId, d), 'Karte', 'Karten')} neu erzeugt`); route();
+  });
 }
 
-// ---------- Spickzettel ----------
-function viewCheat() {
-  const docs = S.docsOf(T.id);
+// Karten
+let filter = 'alle', query = '';
+function tabCards(el, t) {
+  const all = S.cardsOf(t.id);
+  const list = all.filter((c) => (filter === 'alle' || (filter === 'wichtig' ? c.star : ['manuell', 'import'].includes(c.type)))
+    && (!query || (c.q + ' ' + c.a).toLowerCase().includes(query.toLowerCase())));
+  el.innerHTML = `
+    <div class="row"><input type="search" id="q" placeholder="Karten durchsuchen" value="${h(query)}" aria-label="Karten durchsuchen" style="flex:1"><button class="btn" id="add">+ Eigene</button></div>
+    <div class="chips" role="group" aria-label="Filter">
+      ${[['alle', `Alle ${all.length}`], ['wichtig', `★ Wichtig ${all.filter((c) => c.star).length}`], ['eigene', 'Eigene']].map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}
+    </div>
+    <p class="small muted">Automatisch erzeugte Karten können Fehler haben – unpassende einfach löschen.</p>
+    <div class="clist">
+      ${list.map((c) => `<article class="sheet citem">
+        <div class="ctop"><span class="t">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span>
+          <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>
+        <div class="cq">${h(c.q)}</div><div class="ca">${h(c.a)}</div>
+        <button class="btn ghost small" data-delc="${c.id}">Löschen</button>
+      </article>`).join('') || '<p class="muted">Keine Karte gefunden.</p>'}
+    </div>`;
+  const q = $('#q');
+  q.oninput = () => { query = q.value; const pos = q.selectionStart; tabCards(el, t); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
+  $$('[data-f]', el).forEach((b) => b.onclick = () => { filter = b.dataset.f; tabCards(el, t); });
+  $$('[data-star]', el).forEach((b) => b.onclick = () => { const c = all.find((x) => x.id === b.dataset.star); S.updateCard(c.id, { star: !c.star }); tabCards(el, t); });
+  $$('[data-delc]', el).forEach((b) => b.onclick = () => { S.deleteCard(b.dataset.delc); b.closest('.citem').remove(); });
+  $('#add').onclick = () => openSheet(`<h2>Eigene Karten</h2>
+    <p class="small muted">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
+    <textarea name="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
+    ${sheetButtons('Hinzufügen')}`,
+  (fd) => {
+    const rows = fd.get('list').split('\n').map((l) => l.split(/\s*(?:\||\t|;)\s*/)).filter((p) => p.length >= 2 && p[0].trim() && p[1].trim());
+    if (!rows.length) { toast('Bitte so schreiben: Frage | Antwort'); return false; }
+    const n = S.addCards(rows.map(([qq, ...a]) => ({ testId: t.id, type: 'manuell', q: qq.trim(), a: a.join('; ').trim() })));
+    toast(`${plural(n, 'Karte', 'Karten')} hinzugefügt`); filter = 'eigene'; tabCards(el, t);
+  });
+}
+
+// Spickzettel
+function tabCheat(el, t) {
+  const docs = S.docsOf(t.id);
+  if (!docs.length) { el.innerHTML = '<p class="muted">Lade zuerst Material hoch.</p>'; return; }
   const text = docs.map((d) => d.text).join('\n\n');
   const hl = docs.flatMap((d) => d.highlights || []);
   const kws = keywords(text, hl, 24);
   const sents = keySentences(text, hl, 12);
-  const gloss = S.cardsOf(T.id).filter((c) => ['begriff', 'abkuerzung'].includes(c.type) && c.a.length < 160);
+  const gloss = S.cardsOf(t.id).filter((c) => ['begriff', 'abkuerzung'].includes(c.type) && c.a.length < 160);
   const colors = ['gelb', 'gruen', 'pink', 'blau', 'orange', 'lila'];
   const mark = (s) => {
     let out = h(s);
@@ -1920,19 +2387,65 @@ function viewCheat() {
     });
     return out;
   };
-  main.innerHTML = `
-    <header class="page-title"><h1>Spickzettel</h1></header>
-    <article class="sheet cheat">
-      <h3>Schlüsselbegriffe</h3>
-      <div class="terms">${kws.map((k, i) => `<span class="mk" data-c="${colors[i % 6]}">${h(k)}</span>`).join('')}</div>
-      <h3>Begriffe</h3>
-      <dl class="glossary">${gloss.map((c) => `<dt>${h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, ''))}</dt><dd>${h(c.a)}</dd>`).join('')}</dl>
-      <h3>Kernaussagen</h3>
-      <ol>${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol>
-    </article>`;
+  el.innerHTML = `<article class="sheet cheat">
+    <h3>Schlüsselbegriffe</h3>
+    <div class="terms">${kws.map((k, i) => `<span class="mk" data-c="${colors[i % 6]}">${h(k)}</span>`).join('')}</div>
+    ${gloss.length ? `<h3>Begriffe</h3><dl class="glossary">${gloss.map((c) => `<dt>${h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, ''))}</dt><dd>${h(c.a)}</dd>`).join('')}</dl>` : ''}
+    <h3>Kernaussagen</h3>
+    <ol>${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol>
+  </article>`;
 }
 
-document.addEventListener('lernapp:savefail', () => toast('Speichern nicht möglich – privater Modus?'));
+// ---------- Mehr ----------
+function viewMore() {
+  const theme = (() => { try { return localStorage.getItem('lernapp.theme') || 'auto'; } catch { return 'auto'; } })();
+  main.innerHTML = `
+    <header class="page-title"><h1>Mehr</h1></header>
+    <section class="sheet pad stack">
+      <h2>Sicherung</h2>
+      <p class="muted">Dein Lernstand liegt nur in diesem Browser. Lade ab und zu eine Sicherung herunter – z. B. bevor du den Browser-Verlauf löschst oder das Handy wechselst.</p>
+      <button class="btn primary" id="backup">Sicherung herunterladen</button>
+      <label class="btn">Sicherung laden<input type="file" accept=".json,application/json" id="restore" hidden></label>
+    </section>
+    <section class="sheet pad stack">
+      <h2>Darstellung</h2>
+      <div class="chips" role="group" aria-label="Farbschema">${[['auto', 'Wie Handy'], ['light', 'Hell'], ['dark', 'Dunkel']].map(([k, l]) => `<button class="chip" data-theme-set="${k}" aria-pressed="${theme === k}">${l}</button>`).join('')}</div>
+    </section>
+    <section class="sheet pad stack">
+      <h2>Beispiel</h2>
+      <p class="muted">Deutsch-Test „Eine Frage der Ehre“ mit Lesetext und Kurzarbeit-Fragen.</p>
+      <button class="btn" id="demo">Beispiel laden</button>
+    </section>
+    <section class="sheet pad stack">
+      <h2>Am PC lernen</h2>
+      <p class="muted">Die große Version mit Seitenleiste – gleiche Funktionen, eigener Speicher.</p>
+      <a class="btn" href="../">PC-Version öffnen</a>
+    </section>`;
+  $('#backup').onclick = () => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([S.exportJSON()], { type: 'application/json' }));
+    a.download = `lernapp-sicherung-${isoDate()}.json`; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  };
+  $('#restore').onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    const text = await f.text();
+    openSheet(`<h2>Sicherung laden</h2><p class="muted">Mit deinen vorhandenen Daten zusammenführen oder alles ersetzen?</p>
+      <div class="row end"><button type="submit" class="btn" value="replace">Ersetzen</button><button class="btn primary" value="merge">Zusammenführen</button></div>`,
+    (fd, btn) => { try { S.importJSON(text, btn === 'replace' ? 'replace' : 'merge'); toast('Sicherung geladen'); go('#/'); } catch (err) { toast(err.message); } });
+  };
+  $$('[data-theme-set]').forEach((b) => b.onclick = () => { setTheme(b.dataset.themeSet); viewMore(); });
+  $('#demo').onclick = () => { const t = loadBeispiel(); if (!t) toast('Beispiel ist schon da'); else go(`#/test/${t.id}`); };
+}
+function setTheme(k) {
+  try { localStorage.setItem('lernapp.theme', k); } catch {}
+  if (k === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme = k;
+}
+try { setTheme(localStorage.getItem('lernapp.theme') || 'auto'); } catch {}
+
+document.addEventListener('lernapp:savefail', () => toast('Speichern nicht möglich – Speicher voll oder privater Modus.'));
+migrate();
 route();
 
 return {  };

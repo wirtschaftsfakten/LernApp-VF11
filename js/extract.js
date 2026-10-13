@@ -2,7 +2,8 @@
 // PDF: pdf.js (Textebene, bei Scans OCR) · Word/PowerPoint/OpenOffice: ZIP+XML · Bilder: Tesseract OCR (Deutsch)
 // Bei Fotos werden zusätzlich farbig markierte Wörter (Textmarker) erkannt.
 
-const abs = (p) => new URL(p, location.href).href;
+// Pfad zu lib/ – die Handy-Version liegt eine Ebene tiefer und setzt window.LERNAPP_BASE = '../'
+const abs = (p) => new URL((window.LERNAPP_BASE || '') + p, location.href).href;
 
 export const ACCEPT = '.pdf,.docx,.pptx,.odt,.odp,.txt,.md,.csv,.rtf,.png,.jpg,.jpeg,.webp,.bmp,.gif,.heic';
 

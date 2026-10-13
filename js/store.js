@@ -1,4 +1,5 @@
 // Datenhaltung: alles bleibt im Browser (localStorage) auf diesem PC.
+import { deleteFile } from './files.js';
 const KEY = 'lernapp.v1';
 
 const empty = () => ({
@@ -59,6 +60,7 @@ export function deleteTest(id, persist = true) {
   const cardIds = new Set(state.cards.filter((c) => c.testId === id).map((c) => c.id));
   cardIds.forEach((cid) => delete state.progress[cid]);
   state.cards = state.cards.filter((c) => c.testId !== id);
+  state.docs.filter((d) => d.testId === id).forEach((d) => (d.fileIds || []).forEach(deleteFile));
   state.docs = state.docs.filter((d) => d.testId !== id);
   state.results = state.results.filter((r) => r.testId !== id);
   state.tests = state.tests.filter((t) => t.id !== id);
@@ -77,6 +79,7 @@ export function deleteDoc(id, withCards) {
     state.cards.filter((c) => c.docId === id).forEach((c) => delete state.progress[c.id]);
     state.cards = state.cards.filter((c) => c.docId !== id);
   }
+  (state.docs.find((d) => d.id === id)?.fileIds || []).forEach(deleteFile);
   state.docs = state.docs.filter((d) => d.id !== id); save();
 }
 export const docsOf = (testId) => state.docs.filter((d) => d.testId === testId);

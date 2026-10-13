@@ -657,6 +657,19 @@ body {
 }
 .seg { background: color-mix(in srgb, var(--soft) 92%, transparent); }
 
+/* Originalblatt-Ansicht */
+dialog.viewer { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: var(--soft); color: var(--text); }
+dialog.viewer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
+dialog.viewer::backdrop { background: rgba(14, 19, 29, .6); }
+.viewer-bar { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.viewer-title { font: 700 .95rem var(--font-ui); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 160px; }
+.viewer-bar .row { gap: 6px; flex-wrap: nowrap; }
+.viewer-body { overflow: auto; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 16px; justify-items: center; align-content: start; }
+.viewer-page { display: block; width: 100%; max-width: 900px; height: auto; background: #fff; border-radius: 6px; box-shadow: var(--card-shadow); }
+dialog.viewer.zoomed .viewer-body { justify-items: start; }
+dialog.viewer.zoomed .viewer-page { width: 220%; max-width: none; }
+.viewer-wait { padding: 40px 16px; text-align: center; display: grid; gap: 14px; justify-items: center; max-width: 480px; margin: 0 auto; }
+
 </style>
 <main id="main" tabindex="-1"></main>
 <nav id="tabbar" aria-label="Bereiche">
@@ -738,8 +751,47 @@ const ICON = {
 return { COLORS, COLOR_NAME, cvar, h, $, $$, shuffle, sample, toast, daysUntil, countdownText, dateParts, fmtDate, isoDate, plural, ICON };
 })();
 
+__m.files = (() => {
+// Originaldateien (Fotos, PDFs …) im Browser speichern – IndexedDB, weil localStorage dafür zu klein ist.
+// Bleibt wie alles andere nur auf diesem Gerät.
+const DB = 'lernapp-dateien';
+let dbp;
+function db() {
+  if (!dbp) {
+    dbp = new Promise((res, rej) => {
+      const r = indexedDB.open(DB, 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('files');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  }
+  return dbp;
+}
+async function tx(mode, fn) {
+  const d = await db();
+  return new Promise((res, rej) => {
+    const t = d.transaction('files', mode);
+    const req = fn(t.objectStore('files'));
+    t.oncomplete = () => res(req?.result);
+    t.onerror = () => rej(t.error);
+  });
+}
+async function putFile(id, blob) {
+  try { await tx('readwrite', (s) => s.put(blob, id)); return true; } catch (e) { console.warn('Original nicht gespeichert', e); return false; }
+}
+async function getFile(id) {
+  try { return await tx('readonly', (s) => s.get(id)); } catch { return null; }
+}
+async function deleteFile(id) {
+  try { await tx('readwrite', (s) => s.delete(id)); } catch {}
+}
+
+return { putFile, getFile, deleteFile };
+})();
+
 __m.store = (() => {
 // Datenhaltung: alles bleibt im Browser (localStorage) auf diesem PC.
+const { deleteFile } = __m.files;
 const KEY = 'lernapp.v1';
 
 const empty = () => ({
@@ -800,6 +852,7 @@ function deleteTest(id, persist = true) {
   const cardIds = new Set(state.cards.filter((c) => c.testId === id).map((c) => c.id));
   cardIds.forEach((cid) => delete state.progress[cid]);
   state.cards = state.cards.filter((c) => c.testId !== id);
+  state.docs.filter((d) => d.testId === id).forEach((d) => (d.fileIds || []).forEach(deleteFile));
   state.docs = state.docs.filter((d) => d.testId !== id);
   state.results = state.results.filter((r) => r.testId !== id);
   state.tests = state.tests.filter((t) => t.id !== id);
@@ -818,6 +871,7 @@ function deleteDoc(id, withCards) {
     state.cards.filter((c) => c.docId === id).forEach((c) => delete state.progress[c.id]);
     state.cards = state.cards.filter((c) => c.docId !== id);
   }
+  (state.docs.find((d) => d.id === id)?.fileIds || []).forEach(deleteFile);
   state.docs = state.docs.filter((d) => d.id !== id); save();
 }
 const docsOf = (testId) => state.docs.filter((d) => d.testId === testId);
@@ -1395,11 +1449,15 @@ async function extractFile(file, onStatus = () => {}) {
 
 // ---------- PDF ----------
 let pdfjs;
-async function extractPdf(file, onStatus) {
+async function loadPdfjs() {
   if (!pdfjs) {
     pdfjs = await import(abs('lib/pdfjs/pdf.min.mjs'));
     pdfjs.GlobalWorkerOptions.workerSrc = abs('lib/pdfjs/pdf.worker.min.mjs');
   }
+  return pdfjs;
+}
+async function extractPdf(file, onStatus) {
+  await loadPdfjs();
   const doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
   const parts = [];
   const highlights = [];
@@ -1610,7 +1668,98 @@ function cleanOcr(t) {
     .replace(/\n{3,}/g, '\n\n').trim();
 }
 
-return { ACCEPT, extractFile };
+return { ACCEPT, extractFile, loadPdfjs };
+})();
+
+__m.viewer = (() => {
+// Originalblatt anzeigen: Fotos und PDFs direkt, andere Dateien zum Öffnen in der passenden App.
+const { getFile } = __m.files;
+const { loadPdfjs } = __m.extract;
+const { h, toast } = __m.util;
+
+let box;
+function shell() {
+  if (box) return box;
+  box = document.createElement('dialog');
+  box.className = 'viewer';
+  box.innerHTML = `<div class="viewer-bar"><b class="viewer-title"></b><span class="row"><button class="btn small" data-zoom>Vergrößern</button><a class="btn small" data-dl>Herunterladen</a><button class="btn small primary" data-x>Schließen</button></span></div><div class="viewer-body"></div>`;
+  document.body.appendChild(box);
+  box.querySelector('[data-x]').onclick = () => box.close();
+  box.querySelector('[data-zoom]').onclick = () => {
+    const z = box.classList.toggle('zoomed');
+    box.querySelector('[data-zoom]').textContent = z ? 'Einpassen' : 'Vergrößern';
+  };
+  box.addEventListener('close', () => {
+    box.querySelectorAll('[data-url]').forEach((el) => URL.revokeObjectURL(el.dataset.url));
+    box.querySelector('.viewer-body').innerHTML = '';
+    box.classList.remove('zoomed');
+  });
+  return box;
+}
+
+// doc.files: Liste von IDs im Gerätespeicher; doc.urls: öffentlich mitgelieferte Bilder (Beispiel-Set)
+function hasOriginal(doc) {
+  return !!(doc.fileIds?.length || doc.urls?.length);
+}
+
+async function openOriginal(doc) {
+  const v = shell();
+  const body = v.querySelector('.viewer-body');
+  v.querySelector('.viewer-title').textContent = doc.name;
+  const dl = v.querySelector('[data-dl]');
+  body.innerHTML = '<p class="muted viewer-wait">Blatt wird geladen …</p>';
+  v.showModal();
+  const items = [];
+  for (const u of doc.urls || []) items.push({ url: new URL(u, location.href).href, type: 'image/jpeg', name: doc.name });
+  for (const id of doc.fileIds || []) {
+    const f = await getFile(id);
+    if (f) items.push({ blob: f, url: URL.createObjectURL(f), type: f.type, name: f.name || doc.name, own: true });
+  }
+  if (!items.length) {
+    body.innerHTML = '<p class="muted viewer-wait">Das Original ist auf diesem Gerät nicht gespeichert. Es liegt nur auf dem Gerät, auf dem es hochgeladen wurde.</p>';
+    dl.hidden = true;
+    return;
+  }
+  dl.hidden = false;
+  dl.href = items[0].url; dl.download = items[0].name;
+  body.innerHTML = '';
+  for (const it of items) {
+    if (it.type.startsWith('image/')) {
+      const img = new Image();
+      img.src = it.url; img.alt = it.name; img.className = 'viewer-page';
+      if (it.own) img.dataset.url = it.url;
+      body.appendChild(img);
+    } else if (it.type === 'application/pdf' || /\.pdf$/i.test(it.name)) {
+      await renderPdf(it, body);
+    } else {
+      const p = document.createElement('div');
+      p.className = 'viewer-wait';
+      p.innerHTML = `<p>Diese Datei (${h(it.name)}) kann hier nicht angezeigt werden.</p><a class="btn primary" href="${it.url}" download="${h(it.name)}" data-url="${it.url}">In Word/PowerPoint öffnen</a>`;
+      body.appendChild(p);
+    }
+  }
+}
+
+async function renderPdf(it, body) {
+  try {
+    const pdfjs = await loadPdfjs();
+    const data = new Uint8Array(await (it.blob || await (await fetch(it.url)).blob()).arrayBuffer());
+    const pdf = await pdfjs.getDocument({ data }).promise;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp = page.getViewport({ scale: 2 });
+      const c = document.createElement('canvas');
+      c.width = vp.width; c.height = vp.height; c.className = 'viewer-page';
+      body.appendChild(c);
+      await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
+    }
+  } catch (e) {
+    console.error(e);
+    toast('PDF konnte nicht angezeigt werden – über „Herunterladen“ öffnen.');
+  }
+}
+
+return { hasOriginal, openOriginal };
 })();
 
 __m.setup = (() => {
@@ -2353,6 +2502,8 @@ const { extractFile, ACCEPT } = __m.extract;
 const { addGenerated, loadBeispiel, migrate } = __m.setup;
 const { startSession } = __m.learn;
 const V = __m.views;
+const { putFile } = __m.files;
+const { openOriginal, hasOriginal } = __m.viewer;
 const { h, $, $$, toast, plural, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, ICON } = __m.util;
 
 const main = $('#main');
@@ -2507,7 +2658,7 @@ function tabMaterial(el, t) {
     <section><p class="section-label">Dokumente</p>
       ${docs.length ? `<div class="cards">${docs.map((d) => `<div class="item-card doc">
         <span class="txt"><b>${h(d.name)}</b><span class="small muted">${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}</span></span>
-        <span class="row"><button class="btn small" data-read="${d.id}">Lesen</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
+        <span class="row">${hasOriginal(d) ? `<button class="btn small primary" data-orig="${d.id}">Blatt</button>` : ''}<button class="btn small" data-read="${d.id}">Text</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
     </section>`;
   $('#cam').onchange = (e) => handleFiles(t, [...e.target.files]);
   $('#files').onchange = (e) => handleFiles(t, [...e.target.files]);
@@ -2517,6 +2668,7 @@ function tabMaterial(el, t) {
     ${sheetButtons('Karten erzeugen')}`,
   (fd) => { const d = S.addDoc(t.id, fd.get('name'), 'text', fd.get('text')); toast(`${plural(addGenerated(t.id, d), 'neue Karte', 'neue Karten')}`); route(); });
   $$('[data-read]').forEach((b) => b.onclick = () => readDoc(b.dataset.read));
+  $$('[data-orig]').forEach((b) => b.onclick = () => openOriginal(S.get().docs.find((x) => x.id === b.dataset.orig)));
   $$('[data-del]').forEach((b) => b.onclick = () => {
     const d = S.get().docs.find((x) => x.id === b.dataset.del);
     confirmSheet(`„${d.name}“ und die Karten daraus entfernen?`, 'Entfernen', () => { S.deleteDoc(d.id, true); route(); });
@@ -2532,6 +2684,8 @@ async function handleFiles(t, files) {
       const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
       if (!r.text.trim()) throw new Error('Kein Text gefunden. Foto gerade, scharf und hell aufnehmen.');
       const d = S.addDoc(t.id, f.name === 'image.jpg' ? `Foto ${fmtDate(Date.now())}` : f.name, r.kind, r.text);
+      const fid = S.uid();
+      if (await putFile(fid, f)) d.fileIds = [fid];
       d.highlights = r.highlights; S.save();
       total += addGenerated(t.id, d);
     } catch (e) { console.error(e); toast(`${f.name}: ${e.message}`); }

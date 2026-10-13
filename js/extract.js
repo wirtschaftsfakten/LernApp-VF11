@@ -24,11 +24,15 @@ export async function extractFile(file, onStatus = () => {}) {
 
 // ---------- PDF ----------
 let pdfjs;
-async function extractPdf(file, onStatus) {
+export async function loadPdfjs() {
   if (!pdfjs) {
     pdfjs = await import(abs('lib/pdfjs/pdf.min.mjs'));
     pdfjs.GlobalWorkerOptions.workerSrc = abs('lib/pdfjs/pdf.worker.min.mjs');
   }
+  return pdfjs;
+}
+async function extractPdf(file, onStatus) {
+  await loadPdfjs();
   const doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
   const parts = [];
   const highlights = [];

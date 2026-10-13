@@ -5,6 +5,8 @@ import { extractFile, ACCEPT } from './extract.js';
 import { addGenerated, loadBeispiel, migrate } from './setup.js';
 import { startSession } from './learn.js';
 import * as V from './views.js';
+import { putFile } from './files.js';
+import { openOriginal, hasOriginal } from './viewer.js';
 import { h, $, $$, toast, plural, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, ICON } from './util.js';
 
 const main = $('#main');
@@ -159,7 +161,7 @@ function tabMaterial(el, t) {
     <section><p class="section-label">Dokumente</p>
       ${docs.length ? `<div class="cards">${docs.map((d) => `<div class="item-card doc">
         <span class="txt"><b>${h(d.name)}</b><span class="small muted">${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}</span></span>
-        <span class="row"><button class="btn small" data-read="${d.id}">Lesen</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
+        <span class="row">${hasOriginal(d) ? `<button class="btn small primary" data-orig="${d.id}">Blatt</button>` : ''}<button class="btn small" data-read="${d.id}">Text</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
     </section>`;
   $('#cam').onchange = (e) => handleFiles(t, [...e.target.files]);
   $('#files').onchange = (e) => handleFiles(t, [...e.target.files]);
@@ -169,6 +171,7 @@ function tabMaterial(el, t) {
     ${sheetButtons('Karten erzeugen')}`,
   (fd) => { const d = S.addDoc(t.id, fd.get('name'), 'text', fd.get('text')); toast(`${plural(addGenerated(t.id, d), 'neue Karte', 'neue Karten')}`); route(); });
   $$('[data-read]').forEach((b) => b.onclick = () => readDoc(b.dataset.read));
+  $$('[data-orig]').forEach((b) => b.onclick = () => openOriginal(S.get().docs.find((x) => x.id === b.dataset.orig)));
   $$('[data-del]').forEach((b) => b.onclick = () => {
     const d = S.get().docs.find((x) => x.id === b.dataset.del);
     confirmSheet(`„${d.name}“ und die Karten daraus entfernen?`, 'Entfernen', () => { S.deleteDoc(d.id, true); route(); });
@@ -184,6 +187,8 @@ async function handleFiles(t, files) {
       const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
       if (!r.text.trim()) throw new Error('Kein Text gefunden. Foto gerade, scharf und hell aufnehmen.');
       const d = S.addDoc(t.id, f.name === 'image.jpg' ? `Foto ${fmtDate(Date.now())}` : f.name, r.kind, r.text);
+      const fid = S.uid();
+      if (await putFile(fid, f)) d.fileIds = [fid];
       d.highlights = r.highlights; S.save();
       total += addGenerated(t.id, d);
     } catch (e) { console.error(e); toast(`${f.name}: ${e.message}`); }

@@ -4,6 +4,8 @@ import { extractFile, ACCEPT } from './extract.js';
 import { addGenerated, loadBeispiel, migrate } from './setup.js';
 import { startSession } from './learn.js';
 import * as V from './views.js';
+import { putFile } from './files.js';
+import { openOriginal, hasOriginal } from './viewer.js';
 import { h, $, $$, toast, cvar, COLORS, COLOR_NAME, countdownText, daysUntil, dateParts, fmtDate, isoDate, plural, ICON } from './util.js';
 
 const main = $('#main');
@@ -175,7 +177,7 @@ function tabMaterial(el, t) {
         const n = S.get().cards.filter((c) => c.docId === d.id).length;
         return `<div class="sheet doc"><span class="kind">${h(d.kind)}</span>
           <div><b>${h(d.name)}</b><div class="small muted">${d.text.length.toLocaleString('de-DE')} Zeichen · ${plural(n, 'Karte', 'Karten')}${d.highlights?.length ? ` · ${plural(d.highlights.length, 'Markierung', 'Markierungen')} erkannt` : ''}</div></div>
-          <div class="row"><button class="btn small primary" data-act="read-doc" data-id="${d.id}">Lesen</button><button class="btn small" data-act="edit-doc" data-id="${d.id}">Text prüfen</button><button class="btn small ghost" data-act="del-doc" data-id="${d.id}">Entfernen</button></div></div>`;
+          <div class="row">${hasOriginal(d) ? `<button class="btn small primary" data-act="show-orig" data-id="${d.id}">Blatt ansehen</button>` : ''}<button class="btn small ${hasOriginal(d) ? '' : 'primary'}" data-act="read-doc" data-id="${d.id}">Lesen</button><button class="btn small" data-act="edit-doc" data-id="${d.id}">Text prüfen</button><button class="btn small ghost" data-act="del-doc" data-id="${d.id}">Entfernen</button></div></div>`;
       }).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
     </section>`;
   const input = $('#file'), drop = $('#drop');
@@ -195,6 +197,8 @@ async function handleFiles(t, files) {
       const r = await extractFile(f, (s) => { const p = $('#pstat'); if (p) p.textContent = s; });
       if (!r.text.trim()) throw new Error('Kein Text gefunden. Bei Fotos: gerade, scharf und hell fotografieren.');
       const d = S.addDoc(t.id, f.name, r.kind, r.text);
+      const fid = S.uid();
+      if (await putFile(fid, f)) d.fileIds = [fid];
       d.highlights = r.highlights; S.save();
       total += addGenerated(t.id, d);
     } catch (e) {
@@ -425,6 +429,7 @@ const ACTIONS = {
       toast(`${plural(n, 'neue Karte', 'neue Karten')} erstellt`); route();
     });
   },
+  'show-orig'(id) { openOriginal(S.get().docs.find((x) => x.id === id)); },
   'read-doc'(id) {
     const d = S.get().docs.find((x) => x.id === id);
     let body = h(d.text);

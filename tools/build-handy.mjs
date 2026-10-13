@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const order = ['util', 'store', 'gen', 'beispiel', 'extract', 'setup', 'learn', 'views', 'handy'];
+const order = ['util', 'files', 'store', 'gen', 'beispiel', 'extract', 'viewer', 'setup', 'learn', 'views', 'handy'];
 
 // ES-Module in Funktionsblöcke verwandeln: import → Zugriff auf __m, export → Rückgabe
 function wrap(name) {

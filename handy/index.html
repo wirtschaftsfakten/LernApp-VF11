@@ -1,0 +1,1954 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FAFBFD">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='7' width='26' height='18' rx='2' fill='%23fff' stroke='%231A2550' stroke-width='2'/%3E%3Cpath d='M3 12h26' stroke='%23D3263A' stroke-width='2'/%3E%3Cpath d='M8 17h16M8 21h10' stroke='%23BDB4FF' stroke-width='3'/%3E%3C/svg%3E">
+<style>:root{padding-top:env(safe-area-inset-top,0px)}[hidden]{display:none!important}body{margin:0}</style>
+</head>
+<body>
+<title>LernApp Ehrbarer Kaufmann</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* LernApp – Collegeblock & Textmarker */
+:root {
+  --paper: #FAFBFD;
+  --sheet: #FFFFFF;
+  --grid: #E6ECF5;
+  --rule: #CBD5E6;
+  --ink: #1A2550;
+  --ink-2: #4B567A;
+  --ink-3: #7480A0;
+  --blue: #2B47C9;
+  --blue-press: #2139A8;
+  --red: #D3263A;
+  --ok: #16865A;
+  --m-gelb: #FFE45C;
+  --m-gruen: #8EF0A8;
+  --m-pink: #FF9FCF;
+  --m-blau: #9CC9FF;
+  --m-orange: #FFB86B;
+  --m-lila: #BDB4FF;
+  --mark-a: .75;
+  --shadow: 0 1px 0 rgba(26, 37, 80, .06), 0 6px 18px -10px rgba(26, 37, 80, .25);
+  --radius-s: 6px;
+  --radius-m: 10px;
+  --font-ui: 'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif;
+  --font-hand: 'Caveat', 'Segoe Print', 'Comic Sans MS', cursive;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121A33; --sheet: #18213F; --grid: #1D2748; --rule: #2E3A63;
+    --ink: #EEF1FA; --ink-2: #B9C1DA; --ink-3: #8A94B4;
+    --blue: #8FA6FF; --blue-press: #A9BAFF; --red: #FF6B7A; --ok: #5BD69B;
+    --mark-a: .45;
+    --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 24px -12px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #121A33; --sheet: #18213F; --grid: #1D2748; --rule: #2E3A63;
+  --ink: #EEF1FA; --ink-2: #B9C1DA; --ink-3: #8A94B4;
+  --blue: #8FA6FF; --blue-press: #A9BAFF; --red: #FF6B7A; --ok: #5BD69B;
+  --mark-a: .45;
+  --shadow: 0 1px 0 rgba(0,0,0,.3), 0 10px 24px -12px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+  color: var(--ink);
+  font: 17px/1.55 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 { font-family: var(--font-ui); line-height: 1.15; margin: 0; letter-spacing: -.01em; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); font-weight: 750; }
+h2 { font-size: 1.45rem; font-weight: 700; }
+h3 { font-size: 1.12rem; font-weight: 650; }
+p { margin: 0; }
+a { color: var(--blue); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 12px; top: 12px; z-index: 99; background: var(--sheet); padding: 8px 12px; }
+.muted { color: var(--ink-2); }
+.small { font-size: .88rem; }
+.hand { font-family: var(--font-hand); font-weight: 700; }
+
+/* Textmarker */
+.mk { --c: var(--m-gelb); background: linear-gradient(transparent 12%, color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent) 12%, color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent) 88%, transparent 88%); border-radius: 3px 8px 4px 9px; padding: 0 .15em; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+[data-c="gelb"] { --c: var(--m-gelb); } [data-c="gruen"] { --c: var(--m-gruen); } [data-c="pink"] { --c: var(--m-pink); }
+[data-c="blau"] { --c: var(--m-blau); } [data-c="orange"] { --c: var(--m-orange); } [data-c="lila"] { --c: var(--m-lila); }
+
+/* Shell */
+.shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); min-height: 100vh; }
+.rail {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--sheet); border-right: 1px solid var(--rule);
+  padding: 22px 0 22px 0; display: flex; flex-direction: column; gap: 4px;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 22px 18px; text-decoration: none; color: var(--ink); }
+.brand svg { flex: none; }
+.brand b { font: 800 1.35rem/1 var(--font-ui); letter-spacing: -.02em; }
+.rail-head { padding: 14px 22px 6px; font: 600 .82rem var(--font-ui); color: var(--ink-3); }
+.rail a.nav {
+  position: relative; display: flex; align-items: center; gap: 10px;
+  padding: 8px 22px 8px 30px; color: var(--ink); text-decoration: none; font-family: var(--font-ui); font-weight: 520;
+}
+.rail a.nav::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 16px; border-radius: 0 6px 6px 0; background: var(--c, var(--rule)); }
+.rail a.nav:hover { background: var(--paper); }
+.rail a.nav[aria-current="page"] { background: var(--paper); font-weight: 700; }
+.rail a.nav[aria-current="page"]::before { width: 22px; }
+.rail a.nav .count { margin-left: auto; font-size: .8rem; color: var(--ink-3); }
+.rail .spacer { flex: 1; }
+.rail .add-subject { margin: 6px 22px; }
+.menu-btn { display: none; }
+
+main { padding: 36px clamp(16px, 4vw, 56px) 80px; max-width: 1100px; width: 100%; outline: none; }
+
+/* Buttons & Inputs */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 42px; padding: 8px 18px; border-radius: var(--radius-s);
+  border: 1.5px solid var(--ink); background: var(--sheet); color: var(--ink);
+  font: 650 .97rem var(--font-ui); cursor: pointer; text-decoration: none; white-space: nowrap;
+  box-shadow: 0 2px 0 var(--ink);
+  transition: transform .08s, box-shadow .08s;
+}
+.btn:hover { background: var(--paper); }
+.btn:active { transform: translateY(2px); box-shadow: 0 0 0 var(--ink); }
+.btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 2px 0 var(--blue-press); }
+:root[data-theme="dark"] .btn.primary { color: #0F1530; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.primary { color: #0F1530; } }
+.btn.primary:hover { filter: brightness(1.06); background: var(--blue); }
+.btn.ghost { border-color: transparent; box-shadow: none; background: transparent; color: var(--blue); padding-inline: 10px; }
+.btn.ghost:hover { background: color-mix(in srgb, var(--blue) 8%, transparent); }
+.btn.danger { color: var(--red); border-color: var(--red); box-shadow: 0 2px 0 var(--red); }
+.btn.small { min-height: 34px; padding: 4px 12px; font-size: .88rem; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row.end { justify-content: flex-end; }
+.stack { display: grid; gap: 14px; }
+
+label.field { display: grid; gap: 6px; font: 600 .92rem var(--font-ui); }
+input[type="text"], input[type="date"], input[type="number"], input[type="search"], select, textarea {
+  width: 100%; padding: 10px 12px; border-radius: var(--radius-s);
+  border: 1.5px solid var(--rule); background: var(--sheet); font-family: var(--font-body); font-size: 1rem;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 22%, transparent); }
+textarea { min-height: 140px; resize: vertical; line-height: 1.5; }
+
+/* Seitenkopf */
+.page-head { display: grid; gap: 10px; margin-bottom: 28px; }
+.crumbs { font: 500 .9rem var(--font-ui); color: var(--ink-3); }
+.crumbs a { color: var(--ink-2); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+.head-row { display: flex; gap: 16px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.margin-note { font-family: var(--font-hand); font-size: 1.6rem; color: var(--red); line-height: 1; transform: rotate(-2deg); display: inline-block; }
+.margin-note.blue { color: var(--blue); }
+
+/* Blätter (Flächen) */
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); box-shadow: var(--shadow); }
+.pad { padding: 22px; }
+section + section { margin-top: 36px; }
+.section-title { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+
+/* Übersicht */
+.today { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; align-items: stretch; }
+.agenda { padding: 6px 0; }
+.agenda li { list-style: none; display: grid; grid-template-columns: 76px 1fr auto; gap: 14px; align-items: center; padding: 12px 22px; border-top: 1px dashed var(--rule); }
+.agenda li:first-child { border-top: 0; }
+.agenda ul { margin: 0; padding: 0; }
+.date-chip { text-align: center; line-height: 1.05; font-family: var(--font-ui); }
+.date-chip b { display: block; font-size: 1.6rem; font-weight: 800; }
+.date-chip span { font-size: .8rem; color: var(--ink-2); }
+.agenda a { color: var(--ink); text-decoration: none; font-weight: 700; }
+.agenda a:hover { text-decoration: underline; }
+.due-box { padding: 22px; display: grid; gap: 14px; align-content: start; }
+.due-num { font: 800 3.4rem/1 var(--font-ui); letter-spacing: -.03em; }
+.subjects { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px; }
+.subject-tile { position: relative; display: grid; gap: 6px; padding: 20px 20px 18px 20px; text-decoration: none; color: var(--ink); overflow: hidden; }
+.subject-tile::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 8px; background: var(--c); }
+.subject-tile h3 { font-size: 1.2rem; }
+.subject-tile:hover { border-color: var(--ink-3); }
+.bar { height: 8px; border-radius: 99px; background: var(--grid); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--ok); border-radius: inherit; }
+
+/* Fach-Seite: Tests */
+.tests { display: grid; gap: 14px; }
+.test-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 18px; align-items: center; padding: 18px 22px; text-decoration: none; color: var(--ink); }
+.test-row:hover { border-color: var(--ink-3); }
+.test-row .meta { color: var(--ink-2); font-size: .92rem; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; border-bottom: 1.5px solid var(--rule); margin-bottom: 26px; overflow-x: auto; scrollbar-width: none; }
+.tabs a { padding: 10px 14px; text-decoration: none; color: var(--ink-2); font: 600 .97rem var(--font-ui); border-bottom: 3px solid transparent; margin-bottom: -1.5px; white-space: nowrap; }
+.tabs a[aria-current="page"] { color: var(--ink); border-color: var(--ink); }
+.tabs a:hover { color: var(--ink); }
+
+/* Lernmodi */
+.modes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.mode { display: grid; grid-template-rows: auto auto 1fr auto; gap: 6px; padding: 18px 20px; text-align: left; cursor: pointer; text-decoration: none; color: var(--ink); }
+.mode:hover { border-color: var(--ink-3); }
+.mode .ico { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 8px; background: color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent); margin-bottom: 6px; }
+.mode .ico svg { width: 24px; height: 24px; stroke: var(--ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.mode p { color: var(--ink-2); font-size: .93rem; }
+.mode .n { font: 600 .85rem var(--font-ui); color: var(--ink-3); margin-top: 8px; }
+.mode[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+.mode.feature { grid-column: span 2; background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.mode.feature p, .mode.feature .n { color: color-mix(in srgb, var(--paper) 75%, transparent); }
+.mode.feature .ico svg { stroke: var(--ink); }
+
+.plan { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; }
+.plan .day { flex: 0 0 auto; min-width: 74px; padding: 10px 8px; text-align: center; border: 1px dashed var(--rule); border-radius: var(--radius-s); background: var(--sheet); font-size: .82rem; }
+.plan .day b { display: block; font: 700 1.05rem var(--font-ui); }
+.plan .day.is-today { border: 2px solid var(--blue); }
+.plan .day.exam { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+/* Material */
+.drop { display: grid; place-items: center; gap: 10px; padding: 34px 20px; text-align: center; border: 2px dashed var(--ink-3); border-radius: var(--radius-m); background: var(--sheet); cursor: pointer; }
+.drop.over { border-color: var(--blue); background: color-mix(in srgb, var(--blue) 6%, var(--sheet)); }
+.drop svg { width: 46px; height: 46px; stroke: var(--ink-2); fill: none; stroke-width: 1.6; }
+.doc-list { display: grid; gap: 10px; }
+.doc { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 18px; }
+.doc .kind { font: 700 .74rem var(--font-ui); padding: 4px 8px; border-radius: 4px; background: var(--grid); color: var(--ink-2); text-transform: uppercase; }
+.progress-line { display: grid; gap: 6px; padding: 14px 18px; }
+
+/* Kartenliste */
+.card-list { display: grid; gap: 10px; }
+.card-item { display: grid; grid-template-columns: 1fr 1fr auto; gap: 16px; padding: 14px 18px; align-items: start; }
+.card-item .q { font-weight: 700; }
+.card-item .t { font: 600 .76rem var(--font-ui); color: var(--ink-3); display: block; margin-bottom: 2px; }
+.card-item textarea { min-height: 70px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.chip { border: 1.5px solid var(--rule); background: var(--sheet); border-radius: 99px; padding: 4px 12px; font: 600 .85rem var(--font-ui); cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+
+/* Spickzettel */
+.cheat { padding: 30px 34px; background-image: linear-gradient(var(--sheet), var(--sheet)); position: relative; }
+.cheat::before { content: ''; position: absolute; top: 0; bottom: 0; left: 22px; width: 2px; background: color-mix(in srgb, var(--red) 55%, transparent); }
+.cheat > * { margin-left: 18px; }
+.terms { display: flex; flex-wrap: wrap; gap: 8px 12px; margin: 12px 0 24px 18px; }
+.cheat ol { padding-left: 1.2em; display: grid; gap: 10px; max-width: 72ch; }
+.glossary { display: grid; grid-template-columns: minmax(140px, max-content) 1fr; gap: 8px 22px; margin: 14px 0 26px 18px; max-width: 80ch; }
+.glossary dt { font-weight: 700; }
+.glossary dd { margin: 0; color: var(--ink-2); }
+
+/* Lern-Sitzung */
+.session { max-width: 760px; margin: 0 auto; display: grid; gap: 22px; }
+.session-top { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+.session-top .bar { height: 10px; }
+.counter { font: 700 .95rem var(--font-ui); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* Karteikarte */
+.flash { perspective: 1400px; cursor: pointer; }
+.flash-inner { position: relative; min-height: 340px; transition: transform .5s cubic-bezier(.3,.7,.2,1); transform-style: preserve-3d; }
+.flash.flipped .flash-inner { transform: rotateX(180deg); }
+.face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  background: #FFFEF8; color: #1A2550; border-radius: 4px; box-shadow: 0 2px 0 #d9dbe6, 0 18px 40px -18px rgba(26,37,80,.45);
+  padding: 58px 40px 34px; display: grid; align-content: center; gap: 14px; text-align: center;
+  background-image: linear-gradient(transparent 0 40px, #E8545F 40px 42px, transparent 42px), repeating-linear-gradient(transparent 0 33px, #BFD4F2 33px 34px);
+  background-position: 0 0, 0 42px;
+}
+.face.back { transform: rotateX(180deg); }
+.face .type { position: absolute; top: 11px; left: 18px; font: 600 .8rem var(--font-ui); color: #7480A0; }
+.face .hint { position: absolute; bottom: 12px; left: 0; right: 0; font-size: .82rem; color: #7480A0; }
+.face .front-text { font: 700 clamp(1.25rem, 3vw, 1.8rem)/1.3 var(--font-ui); }
+.face .back-text { font: 400 clamp(1.05rem, 2.4vw, 1.3rem)/1.5 var(--font-body); }
+.face .back-q { font-size: .9rem; color: #4B567A; }
+.answer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.answer-row .btn { min-height: 54px; font-size: 1.02rem; }
+.btn.know { border-color: var(--ok); color: var(--ok); box-shadow: 0 2px 0 var(--ok); }
+.btn.dont { border-color: var(--red); color: var(--red); box-shadow: 0 2px 0 var(--red); }
+.boxes { display: flex; gap: 6px; justify-content: center; }
+.boxes span { width: 34px; height: 8px; border-radius: 3px; background: var(--grid); }
+.boxes span.on { background: var(--ok); }
+kbd { font: 600 .78rem var(--font-ui); border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--sheet); }
+
+/* Quiz */
+.question { padding: 28px 30px; display: grid; gap: 22px; }
+.question .qtext { font: 650 1.3rem/1.4 var(--font-ui); }
+.question .qtext .gap { display: inline-block; min-width: 5em; border-bottom: 2.5px solid var(--ink); }
+.opts { display: grid; gap: 10px; }
+.opt {
+  display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: center; text-align: left;
+  padding: 12px 16px; border: 1.5px solid var(--rule); border-radius: var(--radius-s); background: var(--sheet); cursor: pointer; font-size: 1rem;
+}
+.opt:hover:not(:disabled) { border-color: var(--ink); }
+.opt .key { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; border: 1.5px solid var(--ink-3); font: 700 .85rem var(--font-ui); }
+.opt.right { border-color: var(--ok); background: color-mix(in srgb, var(--m-gruen) calc(var(--mark-a) * 70%), var(--sheet)); }
+.opt.wrong { border-color: var(--red); background: color-mix(in srgb, var(--m-pink) calc(var(--mark-a) * 60%), var(--sheet)); }
+.opt:disabled { cursor: default; }
+.feedback { padding: 14px 18px; border-radius: var(--radius-s); border-left: 5px solid; }
+.feedback.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 9%, var(--sheet)); }
+.feedback.no { border-color: var(--red); background: color-mix(in srgb, var(--red) 8%, var(--sheet)); }
+.feedback .src { margin-top: 6px; font-size: .9rem; color: var(--ink-2); }
+.tf { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tf .btn { min-height: 60px; font-size: 1.1rem; }
+
+/* Zuordnen */
+.match { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
+.match .col { display: grid; gap: 10px; align-content: start; }
+.tile { padding: 12px 14px; border: 1.5px solid var(--rule); border-radius: var(--radius-s); background: var(--sheet); cursor: pointer; text-align: left; font-size: .97rem; line-height: 1.35; }
+.tile:hover:not(:disabled) { border-color: var(--ink); }
+.tile.sel { border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 22%, transparent); }
+.tile.done { border-color: transparent; background: color-mix(in srgb, var(--c, var(--m-gruen)) calc(var(--mark-a) * 100%), var(--sheet)); cursor: default; }
+.tile.shake { animation: shake .35s; border-color: var(--red); }
+@keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+/* Ergebnis */
+.result { padding: 34px; display: grid; gap: 18px; text-align: center; justify-items: center; }
+.grade { font: 700 6rem/0.9 var(--font-hand); color: var(--red); transform: rotate(-6deg); }
+.review { display: grid; gap: 10px; text-align: left; width: 100%; }
+.review .item { padding: 12px 16px; border-left: 4px solid var(--red); background: var(--paper); border-radius: 4px; }
+.review .item.ok { border-color: var(--ok); }
+table.results { width: 100%; border-collapse: collapse; }
+table.results th, table.results td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+table.results th { font: 600 .85rem var(--font-ui); color: var(--ink-3); }
+
+/* Leerer Zustand */
+.empty { padding: 40px 30px; display: grid; gap: 16px; justify-items: start; max-width: 640px; }
+.empty .margin-note { font-size: 1.9rem; }
+
+/* Dialog, Toast */
+dialog { border: 1px solid var(--rule); border-radius: var(--radius-m); padding: 0; background: var(--sheet); color: var(--ink); width: min(560px, calc(100vw - 32px)); box-shadow: 0 30px 80px -20px rgba(0,0,0,.45); }
+dialog::backdrop { background: rgba(18, 26, 51, .45); }
+dialog form { padding: 24px; display: grid; gap: 16px; }
+.swatches { display: flex; gap: 10px; flex-wrap: wrap; }
+.swatches label { position: relative; cursor: pointer; }
+.swatches input { position: absolute; opacity: 0; }
+.swatches span { display: block; width: 38px; height: 38px; border-radius: 8px; background: var(--c); border: 2px solid transparent; }
+.swatches input:checked + span { border-color: var(--ink); box-shadow: inset 0 0 0 3px var(--sheet); }
+.swatches input:focus-visible + span { outline: 3px solid var(--blue); outline-offset: 2px; }
+#toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 140%); background: var(--ink); color: var(--paper); padding: 12px 20px; border-radius: 8px; font: 600 .95rem var(--font-ui); transition: transform .25s; z-index: 50; max-width: calc(100vw - 32px); }
+#toast.show { transform: translate(-50%, 0); }
+.filewarn { max-width: 620px; margin: 10vh auto; display: grid; gap: 14px; }
+.note { padding: 14px 18px; border-radius: var(--radius-s); background: color-mix(in srgb, var(--m-gelb) calc(var(--mark-a) * 45%), var(--sheet)); border: 1px solid color-mix(in srgb, var(--m-gelb) 70%, var(--rule)); font-size: .95rem; }
+pre.prompt { white-space: pre-wrap; font-size: .85rem; background: var(--paper); padding: 12px; border-radius: 6px; border: 1px solid var(--rule); max-height: 220px; overflow: auto; }
+
+/* Mobil */
+@media (max-width: 860px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: fixed; z-index: 40; inset: 0 auto 0 0; width: 280px; transform: translateX(-100%); transition: transform .2s; box-shadow: var(--shadow); }
+  .rail.open { transform: none; }
+  .menu-btn { display: inline-flex; position: fixed; top: 12px; right: 12px; z-index: 45; }
+  main { padding-top: 64px; }
+  .today { grid-template-columns: 1fr; }
+  .mode.feature { grid-column: auto; }
+  .card-item { grid-template-columns: 1fr; }
+  .match { gap: 10px; }
+  .face { padding: 54px 20px 34px; }
+  .agenda li { grid-template-columns: 60px 1fr; padding: 12px 16px; }
+  .agenda li > :last-child { grid-column: 2; }
+  .glossary { grid-template-columns: 1fr; gap: 2px; }
+  .glossary dd { margin-bottom: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+@media print {
+  body { background: #fff; }
+  .rail, .tabs, .no-print, .menu-btn, .page-head .row { display: none !important; }
+  .shell { display: block; }
+  main { padding: 0; max-width: none; }
+  .sheet { box-shadow: none; border: 0; }
+}
+.btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; flex: none; }
+.chip input { accent-color: var(--blue); }
+[hidden] { display: none !important; }
+.btn.menu-btn { display: none; }
+@media (max-width: 860px) { .btn.menu-btn { display: inline-flex; position: fixed; top: 12px; right: 12px; z-index: 45; } }
+.face .back-q .mk { font-weight: 700; }
+#toast:not(.show) { visibility: hidden; transition: transform .25s, visibility 0s .25s; }
+.btn.star.on { color: var(--red); }
+.filters .chip.star-chip[aria-pressed="true"] { background: var(--red); border-color: var(--red); }
+.subject-tile h3, .rail a.nav, .test-row h3 { hyphens: auto; overflow-wrap: anywhere; }
+dialog.wide { width: min(820px, calc(100vw - 32px)); }
+.reader-text { max-height: 68vh; overflow-y: auto; display: grid; gap: 14px; max-width: 72ch; line-height: 1.7; padding-right: 8px; }
+.face { overflow-y: auto; align-content: safe center; overscroll-behavior: contain; }
+.face .back-text.long { font-size: 1rem; text-align: left; line-height: 1.55; }
+
+/* Handy-Version – ergänzt app.css. Eine Spalte, Tab-Leiste unten. */
+html, body { min-height: 100%; }
+body { padding-inline: 0; font-size: 16.5px; }
+#main {
+  max-width: 640px; margin: 0 auto;
+  padding: 20px 16px calc(96px + env(safe-area-inset-bottom, 0px));
+  display: grid; gap: 30px; align-content: start;
+}
+body.in-session #main { padding-bottom: 32px; }
+#main > section { display: grid; gap: 12px; margin: 0; }
+#main > section + section { margin-top: 0; }
+h1 { font-size: clamp(1.8rem, 8vw, 2.3rem); text-wrap: balance; }
+h2 { font-size: 1.25rem; text-wrap: balance; }
+
+/* Kopf */
+.hero { display: grid; gap: 10px; }
+.subject { font: 600 .9rem var(--font-ui); color: var(--ink-2); }
+.progress-row { display: grid; grid-template-columns: 76px 1fr; gap: 14px; align-items: center; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); margin-top: 6px; }
+.progress-row > div { display: grid; gap: 2px; min-width: 0; }
+.ring { width: 76px; height: 76px; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 8; }
+.ring-bg { stroke: var(--grid); }
+.ring-fg { stroke: var(--ok); stroke-linecap: round; transition: stroke-dashoffset .6s; }
+.ring text { transform: rotate(90deg); transform-origin: 40px 40px; font: 800 17px var(--font-ui); fill: var(--ink); }
+.progress-row .margin-note { font-size: 1.3rem; margin-top: 2px; }
+.btn.big { min-height: 56px; font-size: 1.1rem; width: 100%; }
+.btn.wide { width: 100%; }
+.page-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+/* Kurzarbeit-Fragen */
+.stars { display: grid; gap: 10px; }
+.star-q { padding: 0; overflow: hidden; }
+.star-q summary { list-style: none; display: grid; grid-template-columns: 22px 1fr 18px; gap: 10px; align-items: start; padding: 16px; cursor: pointer; font: 650 1.02rem/1.35 var(--font-ui); }
+.star-q summary::-webkit-details-marker { display: none; }
+.star-q summary::after { content: '+'; font-size: 1.3rem; line-height: 1; color: var(--ink-3); }
+.star-q[open] summary::after { content: '–'; }
+.star-icon { color: var(--red); font-size: 1.1rem; line-height: 1.2; }
+.star-a { padding: 0 16px 16px 48px; color: var(--ink-2); line-height: 1.6; }
+
+/* Übungsliste */
+.mode-list { display: grid; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); overflow: hidden; }
+.mode-row { display: grid; grid-template-columns: 44px 1fr 16px; gap: 14px; align-items: center; padding: 14px 16px; color: var(--ink); text-decoration: none; border-top: 1px solid var(--rule); min-height: 68px; }
+.mode-row:first-child { border-top: 0; }
+.mode-row:active { background: var(--paper); }
+.mode-row .ico { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent); }
+.mode-row .ico svg { width: 24px; height: 24px; stroke: var(--ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.mode-row .txt { display: grid; gap: 2px; min-width: 0; }
+.mode-row .txt b { font: 700 1.02rem var(--font-ui); }
+.mode-row .txt span { font-size: .88rem; color: var(--ink-2); line-height: 1.35; }
+.mode-row .chev { font-size: 1.6rem; color: var(--ink-3); line-height: 1; }
+.mode-row.exam { background: var(--ink); color: var(--paper); }
+.mode-row.exam .txt span, .mode-row.exam .chev { color: color-mix(in srgb, var(--paper) 72%, transparent); }
+.mode-row[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+
+/* Karten */
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+.chips .chip { min-height: 38px; white-space: nowrap; }
+.clist { display: grid; gap: 10px; }
+.citem { padding: 14px 16px; display: grid; gap: 6px; }
+.ctop { display: flex; justify-content: space-between; align-items: center; }
+.ctop .t { font: 600 .78rem var(--font-ui); color: var(--ink-3); }
+.cq { font-weight: 700; }
+.ca { color: var(--ink-2); }
+.citem .btn { justify-self: start; }
+.starbtn { border: 0; background: none; font-size: 1.5rem; line-height: 1; color: var(--ink-3); cursor: pointer; min-width: 44px; min-height: 44px; margin: -10px -10px -10px 0; }
+.starbtn.on { color: var(--red); }
+
+/* Lesen */
+.reader { padding: 20px 18px; display: grid; gap: 14px; line-height: 1.7; }
+.cheat { padding: 22px 18px 22px 30px; }
+.cheat::before { left: 14px; }
+.cheat > * { margin-left: 0; }
+.cheat h3 { margin-top: 8px; }
+.terms { margin: 10px 0 18px; }
+.glossary { margin: 10px 0 18px; grid-template-columns: 1fr; gap: 2px; }
+.glossary dd { margin-bottom: 10px; }
+
+/* Tab-Leiste */
+#tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  background: var(--sheet); border-top: 1px solid var(--rule);
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+}
+#tabbar a { display: grid; justify-items: center; gap: 3px; padding: 6px 0; color: var(--ink-3); text-decoration: none; font: 600 .76rem var(--font-ui); border-radius: 10px; }
+#tabbar a svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#tabbar a[aria-current="page"] { color: var(--ink); }
+#tabbar a[aria-current="page"] svg { background: color-mix(in srgb, var(--m-lila) calc(var(--mark-a) * 100%), transparent); border-radius: 8px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--m-lila) calc(var(--mark-a) * 100%), transparent); }
+
+/* Lern-Sitzung auf dem Handy */
+.session { gap: 16px; }
+.flash-inner { min-height: 300px; }
+.face { padding: 54px 20px 36px; }
+.question { padding: 20px 18px; gap: 18px; }
+.question .qtext { font-size: 1.12rem; }
+.answer-row .btn, .tf .btn { min-height: 58px; }
+.match { grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { font-size: .9rem; padding: 10px; }
+.result { padding: 24px 16px; }
+kbd { display: none; }
+
+/* Unteres Blatt (Dialog) */
+#sheet { margin: auto auto 0; width: 100%; max-width: 640px; border-radius: 16px 16px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); }
+#sheet .stack { display: grid; gap: 12px; }
+
+#toast { bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
+body.in-session #toast { bottom: 24px; }
+.session { width: 100%; }
+.kbd-hint { display: none; }
+.flash-inner { min-height: 380px; }
+
+</style>
+<main id="main" tabindex="-1"></main>
+<nav id="tabbar" aria-label="Bereiche">
+  <a href="#/" data-tab="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 8h6M8 12h4"/></svg>Lernen</a>
+  <a href="#/karten" data-tab="karten"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="14" height="12" rx="1.5"/><path d="M7 3h13a1 1 0 0 1 1 1v11"/><path d="M3 10h14"/></svg>Karten</a>
+  <a href="#/text" data-tab="text"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10l3 3v15H4V3z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Texte</a>
+  <a href="#/spick" data-tab="spick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>Spickzettel</a>
+</nav>
+<div id="toast" role="status" aria-live="polite"></div>
+<dialog id="sheet"></dialog>
+<dialog id="dialog"></dialog>
+<script>
+const __m = {};
+__m.util = (() => {
+const COLORS = ['lila', 'gelb', 'gruen', 'pink', 'blau', 'orange'];
+const COLOR_NAME = { lila: 'Lila', gelb: 'Gelb', gruen: 'Grün', pink: 'Pink', blau: 'Blau', orange: 'Orange' };
+const cvar = (c) => `var(--m-${c || 'lila'})`;
+
+const h = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+
+function shuffle(a) {
+  a = [...a];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const sample = (a, n) => shuffle(a).slice(0, n);
+
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+const DAY = 864e5;
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr + 'T00:00:00'); const t = new Date(); t.setHours(0, 0, 0, 0);
+  return Math.round((d - t) / DAY);
+}
+function countdownText(dateStr) {
+  const n = daysUntil(dateStr);
+  if (n === null) return '';
+  if (n < 0) return n === -1 ? 'war gestern' : `vor ${-n} Tagen`;
+  if (n === 0) return 'heute!';
+  if (n === 1) return 'morgen!';
+  return `noch ${n} Tage`;
+}
+const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+const MON = ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Juni', 'Juli', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+function dateParts(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return { wd: WD[d.getDay()], day: d.getDate(), mon: MON[d.getMonth()] };
+}
+const fmtDate = (ts) => new Date(ts).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+const isoDate = (offsetDays = 0) => {
+  const d = new Date(Date.now() + offsetDays * DAY);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+const P = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const ICON = {
+  cards: P('<rect x="3" y="6" width="14" height="12" rx="1.5"/><path d="M7 3h13a1 1 0 0 1 1 1v11"/><path d="M3 10h14"/>'),
+  repeat: P('<path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/>'),
+  quiz: P('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.6V14"/><path d="M12 17.5v.01"/>'),
+  tf: P('<path d="M4 12l4 4 8-9"/><path d="M15 15l5 5M20 15l-5 5"/>'),
+  gap: P('<path d="M3 7h6M15 7h6M3 12h4M13 12h8M3 17h9"/><path d="M9 14v-4h4v4"/>'),
+  match: P('<rect x="3" y="4" width="7" height="5" rx="1"/><rect x="3" y="15" width="7" height="5" rx="1"/><rect x="14" y="4" width="7" height="5" rx="1"/><rect x="14" y="15" width="7" height="5" rx="1"/><path d="M10 6.5l4 11M10 17.5l4-11"/>'),
+  write: P('<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>'),
+  exam: P('<path d="M7 3h10l3 3v15H4V3z"/><path d="M8 9h8M8 13h8M8 17h5"/><path d="M15 17l1.5 1.5L20 15"/>'),
+  upload: P('<path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/>'),
+  plus: P('<path d="M12 5v14M5 12h14"/>'),
+  menu: P('<path d="M4 7h16M4 12h16M4 17h16"/>'),
+};
+
+return { COLORS, COLOR_NAME, cvar, h, $, $$, shuffle, sample, toast, daysUntil, countdownText, dateParts, fmtDate, isoDate, plural, ICON };
+})();
+
+__m.store = (() => {
+// Datenhaltung: alles bleibt im Browser (localStorage) auf diesem PC.
+const KEY = 'lernapp.v1';
+
+const empty = () => ({
+  version: 1,
+  subjects: [],   // {id, name, color}
+  tests: [],      // {id, subjectId, title, date, notes, createdAt}
+  docs: [],       // {id, testId, name, kind, text, addedAt}
+  cards: [],      // {id, testId, docId, type, q, a, source, createdAt}
+  progress: {},   // cardId -> {box, due, right, wrong, last}
+  results: [],    // {id, testId, date, points, max, grade, mode}
+  streak: { last: null, days: 0 },
+});
+
+let state = load();
+const listeners = new Set();
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return { ...empty(), ...JSON.parse(raw) };
+  } catch (e) { console.warn('Speicher nicht lesbar', e); }
+  return empty();
+}
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(state));
+  } catch (e) {
+    console.warn('Speichern fehlgeschlagen', e);
+    document.dispatchEvent(new CustomEvent('lernapp:savefail'));
+  }
+  listeners.forEach((fn) => fn());
+}
+
+const get = () => state;
+const onChange = (fn) => listeners.add(fn);
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+
+// Fächer
+function addSubject(name, color) {
+  const s = { id: uid(), name: name.trim(), color };
+  state.subjects.push(s); save(); return s;
+}
+function updateSubject(id, patch) { Object.assign(subject(id), patch); save(); }
+function deleteSubject(id) {
+  state.tests.filter((t) => t.subjectId === id).forEach((t) => deleteTest(t.id, false));
+  state.subjects = state.subjects.filter((s) => s.id !== id); save();
+}
+const subject = (id) => state.subjects.find((s) => s.id === id);
+
+// Tests / Lernsets
+function addTest(subjectId, title, date, notes = '') {
+  const t = { id: uid(), subjectId, title: title.trim(), date: date || '', notes, createdAt: Date.now() };
+  state.tests.push(t); save(); return t;
+}
+function updateTest(id, patch) { Object.assign(test(id), patch); save(); }
+function deleteTest(id, persist = true) {
+  const cardIds = new Set(state.cards.filter((c) => c.testId === id).map((c) => c.id));
+  cardIds.forEach((cid) => delete state.progress[cid]);
+  state.cards = state.cards.filter((c) => c.testId !== id);
+  state.docs = state.docs.filter((d) => d.testId !== id);
+  state.results = state.results.filter((r) => r.testId !== id);
+  state.tests = state.tests.filter((t) => t.id !== id);
+  if (persist) save();
+}
+const test = (id) => state.tests.find((t) => t.id === id);
+const testsOf = (subjectId) => state.tests.filter((t) => t.subjectId === subjectId);
+
+// Dokumente
+function addDoc(testId, name, kind, text) {
+  const d = { id: uid(), testId, name, kind, text, addedAt: Date.now() };
+  state.docs.push(d); save(); return d;
+}
+function deleteDoc(id, withCards) {
+  if (withCards) {
+    state.cards.filter((c) => c.docId === id).forEach((c) => delete state.progress[c.id]);
+    state.cards = state.cards.filter((c) => c.docId !== id);
+  }
+  state.docs = state.docs.filter((d) => d.id !== id); save();
+}
+const docsOf = (testId) => state.docs.filter((d) => d.testId === testId);
+
+// Karten
+function addCards(list) {
+  const known = new Set(state.cards.map((c) => c.testId + '|' + norm(c.q) + '|' + norm(c.a)));
+  let n = 0;
+  for (const c of list) {
+    const k = c.testId + '|' + norm(c.q) + '|' + norm(c.a);
+    if (known.has(k)) continue;
+    known.add(k);
+    state.cards.push({ id: uid(), createdAt: Date.now(), source: '', docId: null, ...c });
+    n++;
+  }
+  save(); return n;
+}
+function updateCard(id, patch) { Object.assign(state.cards.find((c) => c.id === id), patch); save(); }
+function deleteCard(id) {
+  state.cards = state.cards.filter((c) => c.id !== id);
+  delete state.progress[id]; save();
+}
+const cardsOf = (testId) => state.cards.filter((c) => c.testId === testId);
+const norm = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+// Lernkartei (Leitner, 5 Fächer)
+const INTERVAL_DAYS = [0, 1, 2, 4, 8, 16];
+const progressOf = (cardId) => state.progress[cardId] || { box: 0, due: 0, right: 0, wrong: 0, last: 0 };
+
+function grade(cardId, correct, persist = true) {
+  const p = { ...progressOf(cardId) };
+  if (correct) { p.box = Math.min(5, p.box + 1); p.right++; }
+  else { p.box = 1; p.wrong++; }
+  p.last = Date.now();
+  p.due = startOfDay(Date.now()) + INTERVAL_DAYS[p.box] * 864e5;
+  state.progress[cardId] = p;
+  touchStreak();
+  if (persist) save();
+}
+function isDue(cardId) {
+  const p = state.progress[cardId];
+  return !p || p.due <= Date.now();
+}
+
+function touchStreak() {
+  const today = new Date().toISOString().slice(0, 10);
+  const s = state.streak;
+  if (s.last === today) return;
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  s.days = s.last === yesterday ? s.days + 1 : 1;
+  s.last = today;
+}
+function streakDays() {
+  const s = state.streak;
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  return s.last === today || s.last === yesterday ? s.days : 0;
+}
+
+function addResult(r) {
+  touchStreak();
+  state.results.push({ id: uid(), date: Date.now(), ...r }); save();
+}
+const resultsOf = (testId) => state.results.filter((r) => r.testId === testId);
+
+const startOfDay = (t) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+
+// Backup
+function exportJSON() { return JSON.stringify(state, null, 1); }
+function importJSON(text, mode = 'replace') {
+  const data = JSON.parse(text);
+  if (!Array.isArray(data.subjects) || !Array.isArray(data.tests)) throw new Error('Das ist keine LernApp-Sicherung.');
+  if (mode === 'replace') state = { ...empty(), ...data };
+  else {
+    for (const k of ['subjects', 'tests', 'docs', 'cards', 'results']) {
+      const ids = new Set(state[k].map((x) => x.id));
+      state[k].push(...(data[k] || []).filter((x) => !ids.has(x.id)));
+    }
+    state.progress = { ...data.progress, ...state.progress };
+  }
+  save();
+}
+function resetAll() { state = empty(); save(); }
+
+return { save, get, onChange, uid, addSubject, updateSubject, deleteSubject, subject, addTest, updateTest, deleteTest, test, testsOf, addDoc, deleteDoc, docsOf, addCards, updateCard, deleteCard, cardsOf, progressOf, grade, isDue, streakDays, addResult, resultsOf, startOfDay, exportJSON, importJSON, resetAll };
+})();
+
+__m.gen = (() => {
+// Lernmaterial aus Text erzeugen – regelbasiert, ohne Internet.
+// Erkennt: Fragen mit Antworten (Arbeitsblätter), Begriff–Erklärung-Paare, Definitionssätze,
+// Abkürzungen, Jahreszahlen, Schlüsselbegriffe (deutsche Substantive) und markierte Stellen.
+
+const STOP = new Set(('der die das den dem des ein eine einer eines einem einen und oder aber doch denn sondern als wie wenn weil dass daß ob so auch noch nur schon sehr mehr nicht kein keine keinen keiner ' +
+  'ich du er sie es wir ihr man sich mich dich uns euch ihm ihn ihnen ihre ihr ihren ihrem ihres sein seine seinen seinem seiner seines mein dein unser euer ' +
+  'ist sind war waren wird werden wurde wurden worden hat haben hatte hatten habe kann können konnte konnten muss müssen musste mussten soll sollen sollte sollten will wollen wollte darf dürfen mag ' +
+  'in im ins an am auf aus bei mit nach von vom vor zu zum zur über unter um durch für gegen ohne bis seit während wegen trotz zwischen hinter neben ' +
+  'dies diese dieser dieses diesen diesem jene jener jenes welche welcher welches was wer wo wann warum wieso weshalb wieviel ' +
+  'da dann damit dazu dabei daher darum davon dafür dagegen darauf daraus darin hier dort heute immer wieder sowie bzw etc usw ca z.b. zb ' +
+  'alle allem allen aller alles andere anderen anderer anderes viel viele vielen einige einigen jeder jede jedes jeden jedem etwa eben ganz gar sehr zudem ' +
+  'sagt sagte erklärt betont nun also zwar jedoch dennoch somit sodass seien sei gewesen').split(' '));
+
+// Arbeitsaufträge wie in Klassenarbeiten
+const TASK = /^(Nenne|Nennen Sie|Zähle|Zählen Sie|Erkläre|Erklären Sie|Erläutere|Erläutern Sie|Beschreibe|Beschreiben Sie|Begründe|Begründen Sie|Definiere|Definieren Sie|Vergleiche|Vergleichen Sie|Stelle .* dar|Fasse .* zusammen)\b.{4,}$/;
+const NUM_WORDS = { zwei: 2, drei: 3, vier: 4, fünf: 5, sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10 };
+function neededCount(q) {
+  const m = q.match(/^(?:Nenne|Nennen Sie|Zähle|Zählen Sie)\s+(?:mindestens\s+)?(\d+|zwei|drei|vier|fünf|sechs|sieben|acht|neun|zehn)\b/i);
+  return m ? (+m[1] || NUM_WORDS[m[1].toLowerCase()]) : 0;
+}
+
+const DEF_VERBS =/\s(ist|sind|war|waren|bezeichnet|bedeutet|beschreibt|meint|umfasst)\s/;
+
+function normalize(raw) {
+  let t = String(raw || '')
+    .replace(/\r/g, '')
+    .replace(/­/g, '')
+    .replace(/([a-zäöüß])-\n\s*([a-zäöüß])/g, '$1$2'); // Silbentrennung am Zeilenende
+  // Zeilennummern am Rand (Lesetexte: 5, 10, 15 …) nur entfernen, wenn sie gehäuft vorkommen
+  const lineNo = /^[ \t]*\d{1,3}[ \t]+(?=[A-Za-zÄÖÜäöüß„"])/gm;
+  if ((t.match(lineNo) || []).length >= 3) t = t.replace(lineNo, '');
+  return t.replace(/ {3,}/g, '\t').replace(/[ \t]*\t[ \t]*/g, '\t').replace(/ +/g, ' ').replace(/^ | $/gm, '').trim();
+}
+
+// Zeilen zu Absätzen zusammenführen, Sätze trennen
+function sentences(text) {
+  const paras = [];
+  for (const block of text.split(/\n\s*\n/)) {
+    const ls = block.split('\n').map((l) => l.trim()).filter(Boolean);
+    let buf = '';
+    ls.forEach((l, i) => {
+      const heading = i < ls.length - 1 && l.length < 70 && l.split(' ').length <= 8 && !/[.!?:;,"“”-]$/.test(l);
+      const listItem = /^([-•*>]|\d+[.)]\s|[a-z]\)\s)/.test(l);
+      if (heading || listItem) { if (buf) paras.push(buf); buf = ''; paras.push(l); }
+      else buf = buf ? buf + ' ' + l : l;
+    });
+    if (buf) paras.push(buf);
+  }
+  const out = [];
+  for (const p of paras) {
+    const parts = p
+      .replace(/\b(z|u|d|bzw|ca|vgl|ggf|usw|etc|Nr|Dr|Prof|St|Abs|Art|bspw|evtl|inkl|max|min|sog)\./gi, '$1․')
+      .replace(/(\d)\.(\s+(Jahrhundert|Jh|Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember|Klasse|Stunde|Weltkrieg))/g, '$1․$2')
+      .split(/(?<=[.!?…])\s+(?=[„"A-ZÄÖÜ0-9])/);
+    for (let s of parts) {
+      s = s.replace(/․/g, '.').trim();
+      if (s.length > 2) out.push(s);
+    }
+  }
+  return out;
+}
+
+const words = (s) => s.match(/[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß\-]*[A-Za-zÄÖÜäöüß]|\d{3,4}/g) || [];
+const clean = (s) => {
+  s = s.replace(/\s+/g, ' ').replace(/^[\s„"“»\-–•*>]+|[\s“"”«,;:]+$/g, '').trim();
+  if (s.startsWith('(') && !s.includes(')')) s = s.slice(1);
+  if (s.endsWith(')') && !s.includes('(')) s = s.slice(0, -1);
+  return s.trim();
+};
+const cap1 = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Schlüsselbegriffe: groß geschriebene Wörter, die nicht am Satzanfang stehen, + markierte Stellen
+function keywords(text, highlights = [], limit = 60) {
+  const sents = sentences(text);
+  const freq = new Map();
+  for (const s of sents) {
+    const ws = words(s);
+    ws.forEach((w, i) => {
+      const lw = w.toLowerCase();
+      if (STOP.has(lw) || w.length < 4) return;
+      const isNoun = /^[A-ZÄÖÜ]/.test(w) && i > 0;
+      const isYear = /^\d{3,4}$/.test(w);
+      if (!isNoun && !isYear) return;
+      freq.set(w, (freq.get(w) || 0) + 1);
+    });
+  }
+  const scored = [...freq].map(([w, f]) => [w, f * (1 + Math.min(w.length, 16) / 8)]);
+  for (const h of highlights) {
+    const key = clean(h);
+    if (key.split(' ').length <= 5) scored.push([key, 20 + key.length / 4]);
+  }
+  scored.sort((a, b) => b[1] - a[1]);
+  const seen = new Set();
+  const out = [];
+  for (const [w] of scored) {
+    const k = w.toLowerCase();
+    if (seen.has(k)) continue;
+    seen.add(k); out.push(w);
+    if (out.length >= limit) break;
+  }
+  return out;
+}
+
+// Wichtigste Sätze (für Spickzettel)
+function keySentences(text, highlights = [], n = 12) {
+  const kws = keywords(text, highlights, 40);
+  const weight = new Map(kws.map((k, i) => [k.toLowerCase(), 40 - i]));
+  const sents = sentences(text).filter((s) => s.length > 40 && s.length < 360 && !/\?$/.test(s));
+  const scored = sents.map((s, i) => {
+    const lw = s.toLowerCase();
+    let sc = 0;
+    for (const [k, w] of weight) if (lw.includes(k)) sc += w;
+    return { s, i, sc: sc / Math.sqrt(s.length / 60) };
+  });
+  return scored.sort((a, b) => b.sc - a.sc).slice(0, n).sort((a, b) => a.i - b.i).map((x) => x.s);
+}
+
+// Hauptfunktion: liefert Kartenvorschläge {type, q, a, source}
+function generate(rawText, { highlights = [] } = {}) {
+  const text = normalize(rawText);
+  const lines = text.split('\n').map((l) => l.trim());
+  const cards = [];
+  const push = (type, q, a, source = '') => {
+    q = clean(q); a = clean(a);
+    if (q.length < 2 || a.length < 1 || q.toLowerCase() === a.toLowerCase()) return;
+    cards.push({ type, q, a, source });
+  };
+
+  // 1) Fragen mit Antworten (Arbeitsblatt): Zeile endet mit "?" oder ist ein Arbeitsauftrag ("Nenne 8 …")
+  const sents = sentences(text);
+  const answerLines = new Set();
+  const isTask = (s) => /\?\s*$/.test(s) || TASK.test(s);
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i].replace(/^(\d+|[a-z])[.)]\s*/, '');
+    if (!isTask(l) || l.length < 8) continue;
+    const ans = [];
+    for (let j = i + 1; j < lines.length && ans.length < 6; j++) {
+      const n = lines[j];
+      if (!n) { if (ans.length) break; else continue; }
+      if (isTask(n) || /^\d+[.)]\s+\S/.test(n)) break;
+      ans.push(n.replace(/^[>•\-*]\s*/, ''));
+    }
+    ans.forEach((x) => answerLines.add(x));
+    if (ans.length) {
+      push('frage', l, ans.join('; '));
+      const need = neededCount(l);
+      if (need && cards.at(-1)?.q === clean(l)) cards.at(-1).need = need;
+    }
+    else {
+      const best = bestSentenceFor(l, sents);
+      if (best) push('frage', l, best, 'Antwort aus dem Text vorgeschlagen');
+    }
+  }
+
+  // 2) Begriff – Erklärung (Glossare, Vokabeln, Tabellen)
+  lines.forEach((raw, i) => {
+    const l = raw.replace(/^([a-z]|\d+)[.)]\s*/, '');
+    if (isTask(l) || answerLines.has(raw.replace(/^[>•\-*]\s*/, ''))) return;
+    const m = l.match(/^([^:=–—\t]{2,60}?)\s*(:|=|\s[–—-]\s|\t+|\s->\s)\s*(.{2,300})$/);
+    if (!m) return;
+    const term = clean(m[1]), expl = clean(m[3]);
+    const strong = /[:=\t]/.test(m[2]);
+    // Fließtext-Zeilen mit Gedankenstrich sind keine Begriffspaare
+    const prev = lines[i - 1] || '';
+    const inProse = prev.length > 50 && !/[.:!?]$/.test(prev) && l.length > 50;
+    if (!strong && (inProse || /^(Der|Die|Das|Ein|Eine|Im|In|Als|Wenn|Doch|Und)\s+[a-zäöüß]/.test(term))) return;
+    if (m[2] === ':' && /\d$/.test(term)) return; // Uhrzeiten, Bibelstellen
+    if (term.split(' ').length > 6 || /^(http|www)/i.test(term) || /[.!]$/.test(term)) return;
+    if (/^(quelle|datum|name|klasse|thema|eintrag|seite|autor|lehrer)$/i.test(term) || /^quelle\b/i.test(expl)) return;
+    push('begriff', term, expl);
+  });
+
+  // 3) Definitionssätze
+  for (const s of sents) {
+    if (s.length > 260 || /\?$/.test(s)) continue;
+    let m = s.match(/^Unter (.{2,60}?) versteht man (.+?)[.!]?$/i);
+    if (m) { push('definition', `Was versteht man unter ${m[1]}?`, cap1(m[2]), s); continue; }
+    m = s.match(/^(.{2,60}?) (?:wird|werden) (?:als|auch) (.{2,80}?) bezeichnet[.!]?$/);
+    if (m) { push('definition', `Wie wird ${m[1].replace(/^(Der|Die|Das|Ein|Eine) /, (x) => x.toLowerCase())} bezeichnet?`, cap1(m[2]), s); continue; }
+    m = s.match(/^((?:Der|Die|Das|Ein|Eine) [A-ZÄÖÜ][\wäöüß-]+(?: [a-zäöüß]+ [A-ZÄÖÜ][\wäöüß-]+)?|[A-ZÄÖÜ][\wäöüß-]{3,}(?: \([^)]+\))?) (ist|sind|bezeichnet|bedeutet|beschreibt|meint|umfasst) (.{8,200}?)[.!]?$/);
+    if (m && !STOP.has(m[1].toLowerCase())) {
+      const subj = m[1];
+      const q = m[2] === 'sind' ? `Was sind ${subj.replace(/^Die /, 'die ')}?` : `Was ${m[2] === 'ist' ? 'ist' : m[2]} ${subj.replace(/^(Der|Die|Das|Ein|Eine) /, (x) => x.toLowerCase())}?`;
+      push('definition', q, cap1(m[3]), s);
+    }
+  }
+
+  // 4) Abkürzungen: "Industrie- und Handelskammer (IHK)"
+  const abbr = /((?:[A-ZÄÖÜ][\wäöüß-]*[\s-]+(?:und\s+|für\s+|der\s+|des\s+)?){1,5})\(([A-ZÄÖÜ]{2,6})\)/g;
+  for (const m of text.matchAll(abbr)) {
+    const ab = m[2];
+    const ws = clean(m[1]).split(/\s+/);
+    const content = (arr) => arr.filter((w) => !/^(und|für|der|des)$/.test(w)).length;
+    let start = -1;
+    for (let i = ws.length - 1; i >= 0; i--) {
+      if (ws[i][0] !== ab[0] || ws[i] === ab) continue;
+      start = i;
+      if (content(ws.slice(i)) >= Math.min(2, ab.length - 1)) break;
+    }
+    if (start < 0) continue;
+    const full = ws.slice(start).join(' ');
+    if (full.length > 4) push('abkuerzung', `Wofür steht die Abkürzung „${ab}“?`, full);
+  }
+
+  // 5) Lückentexte aus wichtigen Sätzen
+  const kws = keywords(text, highlights, 50);
+  const kwSet = kws.map((k) => k.toLowerCase());
+  let clozeCount = 0;
+  const maxCloze = Math.min(60, Math.max(10, Math.round(sents.length * 0.6)));
+  for (const s of sents) {
+    if (clozeCount >= maxCloze) break;
+    const wc = s.split(' ').length;
+    if (wc < 6 || wc > 45 || isTask(s)) continue;
+    if ([...answerLines].some((a) => a.includes(s) || s.includes(a))) continue; // Antworten sind schon Frage-Karten
+    const lower = s.toLowerCase();
+    let pick = null;
+    for (let k = 0; k < kws.length; k++) {
+      const idx = lower.indexOf(kwSet[k]);
+      if (idx > 0 && /[^A-Za-zÄÖÜäöüß]/.test(lower[idx - 1] || ' ') && !/[A-Za-zÄÖÜäöüß-]/.test(lower[idx + kwSet[k].length] || ' ')) {
+        pick = s.substr(idx, kws[k].length); break;
+      }
+    }
+    if (!pick) continue;
+    const q = s.replace(pick, '_____');
+    push('lueckentext', q, pick, s);
+    clozeCount++;
+  }
+
+  // 6) Jahreszahlen / Zeitangaben
+  for (const s of sents) {
+    const m = s.match(/\b(1[0-9]{3}|20[0-9]{2}|\d{1,2}\. Jahrhundert(?:s)?)\b/);
+    if (!m || s.length > 220 || s.split(' ').length < 6) continue;
+    if (cards.some((c) => c.type === 'lueckentext' && c.source === s && c.a === m[1])) continue;
+    push('zeit', s.replace(m[1], '_____'), m[1], s);
+  }
+
+  // 7) Markierte Stellen → Kontextfrage
+  for (const h of highlights) {
+    const hk = clean(h);
+    if (hk.split(' ').length > 8) continue;
+    const s = sents.find((x) => x.includes(hk));
+    if (s && !cards.some((c) => c.source === s && c.a === hk)) push('markiert', s.replace(hk, '_____'), hk, s);
+  }
+
+  // doppelte entfernen
+  const seen = new Set();
+  return cards.filter((c) => {
+    const k = (c.q + '|' + c.a).toLowerCase();
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+}
+
+// Satz finden, der eine Frage am besten beantwortet (Wortüberlappung)
+function bestSentenceFor(question, sents) {
+  const qw = words(question).map((w) => w.toLowerCase()).filter((w) => !STOP.has(w) && w.length > 3);
+  if (!qw.length) return null;
+  let best = null, bestSc = 0;
+  for (const s of sents) {
+    if (/\?$/.test(s)) continue;
+    const lw = s.toLowerCase();
+    let sc = 0;
+    for (const w of qw) if (lw.includes(w.slice(0, Math.max(4, w.length - 2)))) sc++;
+    sc = sc / qw.length;
+    if (sc > bestSc) { bestSc = sc; best = s; }
+  }
+  return bestSc >= 0.5 ? best : null;
+}
+
+const TYPE_LABEL = {
+  frage: 'Frage', begriff: 'Begriff', definition: 'Definition', abkuerzung: 'Abkürzung',
+  lueckentext: 'Lückentext', zeit: 'Zeitangabe', markiert: 'Markiert', manuell: 'Eigene Karte', import: 'Import',
+};
+
+// Antwortvergleich für Freitext: tolerant gegenüber Groß/Klein, Umlauten, Tippfehlern
+// Aufzählungen ("Nenne 8 …"): wie viele der geforderten Punkte stecken in der Antwort?
+function listScore(given, answer, need) {
+  const n = (s) => s.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const items = answer.split(/[,;]|\bund\b/).map(n).filter(Boolean);
+  const g = n(given);
+  const gw = g.split(' ');
+  const found = items.filter((it) => {
+    let core = it.split(' ').filter((w) => w.length > 4 && !STOP.has(w) && !/^(richtigen|moment|gute|guten|guter)$/.test(w));
+    if (!core.length) core = it.split(' ').filter((w) => w.length > 2);
+    return core.length && core.some((w) => gw.some((v) => v === w || (v.length > 4 && w.length > 4 && levenshtein(v.slice(0, w.length + 1), w) <= 1) || v.startsWith(w.slice(0, Math.max(5, w.length - 2)))));
+  });
+  return { found: found.length, need, score: Math.min(1, found.length / need) };
+}
+
+function similarity(a, b) {
+  const n = (s) => String(s).toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+  const x = n(a), y = n(b);
+  if (!x || !y) return 0;
+  if (x === y) return 1;
+  const lev = levenshtein(x, y);
+  const charSim = 1 - lev / Math.max(x.length, y.length);
+  const tx = new Set(x.split(' ').filter((w) => w.length > 2 && !STOP.has(w)));
+  const ty = new Set(y.split(' ').filter((w) => w.length > 2 && !STOP.has(w)));
+  let hit = 0;
+  for (const w of ty) if ([...tx].some((v) => v === w || (w.length > 4 && levenshtein(v, w) <= 1))) hit++;
+  const tokSim = ty.size ? hit / ty.size : 0;
+  return Math.max(charSim, tokSim);
+}
+function levenshtein(a, b) {
+  if (a.length > 300 || b.length > 300) return Math.abs(a.length - b.length) + Math.min(a.length, b.length) / 2;
+  const v = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let prev = v[0]; v[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = v[j];
+      v[j] = Math.min(v[j] + 1, v[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+      prev = tmp;
+    }
+  }
+  return v[b.length];
+}
+
+// IHK-Notenschlüssel (Punkte in %)
+function gradeFor(pct) {
+  if (pct >= 92) return { note: 1, text: 'sehr gut' };
+  if (pct >= 81) return { note: 2, text: 'gut' };
+  if (pct >= 67) return { note: 3, text: 'befriedigend' };
+  if (pct >= 50) return { note: 4, text: 'ausreichend' };
+  if (pct >= 30) return { note: 5, text: 'mangelhaft' };
+  return { note: 6, text: 'ungenügend' };
+}
+
+return { neededCount, normalize, sentences, keywords, keySentences, generate, TYPE_LABEL, listScore, similarity, gradeFor };
+})();
+
+__m.beispiel = (() => {
+// Beispiel-Lernset aus den Arbeitsblättern "Eine Frage der Ehre" (BS4, Texte erfassen).
+// Abgetippt aus den Fotos im Ordner beispiel-dokumente.
+
+// Fächer laut Stundenplan (Religion/Ethik bewusst weggelassen)
+const FAECHER = [
+  { name: 'D – Deutsch', color: 'lila' },
+  { name: 'SVV – Sozialversicherungslehre', color: 'gruen' },
+  { name: 'E – Englisch', color: 'blau' },
+  { name: 'BGP – Betriebswirtschaftliche Geschäftsprozesse', color: 'gelb' },
+  { name: 'PVF – Private Versicherungsfälle', color: 'pink' },
+  { name: 'KGP – Kaufmännische Geschäftsprozesse', color: 'orange' },
+  { name: 'PuG – Politik und Gesellschaft', color: 'gruen' },
+];
+
+// Fragen der Kurzarbeit (von der Parallelklasse) – mit Musterantworten aus dem Text
+const KURZARBEIT = {
+  name: 'Kurzarbeit: erwartete Fragen',
+  kind: 'text',
+  highlights: [],
+  text: `Nenne 8 Tugenden des ehrbaren Kaufmanns im Mittelalter.
+Ehrlichkeit, Vorsicht, Misstrauen, Wahrung von Geschäftsgeheimnissen, Wagemut im richtigen Moment, Friedensliebe, Ernsthaftigkeit, Höflichkeit, Klugheit, Ordnung, gute Erscheinung, gute Erziehung
+
+Was haben die ehrbaren Kaufleute für Eigenschaften?
+Humanistische Grundbildung, umfassendes Fachwissen und ein gefestigter Charakter; praktische Fähigkeiten (Rechnen, Lesen, Sprachkenntnisse, Bildung in Warenkunde, Recht, Geografie und Währung); Gewinnstreben, rationale und emotionale Intelligenz, Organisationstalent, politischer Weitblick; ehrbar wurden sie erst durch tugendhaftes Verhalten.
+
+Weshalb war die Gemeinschaft im Mittelalter so wichtig?
+Kaufleute waren in fremden Städten ohne Reputation und galten oft als Betrüger – erst Gilden und Vereinigungen wie die Hanse schufen als Gütesiegel Vertrauen (Treu und Glauben). Ehre galt als soziales Kapital: Wer betrog, verlor Ruf und Kundenvertrauen und damit seine Existenz. Schande bedeutete Ausschluss aus der Gemeinschaft – keine Ämter mehr, im schlimmsten Fall Vertreibung aus der Stadt. Der ehrbare Kaufmann mehrte seinen eigenen Wohlstand und den der Gemeinschaft und übernahm Verantwortung für seine Heimat.`,
+};
+
+const BEISPIEL = {
+  subject: { name: 'D – Deutsch', color: 'lila' },
+  test: { title: 'Eine Frage der Ehre – Der ehrbare Kaufmann', daysAhead: 9, notes: 'Kurzarbeit: 8 Tugenden, Eigenschaften, Bedeutung der Gemeinschaft. Text, Fragen 1–10, Begriffe.' },
+  docs: [
+    KURZARBEIT,
+    {
+      name: 'Lesetext: Eine Frage der Ehre',
+      kind: 'text',
+      highlights: ['italienischen Venedig', 'norddeutschen Städtebund', 'Christoph Lütge', 'Skepsis', 'Betrüger', 'Kaufmannsgilden', 'Vereinigungen',
+        'Verhaltensnormen', 'Grundsatz von Treu und Glauben', 'Gütesiegel', 'praktische Fähigkeiten', 'Warenkunde', 'Recht', 'Geografie', 'Währung',
+        'rationale und emotionale Intelligenz', 'Organisationstalent', 'politischen Weitblick', 'Ehre', 'Handelsmonopole', 'Verantwortung für ihre Heimat',
+        'christlichen Werten', 'Vernunft und Moral', 'Gesellschaftliches Ansehen', 'Reichtum', 'Good Governance', 'Fair Play', 'Corporate Social Responsibility',
+        'Verantwortungsbewusstsein', 'Wirtschaftlichkeit und Moral sind beim ehrbaren Kaufmann keine Gegensätze'],
+      text: `Eine Frage der Ehre
+
+In Zeiten immer neuer Wirtschafts-Skandale und Krisen feiert der ehrbare Kaufmann eine Renaissance. Woher das traditionelle Leitbild ursprünglich stammt und welche Werte man heute damit verknüpft.
+
+Das Leitbild des ehrbaren Kaufmanns hat eine lange Tradition. Nachweislich seit dem 12. Jahrhundert wurden in Europa bestimmte Tugenden in den Handbüchern der Kaufleute gelehrt. Die Wurzeln liegen im italienischen Venedig und den norddeutschen Städtebund der Hanse. Von dem Handelszentrum im Süden ausgehend verbreitete sich das Leitbild über die Kaufmanns-Vereinigungen im Norden in ganz Europa.
+
+Christoph Lütge, Inhaber des Lehrstuhls für Wirtschaftsethik an der Technischen Universität München, hat sich intensiv mit der Geschichte des ehrbaren Kaufmanns beschäftigt. Die ersten Kaufleute – im frühen Mittelalter noch zu Fuß und zu Wasser unterwegs – lebten demnach auf ihren Reisen gefährlich und mussten hohe Risiken eingehen, weil sie in jeder Stadt fremd und ohne jegliche Reputation waren. „Oftmals begegnete man den Reisenden mit Skepsis oder sie wurden gar als Betrüger verdächtigt“, sagt Lütge. Das erschwerte den Handel beträchtlich. Um das Vertrauen in die Kaufleute zu stärken und die Bedingungen des Wirtschaftens zu verbessern, entstanden mit dem Aufstreben der Städte ab der Mitte des 12. Jahrhunderts vielerorts Kaufmannsgilden und Vereinigungen wie die Hanse. Nach Auskunft des Wissenschaftlers standen sie für spezifische Verhaltensnormen nach dem Grundsatz von Treu und Glauben und fungierten als Gütesiegel.
+
+Bestimmte Fähigkeiten sind gefordert
+Joachim Schwalbach, ehemaliger Leiter des Instituts für Management der Humboldt Universität Berlin, hat sich während seiner langjährigen Forschungsarbeit ebenfalls mit dem ehrbaren Kaufmann auseinandergesetzt. Seiner Ansicht nach zeichne dieser sich seit jeher durch eine gute humanistische Grundbildung aus. Darauf aufbauend besitzt er umfassendes Fachwissen und einen gefestigten Charakter, sagt er. „Ein Kaufmann musste über praktische Fähigkeiten verfügen“, erläutert der Betriebswirt die Anforderungen im Mittelalter. Jene seien eine wichtige Basis seines wirtschaftlichen Erfolgs gewesen. „Rechnen, Lesen, Sprachkenntnisse, Bildung in den Bereichen Warenkunde, Recht, Geografie und Währung wurden ergänzt durch ein ausgeprägtes Gewinnstreben, durch rationale und emotionale Intelligenz, Organisationstalent sowie politischen Weitblick“, betont Schwalbach. Doch das allein macht noch keinen ehrbaren Kaufmann aus. Die Ehrbarkeit entstand erst durch tugendhaftes Verhalten. „Bis zum Anbruch der Moderne wurde Ehre als soziales Kapital verstanden, dessen Wert man steigern oder durch schändliches Verhalten verlieren konnte“, sagt Schwalbach. Wer betrog, täuschte oder Pleite machte, verlor seinen guten Ruf und das Vertrauen seiner Kunden, was unweigerlich zu seinem Ruin führte. Schande sei zudem gleichbedeutend mit dem Ausschluss aus der Gemeinschaft gewesen, sagt Schwalbach. So durfte ein schandhafter Kaufmann keine Ämter mehr bekleiden und wurde im schlimmsten Fall aus der Stadt getrieben. Grundlegende Tugenden waren im Mittelalter Ehrlichkeit, Vorsicht, Misstrauen, die Wahrung von Geschäftsgeheimnissen, Wagemut im richtigen Moment, Friedensliebe, Ernsthaftigkeit, Höflichkeit, Klugheit, Ordnung, eine gute Erscheinung und eine gute Erziehung. „Ein ehrbarer Kaufmann tat sich Gutes, indem er ehrbar wirtschaftete und damit seinen eigenen und den Wohlstand der Gemeinschaft mehrte“, erläutert Schwalbach. Dadurch entwickelte sich eine pragmatische Geschäftsmoral des goldenen Mittelwegs mit dem Ziel, den geschäftlichen Erfolg langfristig zu sichern – auch über Generationen hinweg.
+
+Die Rahmenbedingungen ändern sich
+Im 15. Jahrhundert gelangten die Kaufleute zu größerem Einfluss. „Die Hanse im Norden oder die Fugger und Welser im Süden von Deutschland bildeten regelrechte Handelsmonopole heraus“, erklärt Lütge. Die Ehrbarkeit spielt hierbei demzufolge eine wichtige Rolle. „Viele Kaufleute fühlten sich ethischen Grundsätzen verpflichtet. Sie folgten nicht nur bei ihren Geschäftsabwicklungen klaren Prinzipien, sondern sie übernahmen auch Verantwortung für ihre Heimat“, sagt der Wirtschaftsethiker der Technischen Universität München. Der Grund: Die Kaufleute wollten ihrer Region etwas zurückgeben, da diese ihren gesellschaftlichen Aufstieg erst ermöglichte.
+
+Im Laufe der Zeit passten sich die ethischen Regeln immer wieder an gewandelte ökonomische Rahmenbedingungen an. „In ihrem Kern blieben die Grundsätze aber unverändert. Sie basieren auf christlichen Werten und standen für Verantwortung“, betont Lütge. Nach Jahrhunderten blühender Handelsbeziehungen folgte der wirtschaftliche Stillstand während des Dreißigjährigen Krieges (1614-1648) und der Niedergang der Hanse. Im 17. und 18. Jahrhundert wandelte sich die Wertvorstellung in der Wirtschaft fundamental. „Im Zuge der Aufklärung trat die Religion als Grundlage des kaufmännischen Ehrverständnisses zugunsten von Vernunft und Moral zurück“, sagt Lütge. Mit dem Beginn der Industrialisierung im 18. Jahrhundert seien die Tugenden des ehrbaren Kaufmanns zunehmend in Vergessenheit geraten. Gesellschaftliches Ansehen erwarb ein Unternehmer demnach nun durch größtmöglichen Reichtum und nicht mehr durch gemeinnütziges Engagement. Anspruch und Wirklichkeit entkoppelten sich auch dadurch, dass Betriebe immer öfter nicht durch Eigentümer, sondern durch angestellte Geschäftsführer geleitet wurden, die dem Druck, immer größere Gewinne zu erzielen, nicht so leicht widerstehen konnten. „In der Folgezeit wurde deutlich, dass diese neuen Maßstäbe Unternehmertum und Gesellschaft stark entzweiten. Das Wirtschaften ohne Verantwortungsübernahme ging vor allem auf Kosten der Arbeitnehmer, was letztlich zu Arbeiteraufständen führte“, erklärt Lütge.
+
+Der Ruf nimmt Schaden
+In der heutigen Gesellschaft scheinen Ökonomie und Moral häufig nicht miteinander vereinbar zu sein: Die Finanzmarkt- und Wirtschaftskrise erschütterte das Vertrauen in die Wirtschaft, verschärfte den Wettbewerb zwischen den Unternehmen. In der Öffentlichkeit entstand der Eindruck, dass wirtschaftliche Aktivitäten und gesellschaftliche Interessen im Widerspruch zueinanderstehen. Im Markt selbst führte die Ellenbogenmentalität vermehrt zu Pleiten. Um diesem Negativtrend entgegenzusteuern, entdeckten zwischen 2007 und 2009 viele Unternehmen die Tugenden des Mittelalters wieder. Der Begriff des ehrbaren Kaufmanns wird heute zunehmend durch Anglizismen wie Good Governance, Fair Play und Corporate Social Responsibility verdrängt. Im Unterschied zu vergangenen Zeiten besteht aber weit weniger Konsens darüber, was einen verantwortungsbewussten Geschäftsmann auszeichnet.
+
+Schwalbach hat hierzu ganz konkrete Vorstellungen: „Ein moderner ehrbarer Kaufmann hat ein ausgeprägtes Verantwortungsbewusstsein auf der Unternehmens- und Gesellschaftsebene“, sagt der frühere Professor der Humboldt Universität Berlin. Dazu gehöre das faire Verhalten gegenüber seinen Mitarbeitern, Kunden und Geschäftspartnern, die er nach tugendhaften Grundsätzen behandle – mit dem Ziel, langfristige Beziehungen aufzubauen und zu halten. Die Verantwortung gegenüber der Gesellschaft drückt sich zum Beispiel durch Engagement am Standort des Unternehmens, die Verteidigung der sozialen Marktwirtschaft und die Berücksichtigung des Umweltschutzes bei allen Entscheidungen aus. „Wirtschaftlichkeit und Moral sind beim ehrbaren Kaufmann keine Gegensätze“, resümiert Schwalbach. Das traditionelle Leitbild ist seiner Ansicht nach für die Gegenwart von außerordentlicher Wichtigkeit: „Es sollte Unternehmern und Managern bewusst machen, dass verantwortungsvolles Verhalten die Grundlage für den nachhaltigen wirtschaftlichen Erfolg und für den sozialen Frieden in der Gesellschaft darstellt.“
+
+Andre Gieße – Quelle: Verkehrsrundschau 30/2014`,
+    },
+    {
+      name: 'Arbeitsblatt: Fragen 1–9',
+      kind: 'text',
+      highlights: [],
+      text: `1. Welche Probleme hatten die Kaufleute im frühen Mittelalter?
+Das Ansehen in der Bevölkerung war schlecht – man begegnete ihnen mit Skepsis oder hielt sie für Betrüger.
+
+2. Wie konnte das Ansehen der Kaufleute verbessert werden?
+Durch die Bildung von Kaufmannsgilden und Vereinigungen (Hanse); sie standen als Gütesiegel für Treu und Glauben.
+
+3. Was zeichnete damals einen ehrbaren Kaufmann aus?
+Humanistische Grundbildung, umfassendes Fachwissen, gefestigter Charakter.
+
+4. Was waren im Mittelalter die grundlegenden Tugenden?
+Ehrlichkeit, Vorsicht, Misstrauen, Ernsthaftigkeit, Wahrung von Geschäftsgeheimnissen, Wagemut im richtigen Moment, Friedensliebe, Höflichkeit, Klugheit, Ordnungssinn, gutes Erscheinungsbild, gute Erziehung
+
+5. Welche Kaufleute bildeten im 15. Jahrhundert regelrechte Monopole?
+Fugger & Welser (Süden); Hanse (Norden)
+
+6. Inwiefern war zu diesem Zeitpunkt die Ehrbarkeit ein wichtiger Grundsatz?
+Die Kaufleute übernahmen Verantwortung für die Heimat. Gutes für seinen eigenen Wohlstand und den Wohlstand der Gemeinschaft.
+
+7. Warum änderte sich dieser Grundsatz im 18. Jahrhundert?
+Zeit der Industrialisierung; gesellschaftliches Ansehen durch größtmöglichen Reichtum; Leitung durch Geschäftsführer statt durch die Eigentümer
+
+8. Von welchen Begriffen wird das Bild des ehrbaren Kaufmanns heute übernommen?
+Good Governance, Fair Play, Corporate Social Responsibility
+
+9. Wie sollte sich ein moderner ehrbarer Kaufmann heutzutage verhalten?
+Unternehmensebene: faires Verhalten gegenüber Mitarbeitern, Kunden und Geschäftspartnern – Ziel: langfristige Beziehungen aufbauen. Gesellschaftsebene: Engagement am Standort, Verteidigung der sozialen Marktwirtschaft, Berücksichtigung des Umweltschutzes.`,
+    },
+    {
+      name: 'Arbeitsblatt: Begriffe (Aufgabe 10)',
+      kind: 'text',
+      highlights: [],
+      text: `fungieren: verrichten, vollbringen, vollziehen
+resümieren: zusammenfassen, festhalten
+humanistisch: von der Achtung der Würde des Menschen geprägt
+tugendhaft: sittlich, moralisch
+pragmatisch: sachbezogen, lösungsorientiert
+fundamental: grundlegend
+Gilde: Zusammenschluss von Kaufleuten; Berufsverband
+Reputation: das Ansehen einer Person
+Verhaltensnormen: Verhaltensregeln
+Ethik: Sittenlehre
+Anglizismen: Ausdrücke, die aus der englischen Sprache in die deutsche Sprache übernommen wurden`,
+    },
+    {
+      name: 'Duden-Auszug & § 1 IHK-Gesetz',
+      kind: 'text',
+      highlights: ['Anstand und Sitte des ehrbaren Kaufmanns'],
+      text: `Tugend: eine moralisch gute Eigenschaft; moralisch vorbildliches Verhalten
+
+§ 1 des IHK Gesetz
+Die Industrie- und Handelskammer (IHK) sind 1956 vom Gesetzgeber beauftragt worden, für „Anstand und Sitte des ehrbaren Kaufmanns“ zu wirken.
+„Die Industrie- und Handelskammern haben die Aufgabe, durch Vorschläge, Gutachten und Berichte die Behörden zu unterstützen und zu beraten sowie für Wahrung von Anstand und Sitte des ehrbaren Kaufmanns zu wirken.“`,
+    },
+  ],
+};
+
+return { FAECHER, KURZARBEIT, BEISPIEL };
+})();
+
+__m.learn = (() => {
+// Lernmodi: Karteikarten, Wiederholen, Quiz, Wahr/Falsch, Lückentext, Zuordnen, Schreiben, Probetest
+const S = __m.store;
+const { keywords, similarity, listScore, gradeFor, TYPE_LABEL } = __m.gen;
+
+// Antwort bewerten: Aufzählungen nach Anzahl genannter Punkte, sonst Textähnlichkeit
+const score = (given, c) => (c.need ? listScore(given, c.a, c.need).score : similarity(given, c.a));
+const { h, $, $$, shuffle, sample, toast, cvar, plural, ICON } = __m.util;
+
+const CLOZE = new Set(['lueckentext', 'zeit', 'markiert']);
+const isCloze = (c) => CLOZE.has(c.type) || c.q.includes('_____');
+const shortQA = (c) => !isCloze(c) && c.a.length <= 110 && c.q.length <= 140;
+
+const MODES = [
+  { key: 'karteikarten', title: 'Karteikarten', icon: 'cards', color: 'gelb', text: 'Karte umdrehen, ehrlich bewerten. Was du nicht wusstest, kommt nochmal.', count: (c) => plural(c.length, 'Karte', 'Karten'), missing: '' },
+  { key: 'wiederholen', title: 'Lernkartei', icon: 'repeat', color: 'gruen', text: 'Nur was heute dran ist. Gewusste Karten kommen seltener, vergessene öfter.', count: (c, due) => due ? `${due} heute fällig` : 'Alles wiederholt', missing: '' },
+  { key: 'quiz', title: 'Quiz', icon: 'quiz', color: 'blau', text: 'Multiple Choice: eine von vier Antworten ist richtig.', count: (c) => `${Math.min(12, c.length)} Fragen`, missing: 'Braucht mindestens 4 Karten' },
+  { key: 'wahrfalsch', title: 'Wahr oder falsch', icon: 'tf', color: 'pink', text: 'Schnelle Runde: Stimmt die Aussage oder nicht?', count: () => '12 Aussagen', missing: 'Braucht mindestens 4 Karten' },
+  { key: 'lueckentext', title: 'Lückentext', icon: 'gap', color: 'orange', text: 'Das fehlende Wort selbst eintippen – wie in der Klassenarbeit.', count: (c) => plural(c.filter(isCloze).length, 'Lücke', 'Lücken'), missing: 'Keine Lückentext-Karten vorhanden' },
+  { key: 'zuordnen', title: 'Zuordnen', icon: 'match', color: 'lila', text: 'Begriffe und Erklärungen paarweise verbinden.', count: (c) => `${Math.min(3, Math.floor(c.filter(shortQA).length / 4))} Runden`, missing: 'Braucht mindestens 4 Begriff-Karten' },
+  { key: 'schreiben', title: 'Antwort schreiben', icon: 'write', color: 'gelb', text: 'Frage lesen, Antwort frei formulieren, mit der Lösung vergleichen.', count: (c) => plural(c.filter((x) => !isCloze(x)).length, 'Frage', 'Fragen'), missing: 'Keine Frage-Karten vorhanden' },
+  { key: 'probetest', title: 'Probetest', icon: 'exam', color: 'blau', text: 'Gemischte Aufgaben wie in einer echten Arbeit – mit Punkten und Note nach IHK-Schlüssel.', count: () => 'Ergebnis mit Note', missing: 'Braucht mindestens 6 Karten' },
+];
+
+function modeAvailable(key, cards) {
+  if (key === 'karteikarten' || key === 'wiederholen') return cards.length > 0;
+  if (key === 'quiz' || key === 'wahrfalsch') return cards.length >= 4;
+  if (key === 'lueckentext') return cards.some(isCloze);
+  if (key === 'zuordnen') return cards.filter(shortQA).length >= 4;
+  if (key === 'schreiben') return cards.some((c) => !isCloze(c));
+  if (key === 'probetest') return cards.length >= 6;
+  return false;
+}
+
+let cleanup = null;
+function onKey(fn) {
+  if (cleanup) cleanup();
+  const handler = (e) => { if (!e.target.closest('input,textarea,[contenteditable]') || e.key === 'Enter') fn(e); };
+  document.addEventListener('keydown', handler);
+  cleanup = () => document.removeEventListener('keydown', handler);
+}
+window.addEventListener('hashchange', () => { if (cleanup) { cleanup(); cleanup = null; } });
+
+// ---------- Einstieg ----------
+function startSession(main, testId, mode) {
+  const all = testId === 'alle';
+  const t = all ? null : S.test(testId);
+  if (!all && !t) { location.hash = '#/'; return; }
+  const cards = all ? S.get().cards : S.cardsOf(testId);
+  const back = all ? '#/' : `#/test/${testId}`;
+  const info = MODES.find((m) => m.key === mode);
+  if (!info || !modeAvailable(mode, cards)) { location.hash = back; return; }
+
+  const docsText = (all ? S.get().docs : S.docsOf(testId)).map((d) => d.text).join('\n\n');
+  const ctx = { main, t, cards, back, mode, info, kws: keywords(docsText, [], 80), title: all ? 'Alle Fächer' : t.title };
+
+  ({ karteikarten: flashcards, wiederholen: review, quiz, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
+}
+
+function frame(ctx, i, n, body) {
+  ctx.main.innerHTML = `
+    <div class="session">
+      <div class="session-top">
+        <a class="btn small ghost" href="${ctx.back}">Beenden</a>
+        <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${i}"><i style="width:${n ? i / n * 100 : 0}%;background:var(--blue)"></i></div>
+        <span class="counter">${Math.min(i + 1, n)} / ${n}</span>
+      </div>
+      <div><span class="small muted">${h(ctx.title)}</span><h2>${ctx.info.title}</h2></div>
+      <div id="stage">${body}</div>
+    </div>`;
+  return $('#stage');
+}
+
+function finish(ctx, right, total, extra = '') {
+  if (cleanup) { cleanup(); cleanup = null; }
+  const pct = total ? Math.round(right / total * 100) : 0;
+  const msg = pct >= 90 ? 'Stark! Das sitzt.' : pct >= 70 ? 'Gut dabei – noch ein Durchgang?' : pct >= 50 ? 'Halbe Miete. Nochmal üben lohnt sich.' : 'Dranbleiben – Wiederholung macht’s.';
+  ctx.main.innerHTML = `
+    <div class="session">
+      <div class="sheet result">
+        <span class="small muted">${h(ctx.title)} · ${ctx.info.title}</span>
+        <div class="due-num">${right} / ${total}</div>
+        <span class="margin-note">${msg}</span>
+        ${extra}
+        <div class="row" style="justify-content:center">
+          <a class="btn primary" href="#/lernen/${ctx.t ? ctx.t.id : 'alle'}/${ctx.mode}" data-again>Nochmal</a>
+          <a class="btn" href="${ctx.back}">Zurück</a>
+        </div>
+      </div>
+    </div>`;
+  $('[data-again]').onclick = (e) => { e.preventDefault(); startSession(ctx.main, ctx.t ? ctx.t.id : 'alle', ctx.mode); };
+}
+
+// ---------- Karteikarten & Lernkartei ----------
+function flashcards(ctx) {
+  const due = ctx.cards.filter((c) => S.isDue(c.id));
+  const rest = ctx.cards.filter((c) => !S.isDue(c.id));
+  const star = (l) => [...shuffle(l.filter((c) => c.star)), ...shuffle(l.filter((c) => !c.star))];
+  runFlash(ctx, [...star(due), ...star(rest)].slice(0, 40));
+}
+function review(ctx) {
+  const seen = ctx.cards.filter((c) => S.progressOf(c.id).last && S.isDue(c.id));
+  const fresh = ctx.cards.filter((c) => !S.progressOf(c.id).last);
+  const starFirst = (l) => [...l.filter((c) => c.star), ...l.filter((c) => !c.star)];
+  const list = [...starFirst(shuffle(seen)).slice(0, 30), ...starFirst(shuffle(fresh)).slice(0, Math.max(5, 20 - seen.length))];
+  if (!list.length) {
+    ctx.main.innerHTML = `<div class="session"><div class="sheet result"><span class="margin-note">Für heute alles erledigt!</span><p class="muted">Morgen sind wieder Karten fällig. Bis dahin: Quiz oder Probetest?</p><a class="btn" href="${ctx.back}">Zurück</a></div></div>`;
+    return;
+  }
+  runFlash(ctx, list);
+}
+
+function runFlash(ctx, queue) {
+  let i = 0, right = 0, total = queue.length;
+  const again = new Set();
+  const show = () => {
+    if (i >= queue.length) return finish(ctx, right, total);
+    const c = queue[i];
+    const p = S.progressOf(c.id);
+    const front = isCloze(c) ? h(c.q).replace('_____', '<span style="border-bottom:2.5px solid #1A2550;display:inline-block;min-width:4em">&nbsp;</span>') : h(c.q);
+    const stage = frame(ctx, i, queue.length, `
+      <div class="stack">
+        <div class="flash" id="flash" role="button" tabindex="0" aria-label="Karte umdrehen">
+          <div class="flash-inner">
+            <div class="face front"><span class="type">${c.star ? '★ Wichtig · ' : ''}${TYPE_LABEL[c.type] || ''}${again.has(c.id) ? ' · nochmal' : ''}</span><div class="front-text">${front}</div><span class="hint">Antippen zum Umdrehen<span class="kbd-hint"> · <kbd>Leertaste</kbd></span></span></div>
+            <div class="face back"><span class="type">Antwort</span>${isCloze(c)
+              ? `<div class="back-text">${h(c.q).replace('_____', `<span class="mk" data-c="gelb">${h(c.a)}</span>`)}</div>`
+              : `<div class="back-q">${h(c.q)}</div><div class="back-text ${c.a.length > 180 ? 'long' : ''}">${h(c.a)}</div>`}</div>
+          </div>
+        </div>
+        <div class="boxes" aria-label="Lernkartei-Fach ${p.box} von 5">${[1, 2, 3, 4, 5].map((b) => `<span class="${p.box >= b ? 'on' : ''}"></span>`).join('')}</div>
+        <div class="answer-row" id="ans" hidden>
+          <button class="btn dont" data-r="0">Nicht gewusst <kbd>1</kbd></button>
+          <button class="btn know" data-r="1">Gewusst <kbd>2</kbd></button>
+        </div>
+      </div>`);
+    const flash = $('#flash', stage), ans = $('#ans', stage);
+    const flip = () => { flash.classList.toggle('flipped'); ans.hidden = false; };
+    flash.onclick = flip;
+    const rate = (ok) => {
+      S.grade(c.id, ok);
+      if (ok) { if (!again.has(c.id)) right++; }
+      else if (!again.has(c.id)) { again.add(c.id); queue.push(c); }
+      i++; show();
+    };
+    $$('[data-r]', stage).forEach((b) => b.onclick = () => rate(b.dataset.r === '1'));
+    onKey((e) => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); }
+      else if (!ans.hidden && (e.key === '1' || e.key === 'ArrowLeft')) rate(false);
+      else if (!ans.hidden && (e.key === '2' || e.key === 'ArrowRight')) rate(true);
+    });
+    flash.focus({ preventScroll: true });
+  };
+  show();
+}
+
+// ---------- Ablenker (falsche Antworten) ----------
+function numericDistractors(a) {
+  let m = a.match(/^(\d{1,2})\. Jahrhundert(s?)$/);
+  if (m) {
+    const n = +m[1];
+    const set = new Set();
+    for (const d of shuffle([-3, -2, -1, 1, 2, 3])) { if (n + d > 0 && n + d <= 21) set.add(`${n + d}. Jahrhundert${m[2]}`); if (set.size === 3) break; }
+    return [...set];
+  }
+  if (/^\d{3,4}$/.test(a)) {
+    const n = +a, set = new Set();
+    while (set.size < 3) { const d = Math.round((Math.random() * 2 - 1) * (n > 1900 ? 12 : 60)); if (d) set.add(String(n + d)); }
+    return [...set];
+  }
+  return null;
+}
+function distractors(card, ctx, n = 3) {
+  const num = numericDistractors(card.a);
+  if (num) return num.slice(0, n);
+  const norm = (s) => s.toLowerCase().trim();
+  const a = norm(card.a);
+  let pool = ctx.cards.filter((c) => c.id !== card.id && isCloze(c) === isCloze(card)).map((c) => c.a);
+  if (isCloze(card)) pool = pool.concat(ctx.kws);
+  pool = [...new Set(pool)].filter((x) => { const y = norm(x); return y && y !== a && !y.includes(a) && !a.includes(y) && !/^\d/.test(x) === !/^\d/.test(card.a); });
+  // ähnlich lange Antworten bevorzugen, damit die richtige nicht heraussticht
+  pool.sort((x, y) => Math.abs(x.length - card.a.length) - Math.abs(y.length - card.a.length));
+  let pick = sample(pool.slice(0, Math.max(n * 3, 8)), n);
+  if (pick.length < n) pick = pick.concat(sample(ctx.kws.filter((k) => norm(k) !== a && !pick.includes(k)), n - pick.length));
+  return pick;
+}
+
+function questionHtml(c) {
+  return isCloze(c) ? h(c.q).replace('_____', '<span class="gap">&nbsp;</span>') : h(c.q);
+}
+function sourceHtml(c) {
+  return c.source && !c.source.startsWith('Antwort aus') && c.source !== c.q ? `<div class="src">Aus dem Text: „${h(c.source.length > 260 ? c.source.slice(0, 260) + '…' : c.source)}“</div>` : '';
+}
+
+// ---------- Quiz ----------
+function quiz(ctx) {
+  const list = sample(ctx.cards.filter((c) => c.a.length <= 160), 12);
+  let i = 0, right = 0;
+  const wrongs = [];
+  const show = () => {
+    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
+    const c = list[i];
+    const opts = shuffle([c.a, ...distractors(c, ctx)]);
+    const stage = frame(ctx, i, list.length, `
+      <div class="sheet question">
+        <div class="qtext">${questionHtml(c)}</div>
+        <div class="opts">${opts.map((o, k) => `<button class="opt" data-o="${k}"><span class="key">${'ABCD'[k]}</span><span>${h(o)}</span></button>`).join('')}</div>
+        <div id="fb"></div>
+      </div>`);
+    let answered = false;
+    const pick = (k) => {
+      if (answered || k >= opts.length) return;
+      answered = true;
+      const ok = opts[k] === c.a;
+      if (ok) right++; else wrongs.push({ c, given: opts[k] });
+      S.grade(c.id, ok);
+      $$('.opt', stage).forEach((b, j) => { b.disabled = true; if (opts[j] === c.a) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); });
+      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Leider falsch.'}</b> ${ok ? '' : `Richtig ist: ${h(c.a)}`}${sourceHtml(c)}</div>
+        <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
+      $('#next').onclick = () => { i++; show(); };
+      $('#next').focus();
+    };
+    $$('.opt', stage).forEach((b) => b.onclick = () => pick(+b.dataset.o));
+    onKey((e) => {
+      const k = 'abcd'.indexOf(e.key.toLowerCase());
+      if (!answered && k >= 0) pick(k);
+      else if (!answered && /^[1-4]$/.test(e.key)) pick(+e.key - 1);
+    });
+  };
+  show();
+}
+
+// ---------- Wahr / Falsch ----------
+function trueFalse(ctx) {
+  const list = sample(ctx.cards.filter((c) => c.a.length <= 140), 12).map((c) => {
+    const truth = Math.random() < 0.5;
+    const shown = truth ? c.a : (distractors(c, ctx, 1)[0] || c.a);
+    return { c, truth: truth || shown === c.a, shown };
+  });
+  let i = 0, right = 0;
+  const wrongs = [];
+  const show = () => {
+    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
+    const { c, truth, shown } = list[i];
+    const stmt = isCloze(c)
+      ? h(c.q).replace('_____', `<span class="mk" data-c="pink">${h(shown)}</span>`)
+      : `${h(c.q)}<div style="margin-top:12px;font-weight:400" class="hand-answer">→ <span class="mk" data-c="pink">${h(shown)}</span></div>`;
+    const stage = frame(ctx, i, list.length, `
+      <div class="sheet question">
+        <span class="small muted">Stimmt das?</span>
+        <div class="qtext">${stmt}</div>
+        <div class="tf"><button class="btn know" data-v="1">Wahr <kbd>W</kbd></button><button class="btn dont" data-v="0">Falsch <kbd>F</kbd></button></div>
+        <div id="fb"></div>
+      </div>`);
+    let answered = false;
+    const pick = (v) => {
+      if (answered) return; answered = true;
+      const ok = v === truth;
+      if (ok) right++; else wrongs.push({ c, given: shown });
+      S.grade(c.id, ok);
+      $$('[data-v]', stage).forEach((b) => b.disabled = true);
+      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Falsch.'}</b> Die Aussage ist ${truth ? 'wahr' : 'falsch'}.${truth ? '' : ` Richtig: ${h(c.a)}`}${sourceHtml(c)}</div>
+        <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
+      $('#next').onclick = () => { i++; show(); };
+      $('#next').focus();
+    };
+    $$('[data-v]', stage).forEach((b) => b.onclick = () => pick(b.dataset.v === '1'));
+    onKey((e) => { const k = e.key.toLowerCase(); if (k === 'w' || k === 'arrowleft') pick(true); else if (k === 'f' || k === 'arrowright') pick(false); });
+  };
+  show();
+}
+
+// ---------- Lückentext ----------
+function cloze(ctx) {
+  const list = sample(ctx.cards.filter(isCloze), 12);
+  let i = 0, right = 0;
+  const wrongs = [];
+  const show = () => {
+    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
+    const c = list[i];
+    const hint = c.a.length > 3 ? `${c.a[0]}${'·'.repeat(Math.min(c.a.length - 1, 14))}` : '';
+    const stage = frame(ctx, i, list.length, `
+      <form class="sheet question" id="f">
+        <div class="qtext">${questionHtml(c)}</div>
+        <label class="field">Fehlendes Wort<input type="text" id="inp" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${h(hint)}"></label>
+        <div class="row end"><button type="button" class="btn ghost" id="skip">Weiß ich nicht</button><button class="btn primary">Prüfen <kbd>Enter</kbd></button></div>
+        <div id="fb"></div>
+      </form>`);
+    const inp = $('#inp', stage);
+    inp.focus();
+    let answered = false;
+    const check = (given) => {
+      if (answered) { i++; return show(); }
+      answered = true;
+      const sim = similarity(given, c.a);
+      const ok = sim >= 0.85;
+      const close = !ok && sim >= 0.6;
+      if (ok) right++; else wrongs.push({ c, given: given || '–' });
+      S.grade(c.id, ok);
+      inp.readOnly = true;
+      $('#skip', stage).hidden = true;
+      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? (sim < 1 ? 'Richtig (kleiner Tippfehler)!' : 'Richtig!') : close ? 'Knapp daneben.' : 'Nicht ganz.'}</b> Lösung: <b>${h(c.a)}</b></div>
+        ${!ok && given ? '<div class="row end" style="margin-top:10px"><button type="button" class="btn small ghost" id="override">Meine Antwort war auch richtig</button></div>' : ''}`;
+      $('#override', stage)?.addEventListener('click', () => { right++; wrongs.pop(); S.grade(c.id, true); toast('Als richtig gewertet'); i++; show(); });
+      $('button.primary', stage).innerHTML = 'Weiter <kbd>Enter</kbd>';
+    };
+    $('#f', stage).onsubmit = (e) => { e.preventDefault(); check(inp.value.trim()); };
+    $('#skip', stage).onclick = () => check('');
+    onKey(() => {});
+  };
+  show();
+}
+
+// ---------- Zuordnen ----------
+function matching(ctx) {
+  const pool = shuffle(ctx.cards.filter(shortQA));
+  const rounds = [];
+  for (let r = 0; r < 3 && pool.length >= 4; r++) rounds.push(pool.splice(0, Math.min(5, pool.length)));
+  let ri = 0, right = 0, total = 0;
+  const showRound = () => {
+    if (ri >= rounds.length) return finish(ctx, right, total);
+    const set = rounds[ri];
+    const left = shuffle(set), rightCol = shuffle(set);
+    const misses = new Set();
+    const stage = frame(ctx, ri, rounds.length, `
+      <p class="muted" style="margin-bottom:14px">Erst links eine Frage oder einen Begriff wählen, dann rechts die passende Erklärung.</p>
+      <div class="match">
+        <div class="col">${left.map((c) => `<button class="tile" data-l="${c.id}">${h(c.q)}</button>`).join('')}</div>
+        <div class="col">${rightCol.map((c) => `<button class="tile" data-r="${c.id}">${h(c.a)}</button>`).join('')}</div>
+      </div>`);
+    let sel = null, done = 0;
+    const colors = ['gruen', 'gelb', 'blau', 'pink', 'orange'];
+    $$('[data-l]', stage).forEach((b) => b.onclick = () => { $$('[data-l]', stage).forEach((x) => x.classList.remove('sel')); sel = b.dataset.l; b.classList.add('sel'); });
+    $$('[data-r]', stage).forEach((b) => b.onclick = () => {
+      if (!sel) { toast('Wähle zuerst links einen Begriff'); return; }
+      const lb = $(`[data-l="${sel}"]`, stage);
+      if (b.dataset.r === sel) {
+        const col = `var(--m-${colors[done % 5]})`;
+        [lb, b].forEach((x) => { x.classList.remove('sel'); x.classList.add('done'); x.disabled = true; x.style.setProperty('--c', col); });
+        if (!misses.has(sel)) right++;
+        total++;
+        S.grade(sel, !misses.has(sel));
+        sel = null; done++;
+        if (done === set.length) setTimeout(() => { ri++; showRound(); }, 650);
+      } else {
+        misses.add(sel);
+        b.classList.add('shake'); setTimeout(() => b.classList.remove('shake'), 400);
+      }
+    });
+    onKey(() => {});
+  };
+  showRound();
+}
+
+// ---------- Antwort schreiben ----------
+function writing(ctx) {
+  const open = ctx.cards.filter((c) => !isCloze(c));
+  const list = [...shuffle(open.filter((c) => c.star)), ...sample(open.filter((c) => !c.star), 10)].slice(0, Math.max(10, open.filter((c) => c.star).length));
+  let i = 0, right = 0;
+  const show = () => {
+    if (i >= list.length) return finish(ctx, right, list.length);
+    const c = list[i];
+    const stage = frame(ctx, i, list.length, `
+      <form class="sheet question" id="f">
+        <div class="qtext">${h(c.q)}</div>
+        <label class="field">Deine Antwort<textarea id="inp" rows="4" placeholder="${c.need ? `${c.need} Punkte nennen, mit Komma getrennt …` : 'In eigenen Worten …'}"></textarea></label>
+        <div class="row end"><button class="btn primary" id="go">Lösung zeigen</button></div>
+        <div id="fb"></div>
+      </form>`);
+    const inp = $('#inp', stage);
+    inp.focus();
+    $('#f', stage).onsubmit = (e) => {
+      e.preventDefault();
+      const given = inp.value.trim();
+      const sim = given ? score(given, c) : 0;
+      const ls = c.need && given ? listScore(given, c.a, c.need) : null;
+      const verdict = ls ? `${Math.min(ls.found, ls.need)} von ${ls.need} geforderten Punkten erkannt.` : sim >= 0.75 ? 'Sieht richtig aus.' : sim >= 0.45 ? 'Teilweise passend.' : given ? 'Weicht deutlich ab.' : '';
+      inp.readOnly = true;
+      $('#go', stage).hidden = true;
+      $('#fb', stage).innerHTML = `
+        <div class="feedback ${sim >= 0.75 ? 'ok' : 'no'}"><span class="small muted">Musterlösung</span><div style="font-size:1.08rem;margin-top:4px">${h(c.a)}</div>${verdict ? `<div class="src">Vergleich: ${verdict}${ls ? '' : ` (${Math.round(sim * 100)} % Übereinstimmung)`}</div>` : ''}</div>
+        <p class="small muted" style="margin:14px 0 8px">Wie gut war deine Antwort?</p>
+        <div class="answer-row"><button type="button" class="btn dont" data-r="0">Falsch / unvollständig</button><button type="button" class="btn know" data-r="1">Richtig</button></div>`;
+      $$('[data-r]', stage).forEach((b) => b.onclick = () => { const ok = b.dataset.r === '1'; if (ok) right++; S.grade(c.id, ok); i++; show(); });
+    };
+    onKey(() => {});
+  };
+  show();
+}
+
+// ---------- Probetest ----------
+function exam(ctx) {
+  const max = ctx.cards.length;
+  ctx.main.innerHTML = `
+    <div class="session">
+      <div class="session-top" style="grid-template-columns:auto 1fr"><a class="btn small ghost" href="${ctx.back}">Zurück</a><span></span></div>
+      <div class="sheet pad stack">
+        <span class="small muted">${h(ctx.title)}</span>
+        <h1>Probetest</h1>
+        <p>Gemischte Aufgaben: Multiple Choice, Wahr/Falsch, Lückentext und offene Fragen. Du siehst die Lösungen erst am Ende – wie in einer echten Arbeit. Bewertet wird nach dem IHK-Notenschlüssel.</p>
+        <form id="cfg" class="stack">
+          <div class="field"><span style="font:600 .92rem var(--font-ui)">Anzahl Aufgaben</span>
+            <div class="row" role="radiogroup">${[10, 15, 20, 30].filter((n) => n <= Math.max(max, 10)).map((n, k) => `<label class="chip"><input type="radio" name="n" value="${n}" ${k === 0 ? 'checked' : ''} style="margin-right:6px">${Math.min(n, max)}</label>`).join('')}</div></div>
+          <label class="row"><input type="checkbox" name="timer" checked> Zeit stoppen</label>
+          <div class="row"><button class="btn primary">Probetest starten</button></div>
+        </form>
+      </div>
+    </div>`;
+  $('#cfg').onsubmit = (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    runExam(ctx, Math.min(+fd.get('n'), max), !!fd.get('timer'));
+  };
+}
+
+function runExam(ctx, n, timer) {
+  const starred = shuffle(ctx.cards.filter((c) => c.star)).slice(0, n);
+  const picked = [...starred, ...sample(ctx.cards.filter((c) => !c.star), n - starred.length)];
+  const tasks = picked.map((c, k) => {
+    const r = k / n;
+    let kind;
+    if (isCloze(c)) kind = r < 0.35 ? 'mc' : 'gap';
+    else if (c.a.length > 110 || c.need || c.star) kind = 'open';
+    else kind = r < 0.5 ? 'mc' : r < 0.75 ? 'tf' : 'open';
+    const task = { c, kind, pts: { mc: 2, tf: 1, gap: 2, open: 3 }[kind], given: null };
+    if (kind === 'mc') task.opts = shuffle([c.a, ...distractors(c, ctx)]);
+    if (kind === 'tf') { task.truth = Math.random() < 0.5; task.shown = task.truth ? c.a : (distractors(c, ctx, 1)[0] || c.a); if (task.shown === c.a) task.truth = true; }
+    return task;
+  });
+  shuffle(tasks);
+  const start = Date.now();
+  let i = 0, tick;
+  const show = () => {
+    clearInterval(tick);
+    if (i >= tasks.length) return gradeExam(ctx, tasks, Date.now() - start);
+    const tk = tasks[i], c = tk.c;
+    const label = { mc: 'Kreuze die richtige Antwort an', tf: 'Wahr oder falsch?', gap: 'Ergänze die Lücke', open: 'Beantworte die Frage' }[tk.kind];
+    let body = '';
+    if (tk.kind === 'mc') body = `<div class="opts">${tk.opts.map((o, k) => `<button type="button" class="opt" data-o="${k}"><span class="key">${'ABCD'[k]}</span><span>${h(o)}</span></button>`).join('')}</div>`;
+    if (tk.kind === 'tf') body = `<div class="tf"><button type="button" class="btn know" data-v="1">Wahr</button><button type="button" class="btn dont" data-v="0">Falsch</button></div>`;
+    if (tk.kind === 'gap') body = `<input type="text" id="inp" autocomplete="off" spellcheck="false" aria-label="Lücke">`;
+    if (tk.kind === 'open') body = `<textarea id="inp" rows="4" aria-label="Antwort"></textarea>`;
+    const q = tk.kind === 'tf'
+      ? (isCloze(c) ? h(c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(c.q)}<div style="margin-top:10px;font-weight:400">→ ${h(tk.shown)}</div>`)
+      : questionHtml(c);
+    const stage = frame(ctx, i, tasks.length, `
+      <form class="sheet question" id="f">
+        <div class="row" style="justify-content:space-between"><span class="small muted">Aufgabe ${i + 1} · ${label}</span><span class="small muted">${tk.pts} ${tk.pts === 1 ? 'Punkt' : 'Punkte'}${timer ? ` · <span id="clock"></span>` : ''}</span></div>
+        <div class="qtext">${q}</div>
+        ${body}
+        <div class="row end">${i > 0 ? '<button type="button" class="btn ghost" id="prev">Zurück</button>' : ''}<button class="btn primary">${i === tasks.length - 1 ? 'Abgeben' : 'Weiter'}</button></div>
+      </form>`);
+    if (timer) {
+      const clock = $('#clock', stage);
+      const upd = () => { const s = Math.floor((Date.now() - start) / 1000); clock.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+      upd(); tick = setInterval(upd, 1000);
+    }
+    const inp = $('#inp', stage);
+    if (inp) { inp.value = tk.given ?? ''; inp.focus(); }
+    $$('[data-o]', stage).forEach((b) => {
+      if (tk.given === +b.dataset.o) b.classList.add('sel'), b.style.borderColor = 'var(--blue)';
+      b.onclick = () => { tk.given = +b.dataset.o; $$('[data-o]', stage).forEach((x) => x.style.borderColor = ''); b.style.borderColor = 'var(--blue)'; };
+    });
+    $$('[data-v]', stage).forEach((b) => {
+      if (tk.given === (b.dataset.v === '1')) b.style.outline = '3px solid var(--blue)';
+      b.onclick = () => { tk.given = b.dataset.v === '1'; $$('[data-v]', stage).forEach((x) => x.style.outline = ''); b.style.outline = '3px solid var(--blue)'; };
+    });
+    const save = () => { if (inp) tk.given = inp.value.trim(); };
+    $('#prev', stage)?.addEventListener('click', () => { save(); i--; show(); });
+    $('#f', stage).onsubmit = (e) => {
+      e.preventDefault(); save();
+      if (i === tasks.length - 1) {
+        const open = tasks.filter((t) => t.given === null || t.given === '').length;
+        const btn = $('#f button.primary', stage);
+        // Rückfrage direkt im Knopf (Browser-Dialoge sind auf manchen Handys gesperrt)
+        if (open && !btn.dataset.sure) {
+          btn.dataset.sure = '1';
+          btn.textContent = `${plural(open, 'Aufgabe ist', 'Aufgaben sind')} leer – trotzdem abgeben`;
+          return;
+        }
+      }
+      i++; show();
+    };
+    onKey(() => {});
+  };
+  show();
+}
+
+function gradeExam(ctx, tasks, ms) {
+  let points = 0, max = 0;
+  for (const tk of tasks) {
+    max += tk.pts;
+    const c = tk.c;
+    if (tk.kind === 'mc') tk.score = tk.given !== null && tk.opts[tk.given] === c.a ? tk.pts : 0;
+    if (tk.kind === 'tf') tk.score = tk.given === tk.truth ? tk.pts : 0;
+    if (tk.kind === 'gap') tk.score = tk.given && similarity(tk.given, c.a) >= 0.85 ? tk.pts : 0;
+    if (tk.kind === 'open') { const s = tk.given ? score(tk.given, c) : 0; tk.score = s >= 0.75 ? 3 : s >= 0.5 ? 2 : s >= 0.3 ? 1 : 0; }
+    points += tk.score;
+    S.grade(c.id, tk.score === tk.pts, false);
+  }
+  const pct = Math.round(points / max * 100);
+  const g = gradeFor(pct);
+  if (ctx.t) S.addResult({ testId: ctx.t.id, points, max, grade: g.note, gradeText: g.text, mode: 'probetest', ms });
+  else S.save();
+  const min = Math.round(ms / 60000);
+  const givenText = (tk) => {
+    if (tk.given === null || tk.given === '') return '– (leer)';
+    if (tk.kind === 'mc') return tk.opts[tk.given];
+    if (tk.kind === 'tf') return tk.given ? 'wahr' : 'falsch';
+    return tk.given;
+  };
+  ctx.main.innerHTML = `
+    <div class="session">
+      <div class="sheet result">
+        <span class="small muted">${h(ctx.title)} · Probetest</span>
+        <div class="grade" aria-label="Note ${g.note}">${g.note}</div>
+        <h2>${g.text} – ${points} von ${max} Punkten (${pct} %)</h2>
+        <p class="muted">${plural(tasks.length, 'Aufgabe', 'Aufgaben')}${min ? ` in ${min} Min.` : ''}. Offene Antworten wurden automatisch verglichen – prüf sie unten selbst nach.</p>
+        <div class="review">
+          ${tasks.map((tk, k) => `<div class="item ${tk.score === tk.pts ? 'ok' : ''}">
+            <div class="row" style="justify-content:space-between"><span class="small muted">Aufgabe ${k + 1}</span><b class="small">${tk.score} / ${tk.pts}</b></div>
+            <div style="font-weight:700;margin:4px 0">${tk.kind === 'tf' && isCloze(tk.c) ? h(tk.c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : tk.kind === 'tf' ? `${h(tk.c.q)} → ${h(tk.shown)}` : questionHtml(tk.c)}</div>
+            <div class="small">Deine Antwort: ${h(givenText(tk))}</div>
+            ${tk.score === tk.pts ? '' : `<div class="small"><b>Richtig:</b> ${tk.kind === 'tf' ? (tk.truth ? 'wahr' : `falsch – richtig ist: ${h(tk.c.a)}`) : h(tk.c.a)}</div>`}
+          </div>`).join('')}
+        </div>
+        <div class="row" style="justify-content:center">
+          <button class="btn primary" id="again">Neuer Probetest</button>
+          <a class="btn" href="${ctx.back}">Zurück</a>
+        </div>
+      </div>
+    </div>`;
+  $('#again').onclick = () => exam(ctx);
+  window.scrollTo(0, 0);
+}
+
+function reviewList(wrongs) {
+  if (!wrongs.length) return '';
+  return `<div class="review"><h3 style="margin-bottom:4px">Das solltest du dir nochmal ansehen</h3>${wrongs.map(({ c, given }) => `
+    <div class="item"><div style="font-weight:700">${questionHtml(c)}</div><div class="small">Deine Antwort: ${h(given)}</div><div class="small"><b>Richtig:</b> ${h(c.a)}</div></div>`).join('')}</div>`;
+}
+
+return { MODES, modeAvailable, startSession };
+})();
+
+__m.handy = (() => {
+// Handy-Version: ein Lernset, Tab-Leiste unten, große Knöpfe.
+const S = __m.store;
+const { generate, keywords, keySentences, TYPE_LABEL } = __m.gen;
+const { BEISPIEL, KURZARBEIT } = __m.beispiel;
+const { startSession, MODES, modeAvailable } = __m.learn;
+const { h, $, $$, toast, plural, ICON } = __m.util;
+
+const main = $('#main');
+const nav = $('#tabbar');
+
+// ---------- Lernset beim ersten Öffnen anlegen ----------
+function ensureSet() {
+  const st = S.get();
+  let t = st.tests.find((x) => x.title === BEISPIEL.test.title);
+  if (t) return t;
+  const s = st.subjects.find((x) => x.name === BEISPIEL.subject.name) || S.addSubject(BEISPIEL.subject.name, BEISPIEL.subject.color);
+  t = S.addTest(s.id, BEISPIEL.test.title, '', BEISPIEL.test.notes);
+  for (const bd of BEISPIEL.docs) {
+    const d = S.addDoc(t.id, bd.name, bd.kind, bd.text);
+    d.highlights = bd.highlights;
+    const gen = generate(d.text, { highlights: d.highlights });
+    S.addCards(gen.map((c) => ({ ...c, testId: t.id, docId: d.id, star: bd === KURZARBEIT && c.type === 'frage' })));
+  }
+  S.save();
+  return t;
+}
+const T = ensureSet();
+
+// ---------- Router ----------
+function route() {
+  const parts = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
+  const [view, , mode] = parts;
+  window.scrollTo(0, 0);
+  if (view === 'lernen') {
+    document.body.classList.add('in-session');
+    nav.hidden = true;
+    return startSession(main, T.id, mode);
+  }
+  document.body.classList.remove('in-session');
+  nav.hidden = false;
+  const tab = ['karten', 'text', 'spick'].includes(view) ? view : 'start';
+  $$('a', nav).forEach((a) => a.setAttribute('aria-current', a.dataset.tab === tab ? 'page' : 'false'));
+  ({ start: viewStart, karten: viewCards, text: viewText, spick: viewCheat })[tab]();
+}
+window.addEventListener('hashchange', route);
+
+const stats = () => {
+  const cards = S.cardsOf(T.id);
+  const sure = cards.filter((c) => S.progressOf(c.id).box >= 3).length;
+  const due = cards.filter((c) => S.isDue(c.id)).length;
+  return { cards, sure, due, pct: cards.length ? Math.round(sure / cards.length * 100) : 0 };
+};
+
+// ---------- Start ----------
+function viewStart() {
+  const { cards, sure, due, pct } = stats();
+  const stars = cards.filter((c) => c.star);
+  const last = S.resultsOf(T.id).at(-1);
+  const streak = S.streakDays();
+  const ring = 2 * Math.PI * 34;
+  main.innerHTML = `
+    <header class="hero">
+      <span class="subject"><span class="mk" data-c="lila">D – Deutsch</span> · Kurzarbeit</span>
+      <h1>Eine Frage der Ehre</h1>
+      <p class="muted">Der ehrbare Kaufmann – Tugenden, Eigenschaften, Gemeinschaft</p>
+      <div class="progress-row">
+        <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="ring-bg"/><circle cx="40" cy="40" r="34" class="ring-fg" stroke-dasharray="${ring}" stroke-dashoffset="${ring * (1 - pct / 100)}"/><text x="40" y="46" text-anchor="middle">${pct}%</text></svg>
+        <div>
+          <b>${sure} von ${cards.length} Karten sicher</b>
+          <div class="muted small">${due ? `${due} heute dran` : 'Für heute alles wiederholt'}${last ? ` · letzter Probetest: Note ${last.grade}` : ''}</div>
+          ${streak ? `<span class="margin-note blue">${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück</span>` : ''}
+        </div>
+      </div>
+      <a class="btn primary big" href="#/lernen/${T.id}/wiederholen">${sure ? 'Weiterlernen' : 'Loslernen'}</a>
+    </header>
+
+    <section>
+      <h2>Kommt in der Kurzarbeit dran</h2>
+      <div class="stars">
+        ${stars.map((c) => `<details class="sheet star-q"><summary><span class="star-icon" aria-hidden="true">★</span><span>${h(c.q)}</span></summary>
+          <div class="star-a">${h(c.a)}</div></details>`).join('')}
+      </div>
+      <a class="btn wide" href="#/lernen/${T.id}/schreiben">Diese Fragen selbst beantworten</a>
+    </section>
+
+    <section>
+      <h2>Üben</h2>
+      <div class="mode-list">
+        ${MODES.filter((m) => m.key !== 'wiederholen').map((m) => {
+          const ok = modeAvailable(m.key, cards);
+          return `<a class="mode-row ${m.key === 'probetest' ? 'exam' : ''}" href="#/lernen/${T.id}/${m.key}" style="--c:var(--m-${m.color})" ${ok ? '' : 'aria-disabled="true"'}>
+            <span class="ico">${ICON[m.icon]}</span>
+            <span class="txt"><b>${m.title}</b><span>${m.text}</span></span>
+            <span class="chev" aria-hidden="true">›</span></a>`;
+        }).join('')}
+      </div>
+    </section>`;
+}
+
+// ---------- Karten ----------
+let filter = 'alle', query = '';
+function viewCards() {
+  const all = S.cardsOf(T.id);
+  const list = all.filter((c) => (filter === 'alle' || (filter === 'wichtig' ? c.star : filter === 'eigene' ? ['manuell', 'import'].includes(c.type) : true))
+    && (!query || (c.q + ' ' + c.a).toLowerCase().includes(query.toLowerCase())));
+  main.innerHTML = `
+    <header class="page-title"><h1>Karten</h1><button class="btn small" id="add">+ Eigene</button></header>
+    <input type="search" id="q" placeholder="Karten durchsuchen" value="${h(query)}" aria-label="Karten durchsuchen">
+    <div class="chips" role="group" aria-label="Filter">
+      ${[['alle', `Alle ${all.length}`], ['wichtig', `★ Wichtig ${all.filter((c) => c.star).length}`], ['eigene', 'Eigene']].map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`).join('')}
+    </div>
+    <div class="clist">
+      ${list.map((c) => `<article class="sheet citem">
+        <div class="ctop"><span class="t">${TYPE_LABEL[c.type] || ''} · Fach ${S.progressOf(c.id).box}/5</span>
+          <button class="starbtn ${c.star ? 'on' : ''}" data-star="${c.id}" aria-pressed="${!!c.star}" aria-label="Als wichtig markieren">${c.star ? '★' : '☆'}</button></div>
+        <div class="cq">${h(c.q)}</div><div class="ca">${h(c.a)}</div>
+        ${['manuell', 'import'].includes(c.type) ? `<button class="btn ghost small" data-del="${c.id}">Löschen</button>` : ''}
+      </article>`).join('') || '<p class="muted">Keine Karte gefunden.</p>'}
+    </div>`;
+  const q = $('#q');
+  q.oninput = () => { query = q.value; const pos = q.selectionStart; viewCards(); const n = $('#q'); n.focus(); n.setSelectionRange(pos, pos); };
+  $$('[data-f]').forEach((b) => b.onclick = () => { filter = b.dataset.f; viewCards(); });
+  $$('[data-star]').forEach((b) => b.onclick = () => { const c = all.find((x) => x.id === b.dataset.star); S.updateCard(c.id, { star: !c.star }); viewCards(); });
+  $$('[data-del]').forEach((b) => b.onclick = () => { S.deleteCard(b.dataset.del); viewCards(); });
+  $('#add').onclick = openAdd;
+}
+
+function openAdd() {
+  const dlg = $('#sheet');
+  dlg.innerHTML = `<form id="addf" class="stack">
+    <h2>Eigene Karten</h2>
+    <p class="small muted">Eine Karte pro Zeile: <b>Frage | Antwort</b></p>
+    <textarea id="list" rows="7" required placeholder="Gilde | Zusammenschluss von Kaufleuten&#10;Was ist Reputation? | Das Ansehen einer Person"></textarea>
+    <div class="row end"><button type="button" class="btn ghost" id="cancel">Abbrechen</button><button class="btn primary">Hinzufügen</button></div>
+  </form>`;
+  dlg.showModal();
+  $('#cancel').onclick = () => dlg.close();
+  $('#addf').onsubmit = (e) => {
+    e.preventDefault();
+    const rows = $('#list').value.split('\n').map((l) => l.split(/\s*(?:\||\t|;)\s*/)).filter((p) => p.length >= 2 && p[0].trim() && p[1].trim());
+    if (!rows.length) { toast('Bitte so schreiben: Frage | Antwort'); return; }
+    const n = S.addCards(rows.map(([q, ...a]) => ({ testId: T.id, type: 'manuell', q: q.trim(), a: a.join('; ').trim() })));
+    dlg.close(); toast(`${plural(n, 'Karte', 'Karten')} hinzugefügt`); filter = 'eigene'; viewCards();
+  };
+}
+
+// ---------- Texte ----------
+let docIdx = 0;
+function viewText() {
+  const docs = S.docsOf(T.id);
+  docIdx = Math.min(docIdx, docs.length - 1);
+  const d = docs[docIdx];
+  let body = h(d.text);
+  for (const m of (d.highlights || []).slice().sort((a, b) => b.length - a.length)) {
+    const e = h(m).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    body = body.replace(new RegExp(`(?<!<span class="mk">[^<]*)${e}`), `<span class="mk">${h(m)}</span>`);
+  }
+  body = body.split(/\n\s*\n/).map((p) => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
+  main.innerHTML = `
+    <header class="page-title"><h1>Texte</h1></header>
+    <div class="chips scroll" role="tablist">${docs.map((x, i) => `<button class="chip" role="tab" data-d="${i}" aria-selected="${i === docIdx}" aria-pressed="${i === docIdx}">${h(x.name.replace(/^(Lesetext|Arbeitsblatt|Kurzarbeit): ?/, ''))}</button>`).join('')}</div>
+    <article class="sheet reader"><h2>${h(d.name)}</h2>${body}</article>`;
+  $$('[data-d]').forEach((b) => b.onclick = () => { docIdx = +b.dataset.d; viewText(); });
+}
+
+// ---------- Spickzettel ----------
+function viewCheat() {
+  const docs = S.docsOf(T.id);
+  const text = docs.map((d) => d.text).join('\n\n');
+  const hl = docs.flatMap((d) => d.highlights || []);
+  const kws = keywords(text, hl, 24);
+  const sents = keySentences(text, hl, 12);
+  const gloss = S.cardsOf(T.id).filter((c) => ['begriff', 'abkuerzung'].includes(c.type) && c.a.length < 160);
+  const colors = ['gelb', 'gruen', 'pink', 'blau', 'orange', 'lila'];
+  const mark = (s) => {
+    let out = h(s);
+    kws.slice(0, 18).forEach((k, i) => {
+      const re = new RegExp(`(^|[^\\wäöüÄÖÜß])(${k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?=[^\\wäöüÄÖÜß]|$)`, 'g');
+      out = out.replace(re, `$1<span class="mk" data-c="${colors[i % 6]}">$2</span>`);
+    });
+    return out;
+  };
+  main.innerHTML = `
+    <header class="page-title"><h1>Spickzettel</h1></header>
+    <article class="sheet cheat">
+      <h3>Schlüsselbegriffe</h3>
+      <div class="terms">${kws.map((k, i) => `<span class="mk" data-c="${colors[i % 6]}">${h(k)}</span>`).join('')}</div>
+      <h3>Begriffe</h3>
+      <dl class="glossary">${gloss.map((c) => `<dt>${h(c.q.replace(/^Wofür steht die Abkürzung |\?$/g, ''))}</dt><dd>${h(c.a)}</dd>`).join('')}</dl>
+      <h3>Kernaussagen</h3>
+      <ol>${sents.map((s) => `<li>${mark(s)}</li>`).join('')}</ol>
+    </article>`;
+}
+
+document.addEventListener('lernapp:savefail', () => toast('Speichern nicht möglich – privater Modus?'));
+route();
+
+return {  };
+})();
+</script>
+
+</body>
+</html>

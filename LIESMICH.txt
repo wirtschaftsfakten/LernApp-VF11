@@ -1,0 +1,32 @@
+LernApp – Tests und Fächer anlegen, Material hochladen, lernen
+=============================================================
+
+Online (ohne Installation, auch für Mitschüler)
+  PC & Handy:  https://wirtschaftsfakten.github.io/lernapp-ehrbarer-kaufmann/
+  Nur Handy:   https://wirtschaftsfakten.github.io/lernapp-ehrbarer-kaufmann/handy/
+  Jeder speichert seinen Lernstand nur im eigenen Browser.
+
+Starten auf dem eigenen PC
+  Doppelklick auf "LernApp starten.bat". Der Browser öffnet http://localhost:5180.
+  Das schwarze Fenster offen lassen, solange du lernst.
+
+So geht's
+  1. Fach anlegen (z. B. Wirtschaft) und Textmarker-Farbe wählen.
+  2. Test anlegen, mit Datum.
+  3. Unter "Material" Dateien hochladen: PDF, Word (.docx), PowerPoint (.pptx),
+     Text oder Fotos von Arbeitsblättern (JPG/PNG). Mehrere auf einmal gehen.
+  4. Unter "Lernen" üben: Karteikarten, Lernkartei, Quiz, Wahr/Falsch,
+     Lückentext, Zuordnen, Antwort schreiben, Probetest mit Note.
+
+Tipps für gute Karten
+  - "Begriff: Erklärung" pro Zeile wird eine Karteikarte.
+  - Eine Zeile mit "?" am Ende und die Antwort darunter wird eine Frage-Karte.
+  - Mit Textmarker markierte Wörter auf Fotos werden erkannt und abgefragt.
+  - Fotos gerade, scharf und hell aufnehmen. Handschrift wird schlecht erkannt:
+    Text unter "Text prüfen" korrigieren, dann werden die Karten neu erzeugt.
+  - Unpassende Karten unter "Karten" löschen oder direkt verbessern.
+
+Datenschutz
+  Hochgeladene Dateien werden nur im Browser verarbeitet und nirgends hingeschickt.
+  Die Daten liegen im Browser – unter "Sicherung & Einstellungen" regelmäßig
+  eine Sicherung herunterladen.

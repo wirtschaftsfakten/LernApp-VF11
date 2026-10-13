@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#FAFBFD">
+<meta name="theme-color" content="#FFFFFF">
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='3' y='7' width='26' height='18' rx='2' fill='%23fff' stroke='%231A2550' stroke-width='2'/%3E%3Cpath d='M3 12h26' stroke='%23D3263A' stroke-width='2'/%3E%3Cpath d='M8 17h16M8 21h10' stroke='%23BDB4FF' stroke-width='3'/%3E%3C/svg%3E">
 <style>:root{padding-top:env(safe-area-inset-top,0px)}[hidden]{display:none!important}body{margin:0}</style>
@@ -13,7 +13,7 @@
 <title>LernApp</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* LernApp – Collegeblock & Textmarker */
 :root {
@@ -382,163 +382,284 @@ dialog.wide { width: min(820px, calc(100vw - 32px)); }
 .face { overflow-y: auto; align-content: safe center; overscroll-behavior: contain; }
 .face .back-text.long { font-size: 1rem; text-align: left; line-height: 1.55; }
 
-/* Handy-Version – ergänzt app.css. Eine Spalte, Tab-Leiste unten. */
-html, body { min-height: 100%; }
-body { padding-inline: 0; font-size: 16.5px; }
-#main {
-  max-width: 640px; margin: 0 auto;
-  padding: 20px 16px calc(96px + env(safe-area-inset-bottom, 0px));
-  display: grid; gap: 30px; align-content: start;
+/* Handy-Version – Design nach Vorlage DESIGN.webp: weiß, weiche Karten, Verlaufs-Karte, Pastell-Kacheln, Pill-Buttons. Akzent Hellblau. */
+:root {
+  --bg: #FFFFFF;
+  --surface: #FFFFFF;
+  --soft: #F4F6FA;
+  --line: #E7EAF0;
+  --text: #1B1E2B;
+  --text-2: #6A6F80;
+  --text-3: #9BA1B0;
+  --accent: #3A98EE;
+  --accent-strong: #2381DA;
+  --accent-soft: #E9F4FE;
+  --accent-line: #BCDDFB;
+  --on-accent: #FFFFFF;
+  --hero: linear-gradient(140deg, #9AD0FF 0%, #5EAFF6 52%, #3C93EA 100%);
+  --t-blau: #EAF4FF; --t-blau-i: #CBE5FF;
+  --t-gelb: #FFF6D8; --t-gelb-i: #FFE59A;
+  --t-gruen: #E7F8ED; --t-gruen-i: #BFEFD0;
+  --t-pink: #FFECF3; --t-pink-i: #FFCADF;
+  --t-orange: #FFF1E3; --t-orange-i: #FFD6AE;
+  --card-shadow: 0 1px 2px rgba(27, 30, 43, .04), 0 6px 16px -8px rgba(27, 30, 43, .14);
+  --r-l: 18px; --r-m: 14px; --r-s: 10px;
+  /* Lern-Bildschirme (app.css) auf dieselben Farben umstellen */
+  --paper: var(--bg); --sheet: var(--surface); --grid: var(--soft); --rule: var(--line);
+  --ink: var(--text); --ink-2: var(--text-2); --ink-3: var(--text-3);
+  --blue: var(--accent); --blue-press: var(--accent-strong);
+  --m-lila: #9CCBFF;
+  --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --radius-s: 10px; --radius-m: 16px;
+  --shadow: var(--card-shadow);
 }
-body.in-session #main { padding-bottom: 32px; }
-#main > section { display: grid; gap: 12px; margin: 0; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E131D; --surface: #161C29; --soft: #1C2333; --line: #273044;
+    --text: #EDF0F6; --text-2: #A5ADBF; --text-3: #7C859A;
+    --accent: #6DB8FF; --accent-strong: #8CC7FF; --accent-soft: #18283D; --accent-line: #2C4C70; --on-accent: #08131F;
+    --hero: linear-gradient(140deg, #3D7FC4 0%, #2D69AD 55%, #22558F 100%);
+    --t-blau: #172638; --t-blau-i: #24405E; --t-gelb: #2A2618; --t-gelb-i: #4A4020;
+    --t-gruen: #16291F; --t-gruen-i: #1F4A33; --t-pink: #2C1A24; --t-pink-i: #4E2A3C;
+    --t-orange: #2C2117; --t-orange-i: #4E3620;
+    --card-shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 18px -10px rgba(0,0,0,.6);
+    --paper: var(--bg); --sheet: var(--surface); --grid: var(--soft); --rule: var(--line);
+    --ink: var(--text); --ink-2: var(--text-2); --ink-3: var(--text-3); --blue: var(--accent); --blue-press: var(--accent-strong);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E131D; --surface: #161C29; --soft: #1C2333; --line: #273044;
+  --text: #EDF0F6; --text-2: #A5ADBF; --text-3: #7C859A;
+  --accent: #6DB8FF; --accent-strong: #8CC7FF; --accent-soft: #18283D; --accent-line: #2C4C70; --on-accent: #08131F;
+  --hero: linear-gradient(140deg, #3D7FC4 0%, #2D69AD 55%, #22558F 100%);
+  --t-blau: #172638; --t-blau-i: #24405E; --t-gelb: #2A2618; --t-gelb-i: #4A4020;
+  --t-gruen: #16291F; --t-gruen-i: #1F4A33; --t-pink: #2C1A24; --t-pink-i: #4E2A3C;
+  --t-orange: #2C2117; --t-orange-i: #4E3620;
+  --card-shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 18px -10px rgba(0,0,0,.6);
+  --paper: var(--bg); --sheet: var(--surface); --grid: var(--soft); --rule: var(--line);
+  --ink: var(--text); --ink-2: var(--text-2); --ink-3: var(--text-3); --blue: var(--accent); --blue-press: var(--accent-strong);
+  color-scheme: dark;
+}
+
+html, body { min-height: 100%; }
+body { background: var(--bg); background-image: none; color: var(--text); font: 15px/1.5 var(--font-body); letter-spacing: -.005em; }
+h1, h2, h3 { font-family: var(--font-ui); letter-spacing: -.02em; }
+h1 { font-size: 1.35rem; font-weight: 700; }
+h2 { font-size: 1.12rem; font-weight: 700; }
+#main {
+  max-width: 560px; margin: 0 auto;
+  padding: 14px 18px calc(92px + env(safe-area-inset-bottom, 0px));
+  display: grid; gap: 18px; align-content: start;
+}
+body.in-session #main { padding-bottom: 28px; }
+#main > section, .tabbody > section { display: grid; gap: 12px; margin: 0; }
 #main > section + section { margin-top: 0; }
-h1 { font-size: clamp(1.8rem, 8vw, 2.3rem); text-wrap: balance; }
-h2 { font-size: 1.25rem; text-wrap: balance; }
+.muted { color: var(--text-2); }
+.section-label { font: 700 1.02rem var(--font-ui); color: var(--text); margin-bottom: -2px; }
 
-/* Kopf */
-.hero { display: grid; gap: 10px; }
-.subject { font: 600 .9rem var(--font-ui); color: var(--ink-2); }
-.progress-row { display: grid; grid-template-columns: 76px 1fr; gap: 14px; align-items: center; padding: 14px 16px; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); margin-top: 6px; }
-.progress-row > div { display: grid; gap: 2px; min-width: 0; }
-.ring { width: 76px; height: 76px; transform: rotate(-90deg); }
-.ring circle { fill: none; stroke-width: 8; }
-.ring-bg { stroke: var(--grid); }
-.ring-fg { stroke: var(--ok); stroke-linecap: round; transition: stroke-dashoffset .6s; }
-.ring text { transform: rotate(90deg); transform-origin: 40px 40px; font: 800 17px var(--font-ui); fill: var(--ink); }
-.progress-row .margin-note { font-size: 1.3rem; margin-top: 2px; }
-.btn.big { min-height: 56px; font-size: 1.1rem; width: 100%; }
+/* Knöpfe */
+.btn { border-radius: 999px; box-shadow: none; border: 1px solid var(--line); background: var(--surface); color: var(--text); font: 600 .95rem var(--font-ui); min-height: 44px; }
+.btn:hover { background: var(--soft); }
+.btn:active { transform: scale(.98); box-shadow: none; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: none; }
+.btn.primary:hover { background: var(--accent-strong); filter: none; }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--accent); }
+.btn.danger { color: #E5484D; border-color: #F5C2C4; box-shadow: none; }
+.btn.big { min-height: 52px; font-size: 1rem; width: 100%; }
 .btn.wide { width: 100%; }
-.page-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.btn.small { min-height: 34px; }
+.danger-text { color: #E5484D; }
+.pill { display: inline-flex; align-items: center; justify-content: center; padding: 6px 12px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent-strong); font: 600 .78rem var(--font-ui); white-space: nowrap; }
+.icon-btn { position: relative; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none; cursor: pointer; flex: none; }
+.icon-btn.plain { border-color: transparent; background: transparent; width: 38px; }
+.icon-btn svg, .arrow-btn svg, .search svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn .dot { position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: #E5484D; color: #fff; font: 700 .7rem/20px var(--font-ui); text-align: center; }
 
-/* Kurzarbeit-Fragen */
-.stars { display: grid; gap: 10px; }
-.star-q { padding: 0; overflow: hidden; }
-.star-q summary { list-style: none; display: grid; grid-template-columns: 22px 1fr 18px; gap: 10px; align-items: start; padding: 16px; cursor: pointer; font: 650 1.02rem/1.35 var(--font-ui); }
-.star-q summary::-webkit-details-marker { display: none; }
-.star-q summary::after { content: '+'; font-size: 1.3rem; line-height: 1; color: var(--ink-3); }
-.star-q[open] summary::after { content: '–'; }
-.star-icon { color: var(--red); font-size: 1.1rem; line-height: 1.2; }
-.star-a { padding: 0 16px 16px 48px; color: var(--ink-2); line-height: 1.6; }
+/* Kopf Startseite */
+.top { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding-top: 4px; }
+.avatar { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--hero); color: #fff; font: 800 1.1rem var(--font-ui); }
+.hello { display: grid; line-height: 1.2; }
+.hello small { color: var(--text-2); font-size: .8rem; }
+.hello b { font: 700 1.12rem var(--font-ui); }
+.search { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; padding: 0 14px; height: 46px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--text-3); }
+.search input { border: 0; padding: 0; background: transparent; height: 100%; font-size: .92rem; box-shadow: none !important; }
+.home-body { display: grid; gap: 22px; }
 
-/* Übungsliste */
-.mode-list { display: grid; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); overflow: hidden; }
-.mode-row { display: grid; grid-template-columns: 44px 1fr 16px; gap: 14px; align-items: center; padding: 14px 16px; color: var(--ink); text-decoration: none; border-top: 1px solid var(--rule); min-height: 68px; }
-.mode-row:first-child { border-top: 0; }
-.mode-row:active { background: var(--paper); }
-.mode-row .ico { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 10px; background: color-mix(in srgb, var(--c) calc(var(--mark-a) * 100%), transparent); }
-.mode-row .ico svg { width: 24px; height: 24px; stroke: var(--ink); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.mode-row .txt { display: grid; gap: 2px; min-width: 0; }
-.mode-row .txt b { font: 700 1.02rem var(--font-ui); }
-.mode-row .txt span { font-size: .88rem; color: var(--ink-2); line-height: 1.35; }
-.mode-row .chev { font-size: 1.6rem; color: var(--ink-3); line-height: 1; }
-.mode-row.exam { background: var(--ink); color: var(--paper); }
-.mode-row.exam .txt span, .mode-row.exam .chev { color: color-mix(in srgb, var(--paper) 72%, transparent); }
-.mode-row[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+/* Verlaufs-Karte */
+.hero-card { position: relative; overflow: hidden; display: grid; gap: 4px; padding: 18px; border-radius: var(--r-l); background: var(--hero); color: #fff; }
+.hero-card::before, .hero-card::after { content: ''; position: absolute; border-radius: 50%; background: rgba(255,255,255,.14); pointer-events: none; }
+.hero-card::before { width: 180px; height: 180px; right: -50px; top: -60px; }
+.hero-card::after { width: 120px; height: 120px; right: 40px; top: 40px; background: rgba(255,255,255,.09); }
+.hero-chip { justify-self: start; display: inline-flex; gap: 6px; align-items: center; padding: 6px 12px; border-radius: 999px; background: #fff; color: #1B1E2B; font: 600 .8rem var(--font-ui); text-decoration: none; margin-bottom: 10px; position: relative; z-index: 1; }
+.hero-label { font-size: .82rem; opacity: .92; position: relative; }
+.hero-title { font: 700 1.02rem/1.35 var(--font-ui); margin-bottom: 12px; position: relative; text-wrap: balance; }
+.slider { position: relative; height: 6px; border-radius: 99px; background: rgba(255,255,255,.35); margin: 8px 0 2px; }
+.slider i { position: absolute; inset: 0 auto 0 0; border-radius: inherit; background: #fff; }
+.slider b { position: absolute; top: 50%; width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 3px solid #3C93EA; transform: translate(-50%, -50%); }
+.hero-pct { text-align: center; font: 600 .78rem var(--font-ui); margin-bottom: 10px; position: relative; }
+.hero-btn { display: flex; justify-content: center; align-items: center; min-height: 44px; border-radius: 999px; background: #fff; color: #1B1E2B; font: 600 .92rem var(--font-ui); text-decoration: none; position: relative; }
 
-/* Karten */
+/* Pastell-Kacheln */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile-card { --t: var(--t-blau); --ti: var(--t-blau-i); display: grid; align-content: start; gap: 4px; padding: 14px; border-radius: var(--r-m); background: var(--t); color: var(--text); text-decoration: none; text-align: left; border: 0; cursor: pointer; font: inherit; min-height: 170px; }
+.tile-card[data-tone="gelb"] { --t: var(--t-gelb); --ti: var(--t-gelb-i); }
+.tile-card[data-tone="gruen"] { --t: var(--t-gruen); --ti: var(--t-gruen-i); }
+.tile-card[data-tone="pink"] { --t: var(--t-pink); --ti: var(--t-pink-i); }
+.tile-card[data-tone="orange"] { --t: var(--t-orange); --ti: var(--t-orange-i); }
+.tile-ico { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--ti); font: 800 .8rem var(--font-ui); color: var(--text); margin-bottom: 8px; }
+.tile-ico svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.tile-card b { font: 700 .98rem/1.25 var(--font-ui); overflow-wrap: anywhere; hyphens: auto; }
+.tile-card small { color: var(--text-2); font-size: .8rem; line-height: 1.35; }
+.tile-card .pill { justify-self: start; margin-top: auto; background: var(--surface); border-color: transparent; color: var(--text); }
+.tile-card.add { background: var(--surface); border: 1.5px dashed var(--line); }
+.tile-card.add .tile-ico { background: var(--accent-soft); color: var(--accent-strong); font-size: 1.3rem; }
+.tile-card[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+.tile-card:active, .item-card:active { transform: scale(.985); }
+
+/* Listenkarten (wie "Module 02") */
+.cards { display: grid; gap: 10px; }
+.item-card { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; border-radius: var(--r-m); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--card-shadow); color: var(--text); text-decoration: none; }
+.item-card .txt { display: grid; gap: 2px; min-width: 0; }
+.item-card small { color: var(--text-2); font-size: .76rem; }
+.item-card b { font: 700 1rem/1.3 var(--font-ui); overflow-wrap: anywhere; hyphens: auto; }
+.item-card .txt > span { color: var(--text-2); font-size: .84rem; }
+.item-card.doc .row { flex-wrap: nowrap; gap: 6px; }
+.empty-card { grid-template-columns: 1fr; box-shadow: none; background: var(--soft); border-style: dashed; }
+details.item-card { display: block; padding: 0; }
+details.item-card summary { list-style: none; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; cursor: pointer; }
+details.item-card summary::-webkit-details-marker { display: none; }
+details.item-card[open] .pill { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.star-a { padding: 0 16px 16px; color: var(--text-2); line-height: 1.6; font-size: .92rem; }
+
+/* Kopf Unterseiten */
+.nav-head { display: grid; grid-template-columns: auto 1fr auto; gap: 6px; align-items: center; min-height: 44px; }
+.nav-head h1 { font-size: 1.12rem; min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+.nav-head:not(:has(.icon-btn)) { grid-template-columns: 1fr; }
+.module-card { display: grid; grid-template-columns: 1fr auto; gap: 12px 14px; align-items: center; padding: 16px; border-radius: var(--r-m); background: var(--accent-soft); border: 1px solid var(--accent-line); }
+.module-card .txt { display: grid; gap: 2px; min-width: 0; }
+.module-card small { color: var(--text-2); font-size: .76rem; }
+.module-card b { font: 700 1.08rem/1.3 var(--font-ui); text-wrap: balance; }
+.module-card .txt > span { color: var(--text-2); font-size: .84rem; }
+.arrow-btn { width: 44px; height: 40px; display: grid; place-items: center; border-radius: 12px; border: 1.5px solid var(--accent); color: var(--accent-strong); background: var(--surface); text-decoration: none; }
+.mbar { grid-column: 1 / -1; height: 5px; border-radius: 99px; background: var(--surface); overflow: hidden; }
+.mbar i { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.exam-card { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 14px; border-radius: var(--r-m); background: var(--hero); color: #fff; text-decoration: none; }
+.exam-card .tile-ico { margin: 0; background: rgba(255,255,255,.25); color: #fff; }
+.exam-card .txt { display: grid; gap: 2px; }
+.exam-card b { font: 700 1rem var(--font-ui); }
+.exam-card small { font-size: .8rem; opacity: .9; }
+.exam-card .arrow-btn { background: #fff; border-color: #fff; color: #2381DA; }
+.exam-card[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+
+/* Reiter im Test */
+.seg { display: flex; gap: 4px; padding: 4px; background: var(--soft); border-radius: 12px; overflow-x: auto; scrollbar-width: none; }
+.seg a { flex: 1 0 auto; text-align: center; padding: 8px 12px; border-radius: 9px; text-decoration: none; color: var(--text-2); font: 600 .86rem var(--font-ui); white-space: nowrap; }
+.seg a[aria-current="page"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(27,30,43,.12); }
+.tabbody { display: grid; gap: 18px; }
+
+/* Material, Karten, Spickzettel */
+.upload { display: grid; gap: 10px; }
+.upload .btn.big { width: 100%; }
+.upload .btn svg { width: 18px; height: 18px; }
+.progress-line { display: grid; gap: 6px; padding: 14px 16px; border-radius: var(--r-m); }
+.bar { background: var(--soft); }
+.bar i { background: var(--accent); }
+.bar i.indet { width: 35%; animation: indet 1.2s ease-in-out infinite alternate; }
+@keyframes indet { from { margin-left: 0; } to { margin-left: 65%; } }
+.sheet { border-radius: var(--r-m); border-color: var(--line); box-shadow: var(--card-shadow); }
+.pad { padding: 18px; }
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-.chips.scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
-.chips .chip { min-height: 38px; white-space: nowrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; min-height: 36px; font: 600 .84rem var(--font-ui); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+input[type="text"], input[type="date"], input[type="search"], textarea, select { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .clist { display: grid; gap: 10px; }
 .citem { padding: 14px 16px; display: grid; gap: 6px; }
 .ctop { display: flex; justify-content: space-between; align-items: center; }
-.ctop .t { font: 600 .78rem var(--font-ui); color: var(--ink-3); }
+.ctop .t { font: 600 .74rem var(--font-ui); color: var(--text-3); }
 .cq { font-weight: 700; }
-.ca { color: var(--ink-2); }
+.ca { color: var(--text-2); }
 .citem .btn { justify-self: start; }
-.starbtn { border: 0; background: none; font-size: 1.5rem; line-height: 1; color: var(--ink-3); cursor: pointer; min-width: 44px; min-height: 44px; margin: -10px -10px -10px 0; }
-.starbtn.on { color: var(--red); }
-
-/* Lesen */
-.reader { padding: 20px 18px; display: grid; gap: 14px; line-height: 1.7; }
-.cheat { padding: 22px 18px 22px 30px; }
-.cheat::before { left: 14px; }
+.starbtn { border: 0; background: none; font-size: 1.4rem; line-height: 1; color: var(--text-3); cursor: pointer; min-width: 44px; min-height: 44px; margin: -10px -10px -10px 0; }
+.starbtn.on { color: #F2A100; }
+.cheat { padding: 18px; }
+.cheat::before { display: none; }
 .cheat > * { margin-left: 0; }
-.cheat h3 { margin-top: 8px; }
+.cheat h3 { margin-top: 8px; font-size: 1rem; }
 .terms { margin: 10px 0 18px; }
 .glossary { margin: 10px 0 18px; grid-template-columns: 1fr; gap: 2px; }
 .glossary dd { margin-bottom: 10px; }
+.reader-text .mk, .star-a .mk { --c: var(--t-blau-i); }
 
-/* Tab-Leiste */
+/* Tab-Leiste unten */
 #tabbar {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
   display: grid; grid-template-columns: repeat(3, 1fr);
-  background: var(--sheet); border-top: 1px solid var(--rule);
-  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface); border-top: 1px solid var(--line);
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
 }
-#tabbar a { display: grid; justify-items: center; gap: 3px; padding: 6px 0; color: var(--ink-3); text-decoration: none; font: 600 .76rem var(--font-ui); border-radius: 10px; }
-#tabbar a svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-#tabbar a[aria-current="page"] { color: var(--ink); }
-#tabbar a[aria-current="page"] svg { background: color-mix(in srgb, var(--m-lila) calc(var(--mark-a) * 100%), transparent); border-radius: 8px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--m-lila) calc(var(--mark-a) * 100%), transparent); }
+#tabbar a { display: grid; justify-items: center; gap: 3px; padding: 4px 0; color: var(--text-3); text-decoration: none; font: 500 .74rem var(--font-ui); }
+#tabbar a svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+#tabbar a[aria-current="page"] { color: var(--text); font-weight: 700; }
+#tabbar a[aria-current="page"] svg { stroke-width: 2.2; }
 
-/* Lern-Sitzung auf dem Handy */
-.session { gap: 16px; }
-.flash-inner { min-height: 300px; }
-.face { padding: 54px 20px 36px; }
-.question { padding: 20px 18px; gap: 18px; }
-.question .qtext { font-size: 1.12rem; }
-.answer-row .btn, .tf .btn { min-height: 58px; }
-.match { grid-template-columns: 1fr 1fr; gap: 8px; }
-.tile { font-size: .9rem; padding: 10px; }
-.result { padding: 24px 16px; }
-kbd { display: none; }
-
-/* Unteres Blatt (Dialog) */
-#sheet { margin: auto auto 0; width: 100%; max-width: 640px; border-radius: 16px 16px 0 0; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); }
-#sheet .stack { display: grid; gap: 12px; }
-
-#toast { bottom: calc(90px + env(safe-area-inset-bottom, 0px)); }
-body.in-session #toast { bottom: 24px; }
-.session { width: 100%; }
-.kbd-hint { display: none; }
+/* Lern-Bildschirme */
+.session { width: 100%; gap: 16px; }
+.session h2 { font-size: 1.15rem; }
 .flash-inner { min-height: 380px; }
+.face {
+  background: var(--surface); color: var(--text); background-image: none;
+  border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--card-shadow);
+  padding: 52px 22px 38px;
+}
+.face .type, .face .hint { color: var(--text-3); }
+.face .type { top: 16px; left: 20px; }
+.face .back-q { color: var(--text-2); }
+.face.back { background: var(--accent-soft); border-color: var(--accent-line); }
+.face .front-text { font-size: clamp(1.15rem, 5vw, 1.45rem); }
+.face .front-text span[style] { border-bottom-color: var(--text) !important; }
+.boxes span { border-radius: 99px; height: 6px; }
+.boxes span.on { background: var(--accent); }
+.answer-row .btn, .tf .btn { min-height: 54px; border-radius: 999px; }
+.btn.know { color: #12805C; border-color: #A8E6C9; background: #EAF9F1; box-shadow: none; }
+.btn.dont { color: #D6383E; border-color: #F6C3C5; background: #FFF0F0; box-shadow: none; }
+.question { padding: 20px 18px; gap: 18px; border-radius: var(--r-l); }
+.question .qtext { font-size: 1.08rem; font-weight: 650; }
+.question .qtext .gap { border-bottom-color: var(--accent); }
+.opt { border-radius: 14px; border-color: var(--line); padding: 12px 14px; }
+.opt .key { border-color: var(--line); background: var(--soft); }
+.opt.right { background: #EAF9F1; border-color: #4CC38A; color: #1B1E2B; }
+.opt.wrong { background: #FFF0F0; border-color: #F08A8E; color: #1B1E2B; }
+.feedback { border-radius: 12px; border-left-width: 4px; }
+.match { grid-template-columns: 1fr 1fr; gap: 8px; }
+.tile { font-size: .88rem; padding: 10px; border-radius: 12px; }
+.tile.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.result { padding: 24px 16px; border-radius: var(--r-l); }
+.grade { color: var(--accent-strong); font-family: var(--font-ui); font-weight: 800; transform: none; font-size: 4.5rem; }
+.margin-note { font-family: var(--font-ui); font-weight: 600; font-size: .9rem; color: var(--accent-strong); transform: none; }
+.review .item { border-radius: 10px; background: var(--soft); }
+.session-top .bar { height: 6px; }
+kbd, .kbd-hint { display: none; }
 
-/* Allgemeine Handy-App: Listen, Navigation */
-.list { display: grid; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--radius-m); overflow: hidden; }
-.row-link { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 14px 16px; min-height: 64px; color: var(--ink); text-decoration: none; border-top: 1px solid var(--rule); }
-.row-link:first-child { border-top: 0; }
-.row-link:active { background: var(--paper); }
-.row-link .txt { display: grid; gap: 4px; min-width: 0; }
-.row-link .txt b { font: 700 1.02rem/1.3 var(--font-ui); overflow-wrap: anywhere; hyphens: auto; }
-.row-link .chev, .today-card .chev { font-size: 1.6rem; color: var(--ink-3); line-height: 1; }
-.row-link .margin-note { font-size: 1.25rem; white-space: nowrap; }
-.row-link:has(.date-chip) { grid-template-columns: 52px 1fr auto; }
-.row-link.subj { position: relative; padding-left: 26px; }
-.row-link.subj::before { content: ''; position: absolute; left: 0; top: 10px; bottom: 10px; width: 10px; border-radius: 0 6px 6px 0; background: var(--c); }
-.row-link.doc .row { flex-wrap: nowrap; gap: 6px; }
-.today-card { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 16px 18px; text-decoration: none; color: var(--ink); background: var(--ink); border-color: var(--ink); }
-.today-card .num { font: 800 2.4rem/1 var(--font-ui); color: var(--paper); font-variant-numeric: tabular-nums; }
-.today-card .txt { display: grid; gap: 2px; }
-.today-card b { font: 700 1.05rem var(--font-ui); color: var(--paper); }
-.today-card .muted, .today-card .chev { color: color-mix(in srgb, var(--paper) 70%, transparent); }
-.back { font: 600 .95rem var(--font-ui); color: var(--blue); text-decoration: none; margin-bottom: -18px; justify-self: start; padding: 6px 0; }
-.page-title h1 { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
-.test-head { display: grid; gap: 6px; }
-.test-head .row { gap: 10px; }
-.test-head .margin-note { font-size: 1.3rem; }
-.test-head .btn { margin-left: auto; }
-.seg { display: flex; gap: 4px; padding: 4px; background: var(--grid); border-radius: 12px; overflow-x: auto; scrollbar-width: none; margin-bottom: -10px; }
-.seg a { flex: 1 0 auto; text-align: center; padding: 9px 12px; border-radius: 9px; text-decoration: none; color: var(--ink-2); font: 600 .9rem var(--font-ui); white-space: nowrap; }
-.seg a[aria-current="page"] { background: var(--sheet); color: var(--ink); box-shadow: 0 1px 3px rgba(26,37,80,.15); }
-.tabbody { display: grid; gap: 22px; }
-.tabbody > section { display: grid; gap: 12px; }
-.upload { display: grid; gap: 10px; }
-.upload .btn.big { width: 100%; }
-.bar i.indet { width: 35%; background: var(--blue); animation: indet 1.2s ease-in-out infinite alternate; }
-@keyframes indet { from { margin-left: 0; } to { margin-left: 65%; } }
-.danger-text { color: var(--red); }
-.empty { padding: 22px 18px; }
-#sheet { max-height: 92vh; overflow-y: auto; }
-#sheet .reader-text { max-height: none; }
+/* Unteres Blatt */
+#sheet { margin: auto auto 0; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; border: 0; border-radius: 22px 22px 0 0; padding: 22px 18px calc(22px + env(safe-area-inset-bottom, 0px)); background: var(--surface); color: var(--text); }
+#sheet .stack { display: grid; gap: 12px; }
 #sheet h2 { overflow-wrap: anywhere; }
-.date-chip b { font-size: 1.35rem; }
-body:not(.in-session) #toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+.reader-text { display: grid; gap: 12px; line-height: 1.7; }
+.swatches span { border-radius: 50%; }
+
+#toast { border-radius: 999px; background: var(--text); color: var(--bg); }
+body:not(.in-session) #toast { bottom: calc(86px + env(safe-area-inset-bottom, 0px)); }
+body.in-session #toast { bottom: 24px; }
+.search input[type="search"] { border: 0; border-radius: 0; width: 100%; padding: 0; outline: none; }
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
 </style>
 <main id="main" tabindex="-1"></main>
 <nav id="tabbar" aria-label="Bereiche">
-  <a href="#/" data-tab="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h12v15H6a2 2 0 0 0-2 2z"/><path d="M8 8h6M8 12h4"/></svg>Fächer</a>
+  <a href="#/" data-tab="start"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>Fächer</a>
   <a href="#/lernen/alle/wiederholen" data-tab="heute"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5.3L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-14 5.3L4 15"/><path d="M4 20v-5h5"/></svg>Wiederholen</a>
   <a href="#/mehr" data-tab="mehr"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Mehr</a>
 </nav>
@@ -2170,39 +2291,79 @@ function confirmSheet(text, label, action) {
 }
 
 // ---------- Start ----------
+const abbr = (name) => (name.split(/\s+[–-]\s+/)[0] || name).slice(0, 4);
+const tone = (c) => (c === 'lila' ? 'blau' : c || 'blau'); // Hellblau statt Lila
+const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+const BELL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
+const SEARCH = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>';
+
+// Test, an dem gerade gelernt werden sollte: nächster Test mit Datum, sonst zuletzt gelernter
+function focusTest() {
+  const st = S.get();
+  const withCards = st.tests.filter((t) => S.cardsOf(t.id).length);
+  const dated = withCards.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  if (dated.length) return dated[0];
+  const lastOf = (t) => Math.max(0, ...S.cardsOf(t.id).map((c) => S.progressOf(c.id).last || 0));
+  return withCards.sort((a, b) => lastOf(b) - lastOf(a))[0] || null;
+}
+
+function heroCard(t) {
+  if (!t) return `<div class="hero-card"><span class="hero-chip">LernApp</span>
+    <p class="hero-label">So geht's</p><p class="hero-title">Fach antippen, Test anlegen, Arbeitsblatt fotografieren – fertig sind deine Lernkarten.</p></div>`;
+  const s = S.subject(t.subjectId);
+  const { pct } = cardStats(S.cardsOf(t.id));
+  return `<div class="hero-card">
+    <a class="hero-chip" href="#/fach/${s.id}">${h(abbr(s.name))} · ${h(s.name.split(/\s+[–-]\s+/)[1] || s.name)} <span aria-hidden="true">⌄</span></a>
+    <p class="hero-label">Dein Fortschritt</p>
+    <div class="slider" role="img" aria-label="${pct} Prozent sicher gelernt"><i style="width:${pct}%"></i><b style="left:${pct}%"></b></div>
+    <p class="hero-pct">${pct}%</p>
+    <p class="hero-label">${t.date ? `Nächster Test · ${countdownText(t.date)}` : 'Weiterlernen'}</p>
+    <p class="hero-title">${h(t.title)}</p>
+    <a class="hero-btn" href="#/lernen/${t.id}/wiederholen">Weiterlernen</a>
+  </div>`;
+}
+
 function viewHome() {
   const st = S.get();
   const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
-  const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
-  const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
-  const streak = S.streakDays();
   main.innerHTML = `
-    <header class="page-title"><h1>Meine Fächer</h1>${streak ? `<span class="margin-note blue">${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück</span>` : ''}</header>
-
-    ${st.cards.length ? `<a class="sheet today-card" href="#/lernen/alle/wiederholen">
-      <span class="num">${due || fresh}</span>
-      <span class="txt"><b>${due ? 'Karten heute wiederholen' : 'Neue Karten lernen'}</b><span class="muted small">aus allen Fächern</span></span>
-      <span class="chev" aria-hidden="true">›</span></a>` : ''}
-
-    ${upcoming.length ? `<section><h2>Nächste Tests</h2><div class="list">${upcoming.slice(0, 4).map((t) => {
-      const p = dateParts(t.date); const s = S.subject(t.subjectId);
-      return `<a class="row-link" href="#/test/${t.id}"><span class="date-chip"><span>${p.wd}</span><b>${p.day}</b><span>${p.mon}</span></span>
-        <span class="txt"><b>${h(t.title)}</b><span class="small muted"><span class="mk" style="--c:${cvar(s?.color)}">${h(s?.name)}</span></span></span>
-        <span class="margin-note">${countdownText(t.date)}</span></a>`;
-    }).join('')}</div></section>` : ''}
-
-    <section>
-      <h2>Fächer</h2>
-      <div class="list">${st.subjects.map((s) => {
-        const tests = S.testsOf(s.id);
-        const cards = st.cards.filter((c) => tests.some((t) => t.id === c.testId));
-        return `<a class="row-link subj" href="#/fach/${s.id}" style="--c:${cvar(s.color)}">
-          <span class="txt"><b>${h(s.name)}</b><span class="small muted">${tests.length ? `${plural(tests.length, 'Test', 'Tests')} · ${plural(cards.length, 'Karte', 'Karten')}` : 'Noch kein Test'}</span></span>
-          <span class="chev" aria-hidden="true">›</span></a>`;
-      }).join('') || '<p class="pad muted">Noch keine Fächer.</p>'}</div>
-      <button class="btn wide" id="newSubject">${ICON.plus} Fach anlegen</button>
-    </section>`;
+    <header class="top">
+      <span class="avatar" aria-hidden="true">L</span>
+      <span class="hello"><small>Willkommen zurück,</small><b>Deine LernApp</b></span>
+      <a class="icon-btn" href="#/lernen/alle/wiederholen" aria-label="Wiederholen${due ? `, ${due} Karten fällig` : ''}">${BELL}${due ? `<span class="dot">${due > 99 ? '99+' : due}</span>` : ''}</a>
+    </header>
+    <label class="search">${SEARCH}<input type="search" id="find" placeholder="Fach oder Test suchen" aria-label="Fach oder Test suchen"></label>
+    <div id="results" hidden></div>
+    <div id="homeBody" class="home-body">
+      ${heroCard(focusTest())}
+      <section>
+        <h2>Deine Fächer</h2>
+        <div class="tiles">${st.subjects.map((s) => {
+          const tests = S.testsOf(s.id);
+          const n = st.cards.filter((c) => tests.some((t) => t.id === c.testId)).length;
+          return `<a class="tile-card" href="#/fach/${s.id}" data-tone="${tone(s.color)}">
+            <span class="tile-ico">${h(abbr(s.name))}</span>
+            <b>${h(s.name.split(/\s+[–-]\s+/)[1] || s.name)}</b>
+            <small>${tests.length ? `${plural(tests.length, 'Test', 'Tests')} · ${plural(n, 'Karte', 'Karten')}` : 'Noch kein Test'}</small>
+            <span class="pill">Öffnen</span></a>`;
+        }).join('')}
+          <button class="tile-card add" id="newSubject"><span class="tile-ico">+</span><b>Fach anlegen</b><small>Eigenes Fach</small></button>
+        </div>
+      </section>
+    </div>`;
   $('#newSubject').onclick = newSubject;
+  const find = $('#find'), res = $('#results'), body = $('#homeBody');
+  find.oninput = () => {
+    const q = find.value.trim().toLowerCase();
+    body.hidden = !!q; res.hidden = !q;
+    if (!q) return;
+    const subs = st.subjects.filter((s) => s.name.toLowerCase().includes(q));
+    const tests = st.tests.filter((t) => t.title.toLowerCase().includes(q));
+    res.innerHTML = `<div class="cards">${[
+      ...subs.map((s) => `<a class="item-card" href="#/fach/${s.id}"><span class="txt"><small>Fach</small><b>${h(s.name)}</b><span>${plural(S.testsOf(s.id).length, 'Test', 'Tests')}</span></span><span class="pill">Öffnen</span></a>`),
+      ...tests.map((t) => `<a class="item-card" href="#/test/${t.id}"><span class="txt"><small>${h(S.subject(t.subjectId)?.name || '')}</small><b>${h(t.title)}</b><span>${plural(S.cardsOf(t.id).length, 'Karte', 'Karten')}</span></span><span class="pill">Lernen</span></a>`),
+    ].join('') || '<p class="muted">Nichts gefunden.</p>'}</div>`;
+  };
 }
 
 function newSubject() {
@@ -2213,21 +2374,22 @@ function newSubject() {
   (fd) => { const s = S.addSubject(fd.get('name'), fd.get('color')); go(`#/fach/${s.id}`); });
 }
 
+const pageHead = (back, title, right = '') => `<header class="nav-head"><a class="icon-btn plain" href="${back}" aria-label="Zurück"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></a><h1>${title}</h1>${right}</header>`;
+
 // ---------- Fach ----------
 function viewSubject(id) {
   const s = S.subject(id);
   const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
   main.innerHTML = `
-    <a class="back" href="#/">‹ Fächer</a>
-    <header class="page-title"><h1><span class="mk" style="--c:${cvar(s.color)}">${h(s.name)}</span></h1><button class="btn small ghost" id="editS">Bearbeiten</button></header>
-    ${tests.length ? `<div class="list">${tests.map((t) => {
+    ${pageHead('#/', h(s.name), `<button class="icon-btn plain" id="editS" aria-label="Fach bearbeiten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></button>`)}
+    <p class="section-label">Deine Tests</p>
+    ${tests.length ? `<div class="cards">${tests.map((t) => {
       const cards = S.cardsOf(t.id); const { pct } = cardStats(cards);
-      return `<a class="row-link test" href="#/test/${t.id}">
-        <span class="txt"><b>${h(t.title)}</b><span class="small muted">${t.date ? `${fmtDate(new Date(t.date + 'T00:00'))} · ` : ''}${plural(cards.length, 'Karte', 'Karten')}</span>${cards.length ? bar(pct) : ''}</span>
-        ${t.date ? `<span class="margin-note">${countdownText(t.date)}</span>` : '<span class="chev" aria-hidden="true">›</span>'}</a>`;
-    }).join('')}</div>` : `<div class="sheet empty"><span class="margin-note">Welcher Test steht an?</span>
-      <p>Lege einen Test an und lade dann Arbeitsblätter oder Fotos hoch. Daraus macht die App Karteikarten, Quiz und einen Probetest.</p></div>`}
-    <button class="btn primary wide big" id="newTest">${ICON.plus} Test anlegen</button>`;
+      return `<a class="item-card" href="#/test/${t.id}">
+        <span class="txt"><small>${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))} · ${countdownText(t.date)}` : 'Test'}</small><b>${h(t.title)}</b><span>${plural(cards.length, 'Karte', 'Karten')} · ${pct} % sicher</span></span>
+        <span class="pill">Lernen</span></a>`;
+    }).join('')}</div>` : `<div class="item-card empty-card"><span class="txt"><b>Noch kein Test</b><span>Lege einen Test an und fotografiere dann deine Arbeitsblätter.</span></span></div>`}
+    <button class="btn primary big" id="newTest">+ Test anlegen</button>`;
   $('#newTest').onclick = () => openSheet(`<h2>Test anlegen</h2>
     <label class="field">Thema<input type="text" name="title" required placeholder="z. B. Kaufvertrag, Unit 3"></label>
     <label class="field">Datum <span class="muted small">(optional)</span><input type="date" name="date" min="${isoDate()}"></label>
@@ -2247,12 +2409,14 @@ function viewSubject(id) {
 const TABS = [['lernen', 'Lernen'], ['material', 'Material'], ['karten', 'Karten'], ['spick', 'Spickzettel']];
 function viewTest(id, tab) {
   const t = S.test(id); const s = S.subject(t.subjectId);
+  const cards = S.cardsOf(id); const { pct } = cardStats(cards);
   main.innerHTML = `
-    <a class="back" href="#/fach/${s.id}">‹ ${h(s.name)}</a>
-    <header class="test-head">
-      <h1>${h(t.title)}</h1>
-      <div class="row"><span class="muted small">${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))}` : 'Ohne Datum'}</span>${t.date ? `<span class="margin-note">${countdownText(t.date)}</span>` : ''}<button class="btn small ghost" id="editT">Bearbeiten</button></div>
-    </header>
+    ${pageHead(`#/fach/${s.id}`, h(s.name), `<button class="icon-btn plain" id="editT" aria-label="Test bearbeiten"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/></svg></button>`)}
+    <div class="module-card">
+      <span class="txt"><small>${t.date ? `Test am ${fmtDate(new Date(t.date + 'T00:00'))} · ${countdownText(t.date)}` : 'Test'}</small><b>${h(t.title)}</b><span>${plural(cards.length, 'Karte', 'Karten')} · ${pct} % sicher</span></span>
+      ${cards.length ? `<a class="arrow-btn" href="#/lernen/${id}/wiederholen" aria-label="Weiterlernen">${ARROW}</a>` : ''}
+      <div class="mbar"><i style="width:${pct}%"></i></div>
+    </div>
     <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}</a>`).join('')}</nav>
     <div id="tab" class="tabbody"></div>`;
   $('#editT').onclick = () => openSheet(`<h2>Test bearbeiten</h2>
@@ -2267,31 +2431,35 @@ function viewTest(id, tab) {
   ({ lernen: tabLearn, material: tabMaterial, karten: tabCards, spick: tabCheat }[tab] || tabLearn)(el, t);
 }
 
+const MODE_TONE = { karteikarten: 'gelb', quiz: 'blau', wahrfalsch: 'pink', lueckentext: 'orange', zuordnen: 'gruen', schreiben: 'blau' };
+const MODE_SHORT = {
+  karteikarten: 'Umdrehen und ehrlich bewerten', quiz: 'Eine von vier ist richtig', wahrfalsch: 'Stimmt die Aussage?',
+  lueckentext: 'Fehlendes Wort eintippen', zuordnen: 'Begriff und Erklärung verbinden', schreiben: 'Frei antworten, vergleichen',
+};
+
 function tabLearn(el, t) {
   const cards = S.cardsOf(t.id);
   if (!cards.length) {
-    el.innerHTML = `<div class="sheet empty"><span class="margin-note">Erst Material, dann lernen</span>
-      <p>Fotografiere deine Arbeitsblätter oder lade PDF/Word-Dateien hoch.</p>
-      <a class="btn primary" href="#/test/${t.id}/material">${ICON.upload} Material hochladen</a></div>`;
+    el.innerHTML = `<div class="item-card empty-card"><span class="txt"><b>Erst Material, dann lernen</b><span>Fotografiere deine Arbeitsblätter oder lade PDF/Word-Dateien hoch.</span></span></div>
+      <a class="btn primary big" href="#/test/${t.id}/material">Material hochladen</a>`;
     return;
   }
-  const { sure, pct, due } = cardStats(cards);
   const stars = cards.filter((c) => c.star);
   const last = S.resultsOf(t.id).at(-1);
-  const ring = 2 * Math.PI * 34;
   el.innerHTML = `
-    <div class="progress-row">
-      <svg class="ring" viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34" class="ring-bg"/><circle cx="40" cy="40" r="34" class="ring-fg" stroke-dasharray="${ring}" stroke-dashoffset="${ring * (1 - pct / 100)}"/><text x="40" y="46" text-anchor="middle">${pct}%</text></svg>
-      <div><b>${sure} von ${cards.length} Karten sicher</b><div class="muted small">${due ? `${due} heute dran` : 'Für heute alles wiederholt'}${last ? ` · letzter Probetest: Note ${last.grade}` : ''}</div></div>
-    </div>
-    <a class="btn primary big" href="#/lernen/${t.id}/wiederholen">${sure ? 'Weiterlernen' : 'Loslernen'}</a>
-    ${stars.length ? `<section><h2>Wichtig für den Test</h2><div class="stars">
-      ${stars.map((c) => `<details class="sheet star-q"><summary><span class="star-icon" aria-hidden="true">★</span><span>${h(c.q)}</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
+    ${stars.length ? `<section><p class="section-label">Kommt im Test dran</p><div class="cards">
+      ${stars.map((c, i) => `<details class="item-card star-q"><summary><span class="txt"><small>Frage ${i + 1}</small><b>${h(c.q)}</b></span><span class="pill">Antwort</span></summary><div class="star-a">${h(c.a)}</div></details>`).join('')}
       </div></section>` : ''}
-    <section><h2>Üben</h2><div class="mode-list">
-      ${MODES.filter((m) => m.key !== 'wiederholen').map((m) => `<a class="mode-row ${m.key === 'probetest' ? 'exam' : ''}" href="#/lernen/${t.id}/${m.key}" style="--c:var(--m-${m.color})" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
-        <span class="ico">${ICON[m.icon]}</span><span class="txt"><b>${m.title}</b><span>${m.text}</span></span><span class="chev" aria-hidden="true">›</span></a>`).join('')}
-    </div></section>`;
+    <section><p class="section-label">Üben</p>
+      <div class="tiles">
+        ${MODES.filter((m) => !['wiederholen', 'probetest'].includes(m.key)).map((m) => `<a class="tile-card" data-tone="${MODE_TONE[m.key]}" href="#/lernen/${t.id}/${m.key}" ${modeAvailable(m.key, cards) ? '' : 'aria-disabled="true"'}>
+          <span class="tile-ico">${ICON[m.icon]}</span><b>${m.title}</b><small>${MODE_SHORT[m.key]}</small><span class="pill">Starten</span></a>`).join('')}
+      </div>
+      <a class="exam-card" href="#/lernen/${t.id}/probetest" ${modeAvailable('probetest', cards) ? '' : 'aria-disabled="true"'}>
+        <span class="tile-ico">${ICON.exam}</span>
+        <span class="txt"><b>Probetest</b><small>${last ? `Letzte Note: ${last.grade} (${h(last.gradeText || '')})` : 'Gemischte Aufgaben mit Note nach IHK-Schlüssel'}</small></span>
+        <span class="arrow-btn">${ARROW}</span></a>
+    </section>`;
 }
 
 // Material
@@ -2305,8 +2473,8 @@ function tabMaterial(el, t) {
       <p class="small muted">PDF, Word, PowerPoint, Text oder Fotos. Wird nur auf deinem Handy gelesen, nichts wird hochgeladen.</p>
     </div>
     <div id="progress"></div>
-    <section><h2>Dokumente</h2>
-      ${docs.length ? `<div class="list">${docs.map((d) => `<div class="row-link doc">
+    <section><p class="section-label">Dokumente</p>
+      ${docs.length ? `<div class="cards">${docs.map((d) => `<div class="item-card doc">
         <span class="txt"><b>${h(d.name)}</b><span class="small muted">${plural(S.get().cards.filter((c) => c.docId === d.id).length, 'Karte', 'Karten')}</span></span>
         <span class="row"><button class="btn small" data-read="${d.id}">Lesen</button><button class="btn small ghost" data-del="${d.id}" aria-label="Entfernen">✕</button></span></div>`).join('')}</div>` : '<p class="muted">Noch keine Dokumente.</p>'}
     </section>`;
@@ -2429,7 +2597,7 @@ function tabCheat(el, t) {
 function viewMore() {
   const theme = (() => { try { return localStorage.getItem('lernapp.theme') || 'auto'; } catch { return 'auto'; } })();
   main.innerHTML = `
-    <header class="page-title"><h1>Mehr</h1></header>
+    <header class="nav-head"><h1>Mehr</h1></header>
     <section class="sheet pad stack">
       <h2>Sicherung</h2>
       <p class="muted">Dein Lernstand liegt nur in diesem Browser. Lade ab und zu eine Sicherung herunter – z. B. bevor du den Browser-Verlauf löschst oder das Handy wechselst.</p>

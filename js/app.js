@@ -27,7 +27,7 @@ function route() {
 window.addEventListener('hashchange', route);
 export const go = (hash) => { if (location.hash === hash) route(); else location.hash = hash; };
 
-// ---------- Seitenleiste ----------
+// ---------- Seitenleiste (wie die Seitenleiste in macOS-Apps) ----------
 const NAV_ICON = {
   home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>',
   repeat: ICON.repeat,
@@ -40,15 +40,21 @@ function renderRail(parts) {
   const cur = parts[0] === 'fach' ? parts[1] : ['test', 'lernen'].includes(parts[0]) ? S.test(parts[1])?.subjectId : null;
   const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
   rail.innerHTML = `
-    <a class="brand" href="#/"><span class="avatar" aria-hidden="true">L</span><b>LernApp</b></a>
-    <a class="nav" href="#/" ${!parts.length ? 'aria-current="page"' : ''}>${NAV_ICON.home}Übersicht</a>
-    <a class="nav" href="#/lernen/alle/wiederholen">${NAV_ICON.repeat}Wiederholen${due ? `<span class="count">${due}</span>` : ''}</a>
-    <div class="rail-head">Fächer</div>
-    ${st.subjects.map((s) => `<a class="nav subj" href="#/fach/${s.id}" data-tone="${V.tone(s.color)}" ${cur === s.id ? 'aria-current="page"' : ''}><span class="dot-ico">${h(V.abbr(s.name))}</span><span class="nm">${h(V.longName(s.name))}</span></a>`).join('')}
-    <button class="nav add" data-act="new-subject"><span class="dot-ico">+</span>Fach anlegen</button>
+    <a class="brand" href="#/"><span class="app-ico lg brand-ico" aria-hidden="true">${NAV_ICON.home}</span><b>LernApp</b></a>
+    <nav class="side-list">
+      <a class="side-row" href="#/" ${!parts.length ? 'aria-current="page"' : ''}><span class="app-ico" data-tone="blau">${NAV_ICON.home}</span>Übersicht</a>
+      <a class="side-row" href="#/lernen/alle/wiederholen"><span class="app-ico" data-tone="gruen">${NAV_ICON.repeat}</span>Wiederholen${due ? `<span class="badge">${due}</span>` : ''}</a>
+    </nav>
+    <p class="side-head">Fächer</p>
+    <nav class="side-list">
+      ${st.subjects.map((s) => `<a class="side-row" href="#/fach/${s.id}" ${cur === s.id ? 'aria-current="page"' : ''}>${V.subjectIcon(s)}<span class="nm">${h(V.longName(s.name))}</span></a>`).join('')}
+      <button class="side-row add" data-act="new-subject"><span class="app-ico add">${V.PLUS}</span>Fach anlegen</button>
+    </nav>
     <div class="spacer"></div>
-    <a class="nav" href="handy/">${NAV_ICON.phone}Handy-Version</a>
-    <a class="nav" href="#/einstellungen" ${parts[0] === 'einstellungen' ? 'aria-current="page"' : ''}>${NAV_ICON.gear}Sicherung &amp; Einstellungen</a>`;
+    <nav class="side-list">
+      <a class="side-row" href="handy/"><span class="app-ico" data-tone="grau">${NAV_ICON.phone}</span>Handy-Version</a>
+      <a class="side-row" href="#/einstellungen" ${parts[0] === 'einstellungen' ? 'aria-current="page"' : ''}><span class="app-ico" data-tone="grau">${NAV_ICON.gear}</span>Einstellungen</a>
+    </nav>`;
   if (!$('.menu-btn')) {
     const b = document.createElement('button');
     b.className = 'btn menu-btn small'; b.innerHTML = `${ICON.menu} Menü`; b.setAttribute('aria-controls', 'rail');
@@ -58,37 +64,35 @@ function renderRail(parts) {
 }
 
 // ---------- Übersicht ----------
+const WD = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 function viewHome() {
   const st = S.get();
+  const now = new Date();
   const due = st.cards.filter((c) => S.isDue(c.id) && S.progressOf(c.id).last).length;
   const fresh = st.cards.filter((c) => !S.progressOf(c.id).last).length;
-  const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
+  const sure = st.cards.filter((c) => S.progressOf(c.id).box >= 3).length;
   const streak = S.streakDays();
+  const upcoming = st.tests.filter((t) => t.date && daysUntil(t.date) >= 0).sort((a, b) => a.date.localeCompare(b.date));
   main.innerHTML = `
-    <header class="top">
-      <span class="hello"><small>Willkommen zurück,</small><b>Deine LernApp</b></span>
-      <label class="search">${V.SEARCH}<input type="search" id="find" placeholder="Fach oder Test suchen" aria-label="Fach oder Test suchen"></label>
-      <a class="icon-btn" href="#/lernen/alle/wiederholen" aria-label="Wiederholen${due ? `, ${due} Karten fällig` : ''}">${V.BELL}${due ? `<span class="dot">${due > 99 ? '99+' : due}</span>` : ''}</a>
+    <header class="page-head pc-head">
+      <div><p class="eyebrow">${WD[now.getDay()]}, ${now.getDate()}. ${MON[now.getMonth()]}</p><h1 class="large-title">Übersicht</h1></div>
+      <label class="search">${V.SEARCH}<input type="search" id="find" placeholder="Fächer und Tests durchsuchen" aria-label="Fächer und Tests durchsuchen"></label>
     </header>
     <div id="results" hidden></div>
-    <div id="homeBody" class="home-body">
-      <div class="home-top">
-        ${V.heroCard(V.focusTest())}
-        <div class="side-stack">
-          <a class="item-card stat" href="#/lernen/alle/wiederholen">
-            <span class="txt"><small>Heute dran</small><b class="big-num">${due || fresh}</b><span>${due ? 'Karten wiederholen' : fresh ? 'neue Karten lernen' : 'Lade Material hoch'}${streak ? ` · ${streak} ${streak === 1 ? 'Tag' : 'Tage'} am Stück` : ''}</span></span>
-            <span class="arrow-btn">${V.ARROW}</span></a>
-          <div class="cards">
-            ${upcoming.slice(0, 3).map(V.testCard).join('') || `<div class="item-card empty-card"><span class="txt"><b>Kein Test mit Datum</b><span>Öffne ein Fach und lege einen Test an.</span></span></div>`}
-          </div>
+    <div id="homeBody" class="stack-l">
+      <div class="home-grid">
+        ${V.focusCard(V.focusTest())}
+        <div class="stack-l">
+          <a class="stats" href="#/lernen/alle/wiederholen" aria-label="Wiederholen">
+            <span><b>${due || fresh}</b><small>${due ? 'heute fällig' : 'neue Karten'}</small></span>
+            <span><b>${sure}</b><small>sicher gelernt</small></span>
+            <span><b>${streak}</b><small>${streak === 1 ? 'Tag' : 'Tage'} am Stück</small></span>
+          </a>
+          ${upcoming.length ? V.group('Nächste Tests', upcoming.slice(0, 3).map(V.testCell).join('')) : V.group('Nächste Tests', V.cell({ title: 'Kein Test mit Datum', sub: 'Öffne ein Fach und lege einen Test mit Datum an.', chev: false }))}
         </div>
       </div>
-      <section>
-        <h2>Deine Fächer</h2>
-        <div class="tiles">${st.subjects.map(V.subjectTile).join('')}
-          <button class="tile-card add" data-act="new-subject"><span class="tile-ico">+</span><b>Fach anlegen</b><small>Eigenes Fach</small></button>
-        </div>
-      </section>
+      ${V.group('Fächer', st.subjects.map(V.subjectCell).join('') + V.cell({ act: 'new-subject', icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Fach anlegen</span>', chev: false }))}
     </div>`;
   const find = $('#find'), res = $('#results'), body = $('#homeBody');
   find.oninput = () => {
@@ -98,16 +102,17 @@ function viewHome() {
   };
 }
 
-const pageHead = (back, title, right = '') => `<header class="nav-head"><a class="icon-btn plain" href="${back}" aria-label="Zurück">${V.BACK}</a><h1>${title}</h1><div class="row">${right}</div></header>`;
+const crumb = (href, label) => `<a class="nav-back" href="${href}">${V.BACK}<span>${h(label)}</span></a>`;
 
 // ---------- Fach ----------
 function viewSubject(id) {
   const s = S.subject(id);
   const tests = S.testsOf(id).sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
   main.innerHTML = `
-    ${pageHead('#/', h(s.name), `<button class="btn ghost" data-act="edit-subject" data-id="${id}">Fach bearbeiten</button><button class="btn primary" data-act="new-test" data-id="${id}">+ Test anlegen</button>`)}
-    <p class="section-label">Deine Tests</p>
-    ${tests.length ? `<div class="cards grid2">${tests.map(V.testCard).join('')}</div>` : `<div class="item-card empty-card"><span class="txt"><b>Noch kein Test</b><span>Ein Test sammelt alles, was du dafür lernen musst: Dokumente, Karten und deine Probetest-Ergebnisse.</span></span></div>`}`;
+    <div class="pc-bar">${crumb('#/', 'Übersicht')}<span class="row"><button class="btn small" data-act="edit-subject" data-id="${id}">Bearbeiten</button><button class="btn small primary" data-act="new-test" data-id="${id}">${V.PLUS} Test anlegen</button></span></div>
+    <header class="page-head subject-head">${V.subjectIcon(s, 'lg')}<h1 class="large-title">${h(V.longName(s.name))}</h1></header>
+    ${V.group('Tests', tests.map(V.testCell).join('') + V.cell({ act: 'new-test', id, icon: `<span class="app-ico add" aria-hidden="true">${V.PLUS}</span>`, title: '<span class="link">Test anlegen</span>', chev: false }),
+      tests.length ? '' : 'Ein Test sammelt alles, was du dafür lernen musst: Dokumente, Karten und deine Probetest-Ergebnisse.')}`;
 }
 
 // ---------- Test ----------
@@ -118,10 +123,10 @@ function viewTest(id, tab) {
   const s = S.subject(t.subjectId);
   const cards = S.cardsOf(id);
   main.innerHTML = `
-    ${pageHead(`#/fach/${s.id}`, h(s.name), `<button class="btn ghost" data-act="edit-test" data-id="${id}">Test bearbeiten</button>`)}
-    ${V.moduleCard(t)}
+    <div class="pc-bar">${crumb(`#/fach/${s.id}`, V.longName(s.name))}<span class="row"><button class="btn small" data-act="edit-test" data-id="${id}">Bearbeiten</button></span></div>
+    ${V.testHeader(t)}
     <nav class="seg" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" aria-current="${k === tab ? 'page' : 'false'}">${l}${k === 'karten' ? ` (${cards.length})` : ''}</a>`).join('')}</nav>
-    <div id="tab" class="tabbody"></div>`;
+    <div id="tab" class="stack-l"></div>`;
   const el = $('#tab');
   ({ lernen: tabLearn, material: tabMaterial, karten: tabCards, spickzettel: tabCheat, ergebnisse: tabResults }[tab] || tabLearn)(el, t);
 }
@@ -129,13 +134,13 @@ function viewTest(id, tab) {
 function tabLearn(el, t) {
   const cards = S.cardsOf(t.id);
   if (!cards.length) {
-    el.innerHTML = `<div class="item-card empty-card"><span class="txt"><b>Erst Material, dann lernen</b><span>Lade Arbeitsblätter, Mitschriften (PDF, Word, PowerPoint) oder Fotos hoch. Daraus entstehen automatisch Karten und Übungen.</span></span></div>
-      <a class="btn primary big" href="#/test/${t.id}/material">${ICON.upload} Material hochladen</a>`;
+    el.innerHTML = `<div class="empty"><p class="empty-title">Noch keine Karten</p><p>Lade Arbeitsblätter, Mitschriften (PDF, Word, PowerPoint) oder Fotos hoch. Daraus entstehen die Abfragen.</p>
+      <a class="btn primary big" href="#/test/${t.id}/material">Material hinzufügen</a></div>`;
     return;
   }
   const known = cards.filter((c) => S.progressOf(c.id).box >= 3).length;
-  el.innerHTML = V.learnHtml(t) +
-    (t.date && daysUntil(t.date) >= 0 ? `<section><div class="section-title"><p class="section-label">Lernplan bis zum Test</p><span class="muted small">${known} von ${cards.length} Karten sicher</span></div>${planHtml(t, cards)}</section>` : '');
+  el.innerHTML = `<div class="learn-grid">${V.learnHtml(t)}</div>` +
+    (t.date && daysUntil(t.date) >= 0 ? `<section class="group"><h2 class="group-title">Lernplan bis zum Test</h2>${planHtml(t, cards)}<p class="group-foot">${known} von ${cards.length} Karten sicher</p></section>` : '');
 }
 
 function planHtml(t, cards) {

@@ -347,6 +347,12 @@ function setTheme(k) {
 }
 try { setTheme(localStorage.getItem('lernapp.theme') || 'auto'); } catch {}
 
+// Tippen neben das Blatt schließt es
+sheet.addEventListener('click', (e) => {
+  if (e.target !== sheet) return;
+  const r = sheet.getBoundingClientRect();
+  if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) sheet.close();
+});
 document.addEventListener('lernapp:savefail', () => toast('Speichern nicht möglich – Speicher voll oder privater Modus.'));
 migrate();
 route();

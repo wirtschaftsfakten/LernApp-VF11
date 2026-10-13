@@ -544,6 +544,12 @@ document.addEventListener('click', (e) => {
   ACTIONS[b.dataset.act]?.(b.dataset.id);
 });
 
+// Tippen neben das Blatt schließt es
+dlg.addEventListener('click', (e) => {
+  if (e.target !== dlg) return;
+  const r = dlg.getBoundingClientRect();
+  if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) dlg.close();
+});
 document.addEventListener('lernapp:savefail', () => toast('Speichern fehlgeschlagen – Browser-Speicher voll. Alte Dokumente löschen oder Sicherung machen.'));
 migrate();
 route();

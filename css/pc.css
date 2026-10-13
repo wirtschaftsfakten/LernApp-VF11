@@ -114,3 +114,5 @@ table.results th { font: 500 12px var(--font); color: var(--stone); }
 @media (max-width: 860px) { .rv-hero .rv-actions { gap: 4px; } }
 .rv-actions { flex-wrap: nowrap; }
 .rv-action { width: auto; min-width: 64px; flex: 0 1 76px; }
+.question #act { left: 248px; }
+@media (max-width: 860px) { .question #act { left: 0; } }

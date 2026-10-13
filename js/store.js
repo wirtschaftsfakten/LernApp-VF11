@@ -13,7 +13,7 @@ const empty = () => ({
   streak: { last: null, days: 0 },
   events: [],     // Lernaktivität: {t, c: cardId, test, ok: 1|0|0.5} – Grundlage für Lernzeit, Sessions, Heatmap
   tasks: [],      // eigene Aufgaben im Planer: {id, title, date, prio, testId, done}
-  prefs: { name: '', dailyGoal: 20, weeklyGoalMin: 120, examSize: 10 },
+  prefs: { name: '', dailyGoal: 20, weeklyGoalMin: 120, examSize: 10, theme: 'light' },
 });
 
 let state = load();

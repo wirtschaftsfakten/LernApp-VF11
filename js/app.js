@@ -53,6 +53,16 @@ function barChart(data, { unit = 'min', height = 140 } = {}) {
   </div>`;
 }
 
+// ---------- Farbschema ----------
+const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+const isDark = () => { const t = S.get().prefs.theme || 'light'; return t === 'dark' || (t === 'auto' && darkQuery.matches); };
+function applyTheme() {
+  document.documentElement.dataset.theme = S.get().prefs.theme || 'light';
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark() ? '#0A111D' : '#F8FBFE');
+}
+darkQuery.addEventListener?.('change', () => { applyTheme(); });
+const modeBtn = () => `<button class="mode-btn" data-act="toggle-theme" aria-label="${isDark() ? 'Helles Design' : 'Dunkles Design'}" title="${isDark() ? 'Helles Design' : 'Dunkles Design'}">${isDark() ? I.sun : I.moon}</button>`;
+
 // ---------- Layout ----------
 const NAV = [
   ['', 'Dashboard', 'dashboard'], ['faecher', 'Fächer', 'subjects'], ['lesen', 'Lernen', 'learn'], ['quiz', 'Quiz', 'quiz'],
@@ -75,10 +85,10 @@ function renderNav(view) {
     <nav class="nav" aria-label="Hauptnavigation">
       ${NAV.map(([k, l, ic]) => `<a href="#/${k}" class="nav-item" ${cur === k ? 'aria-current="page"' : ''}>${I[ic]}<span>${l}</span></a>`).join('')}
     </nav>
-    <a class="userbox" href="#/einstellungen">
+    <div class="side-foot"><a class="userbox" href="#/einstellungen">
       <span class="avatar">${h((p.name || 'L').trim().charAt(0).toUpperCase())}</span>
       <span class="userbox-txt"><b>${h(p.name || 'Profil einrichten')}</b><small>${streak ? `${I.flame}${streak} ${streak === 1 ? 'Tag' : 'Tage'} Lernserie` : 'Name und Ziele festlegen'}</small></span>
-    </a>`;
+    </a>${modeBtn()}</div>`;
   bottom.innerHTML = BOTTOM.map((k) => { const n = NAV.find((x) => x[0] === k); return `<a href="#/${k}" ${cur === k ? 'aria-current="page"' : ''}>${I[n[2]]}<span>${n[1]}</span></a>`; }).join('');
 }
 
@@ -101,7 +111,7 @@ window.addEventListener('hashchange', route);
 const go = (hash) => { if (location.hash === hash) route(); else location.hash = hash; };
 
 const pageHead = (title, sub = '', right = '') => `<header class="page-head"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ''}</div>${right ? `<div class="page-actions">${right}</div>` : ''}</header>`;
-const mobileBar = () => `<div class="mobile-bar"><button class="icon-btn" data-act="menu" aria-label="Menü">${I.menu}</button><a class="logo" href="#/"><span class="logo-mark">${I.learn}</span><span>LernApp</span></a><a class="avatar sm" href="#/einstellungen" aria-label="Einstellungen">${h((S.get().prefs.name || 'L').charAt(0).toUpperCase())}</a></div>`;
+const mobileBar = () => `<div class="mobile-bar"><button class="icon-btn" data-act="menu" aria-label="Menü">${I.menu}</button><a class="logo" href="#/"><span class="logo-mark">${I.learn}</span><span>LernApp</span></a><span class="mobile-right">${modeBtn()}<a class="avatar sm" href="#/einstellungen" aria-label="Einstellungen">${h((S.get().prefs.name || 'L').charAt(0).toUpperCase())}</a></span></div>`;
 const render = (html) => { main.innerHTML = mobileBar() + html; };
 
 // Aktueller Test für Lernen/Quiz/Karteikarten
@@ -674,6 +684,7 @@ function viewSettings() {
         <label class="field">Tagesziel<span class="input-unit"><input type="number" name="dailyGoal" min="5" max="500" step="5" value="${p.dailyGoal}"><span>Karten pro Tag</span></span></label>
         <label class="field">Wochenziel<span class="input-unit"><input type="number" name="weeklyGoalMin" min="15" max="2000" step="15" value="${p.weeklyGoalMin}"><span>Minuten pro Woche</span></span></label>
         <button class="btn primary">Ziele speichern</button></form>`, { cls: 'span-6' })}
+      ${card('Darstellung', `<div class="pad-x"><div class="theme-toggle" role="group" aria-label="Farbschema">${[['light', 'Hell', 'sun'], ['dark', 'Dunkel', 'moon'], ['auto', 'Automatisch', 'monitor']].map(([k, l, ic]) => `<button data-theme-set="${k}" aria-pressed="${(p.theme || 'light') === k}">${I[ic]}${l}</button>`).join('')}</div><p class="hint" style="margin-top:12px">„Automatisch“ folgt der Einstellung deines Geräts.</p></div>`, { cls: 'span-12' })}
       ${card('Daten & Sicherung', `<div class="list">
         <button class="list-row" data-act="backup"><span class="row-ico">${I.download}</span><span class="lr-txt"><b>Sicherung herunterladen</b><small>Alle Fächer, Karten und Fortschritte (${kb} KB). Originalfotos sind nicht enthalten.</small></span>${I.right}</button>
         <label class="list-row"><span class="row-ico">${I.upload}</span><span class="lr-txt"><b>Sicherung laden</b><small>Von einem anderen Gerät übernehmen</small></span>${I.right}<input type="file" accept=".json,application/json" id="restore" hidden></label>
@@ -681,6 +692,7 @@ function viewSettings() {
       </div>`, { cls: 'span-6', sub: 'Deine Daten liegen nur in diesem Browser.' })}
       ${card('Gefahrenzone', `<p class="muted pad-x">Entfernt alle Fächer, Tests, Dokumente, Karten, Aufgaben und Statistiken (${plural(st.cards.length, 'Karte', 'Karten')}).</p><div class="pad-x"><button class="btn danger" data-act="reset">${I.trash}<span>Alles löschen</span></button></div>`, { cls: 'span-6' })}
     </div>`);
+  $$('[data-theme-set]').forEach((b) => b.onclick = () => { S.setPrefs({ theme: b.dataset.themeSet }); applyTheme(); route(); });
   $('#profile').onsubmit = (e) => { e.preventDefault(); S.setPrefs({ name: new FormData(e.target).get('name').trim() }); toast('Gespeichert'); route(); };
   $('#goals').onsubmit = (e) => {
     e.preventDefault(); const fd = new FormData(e.target);
@@ -716,6 +728,7 @@ function confirmDialog(text, label, action) {
 
 const ACTIONS = {
   menu() { document.body.classList.toggle('nav-open'); },
+  'toggle-theme'() { S.setPrefs({ theme: isDark() ? 'light' : 'dark' }); applyTheme(); route(); },
   'new-subject'() {
     const used = S.get().subjects.map((s) => s.color);
     openDialog(`<h2>Neues Fach</h2>
@@ -846,7 +859,7 @@ dlg.addEventListener('click', (e) => {
   if (e.clientY < r.top || e.clientY > r.bottom || e.clientX < r.left || e.clientX > r.right) dlg.close();
 });
 document.addEventListener('lernapp:savefail', () => toast('Speichern fehlgeschlagen – Browser-Speicher voll. Alte Dokumente löschen oder Sicherung machen.'));
-// Dunkles Design gibt es nicht mehr – alte Einstellung entfernen
 try { localStorage.removeItem('lernapp.theme'); } catch {}
+applyTheme();
 migrate();
 route();

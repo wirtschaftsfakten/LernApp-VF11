@@ -2,6 +2,7 @@
 import * as S from './store.js';
 import { generate } from './gen.js';
 import { BEISPIEL, ENGLISCH_READING, FAECHER, KURZARBEIT } from './beispiel.js';
+import { ENGLISCH_UNTERRICHT, SVV_KFZ } from './unterricht.js';
 
 export function addGenerated(testId, doc) {
   const gen = generate(doc.text, { highlights: doc.highlights || [] });
@@ -79,19 +80,30 @@ export function migrate() {
     }
     st.setup.blaetterV1 = true;
   }
-  // Espresso-English-Lektion an den Englisch-Test hängen (nächster anstehender, sonst der neueste)
+  // Fertiges Unterrichtsmaterial an den Test des Fachs hängen
   if (!st.setup.englischReadingV1) {
-    const E = ENGLISCH_READING;
-    const s = st.subjects.find((x) => x.name === E.subject);
-    if (s) {
-      const today = new Date().toISOString().slice(0, 10);
-      const tests = S.testsOf(s.id);
-      const t = tests.filter((x) => x.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
-        || tests.sort((a, b) => b.createdAt - a.createdAt)[0]
-        || S.addTest(s.id, E.test.title, '', E.test.notes);
-      if (!S.docsOf(t.id).some((d) => d.name === E.name)) addBeispielDoc(t.id, E);
-    }
+    attachToSubjectTest(ENGLISCH_READING.subject, ENGLISCH_READING.test.title, [ENGLISCH_READING]);
     st.setup.englischReadingV1 = true;
   }
+  if (!st.setup.englischHabitsV1) {
+    attachToSubjectTest(ENGLISCH_UNTERRICHT.subject, ENGLISCH_UNTERRICHT.testTitle, ENGLISCH_UNTERRICHT.docs);
+    st.setup.englischHabitsV1 = true;
+  }
+  if (!st.setup.svvKfzV1) {
+    attachToSubjectTest(SVV_KFZ.subject, SVV_KFZ.testTitle, SVV_KFZ.docs);
+    st.setup.svvKfzV1 = true;
+  }
   S.save();
+}
+
+// Nächster anstehender Test des Fachs, sonst der neueste, sonst ein neuer
+function attachToSubjectTest(subjectName, testTitle, docs) {
+  const s = S.get().subjects.find((x) => x.name === subjectName);
+  if (!s) return;
+  const today = new Date().toISOString().slice(0, 10);
+  const tests = S.testsOf(s.id);
+  const t = tests.filter((x) => x.date >= today).sort((a, b) => a.date.localeCompare(b.date))[0]
+    || [...tests].sort((a, b) => b.createdAt - a.createdAt)[0]
+    || S.addTest(s.id, testTitle, '');
+  for (const bd of docs) if (!S.docsOf(t.id).some((d) => d.name === bd.name)) addBeispielDoc(t.id, bd);
 }

@@ -549,6 +549,17 @@ body.in-session #main { max-width: 860px; margin: 0 auto; }
 .feedback.no { background: var(--bad-soft); }
 .feedback.no b { color: var(--bad); }
 .feedback .src { margin-top: 6px; font-size: 13px; color: var(--muted); }
+/* Berichtigung: falsch durchgestrichen, richtig darunter */
+.fix { display: grid; gap: 6px; margin-top: 8px; font-size: 14.5px; text-align: left; }
+.fix-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 8px 12px; border-radius: var(--r-sm); background: var(--card); }
+.fix-row.no s { color: var(--bad); text-decoration-thickness: 2px; }
+.fix-row.ok { box-shadow: inset 3px 0 0 var(--ok); }
+.fix-right { color: var(--ok); font-weight: 700; }
+.fix-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.fix-why { font-size: 13.5px; color: var(--ink); padding: 0 2px; }
+.fix-doc { font-size: 13px; color: var(--muted); padding: 0 2px; }
+a.fix-doc { color: var(--accent-text); font-weight: 600; text-decoration: none; }
+@media (max-width: 560px) { .fix-row { grid-template-columns: 1fr; gap: 2px; } }
 #fb .row.end { margin-top: 14px; display: flex; justify-content: flex-end; }
 #act { display: flex; justify-content: flex-end; }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }

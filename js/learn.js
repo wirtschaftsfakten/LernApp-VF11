@@ -196,6 +196,21 @@ function distractors(card, ctx, n = 3) {
 function questionHtml(c) {
   return isCloze(c) ? h(c.q).replace('_____', '<span class="gap">&nbsp;</span>') : h(c.q);
 }
+// Berichtigung: falsche Antwort durchgestrichen, darunter die richtige und warum
+function fixHtml(c, ctx, { given = '', right = c.a, note = '', full = false, link = false } = {}) {
+  const other = given && given !== right ? ctx.cards.find((x) => x.id !== c.id && x.a === given) : null;
+  const doc = c.docId ? S.get().docs.find((d) => d.id === c.docId) : null;
+  return `<div class="fix">
+    ${given ? `<div class="fix-row no"><span class="fix-label">Deine Antwort</span><s>${h(given)}</s></div>` : ''}
+    <div class="fix-row ok"><span class="fix-label">Richtig</span><span class="fix-right">${h(right)}</span></div>
+    ${note ? `<div class="fix-why">${note}</div>` : ''}
+    ${other ? `<div class="fix-why">Warum falsch? Deine Antwort gehört zu „${h(other.q)}“, nicht zu dieser Frage.</div>` : ''}
+    ${full && right !== c.a ? `<div class="fix-why">Vollständige Antwort: ${h(c.a)}</div>` : ''}
+    ${sourceHtml(c)}
+    ${doc ? (link ? `<a class="fix-doc" href="#/lesen/${doc.testId}/${doc.id}">Nachlesen: ${h(doc.name)} →</a>` : `<div class="fix-doc">Steht in: ${h(doc.name)}</div>`) : ''}
+  </div>`;
+}
+
 function sourceHtml(c) {
   return c.source && !c.source.startsWith('Antwort aus') && c.source !== c.q ? `<div class="src">Aus dem Text: „${h(c.source.length > 260 ? c.source.slice(0, 260) + '…' : c.source)}“</div>` : '';
 }
@@ -290,16 +305,16 @@ function runChoice(ctx, list) {
   let i = 0, right = 0;
   const wrongs = [];
   const next = () => { i++; show(); };
-  const after = (stage, ok, c, given, extra = '') => {
-    if (ok) right++; else wrongs.push({ c, given });
+  const after = (stage, ok, c, fix = {}) => {
+    if (ok) right++; else wrongs.push({ c, fix });
     if (c.id) S.grade(c.id, ok);
-    $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Nicht ganz.'}</b> ${extra}${sourceHtml(c)}</div>
+    $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Nicht ganz – so ist es richtig:'}</b>${ok ? sourceHtml(c) : fixHtml(c, ctx, fix)}</div>
       <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
     $('#next').onclick = next;
     $('#next').focus();
   };
   const show = () => {
-    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
+    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs, ctx));
     const item = list[i];
     const { c, multi } = item;
     if (item.tf) {
@@ -315,7 +330,10 @@ function runChoice(ctx, list) {
       const pick = (v) => {
         if (done) return; done = true;
         $$('[data-v]', stage).forEach((b) => b.disabled = true);
-        after(stage, v === truth, { ...c, q: text, a: truth ? 'wahr' : (c.id ? `falsch – richtig: ${c.a}` : 'falsch') }, v ? 'wahr' : 'falsch', `Die Aussage ist ${truth ? 'wahr' : 'falsch'}.${!truth && c.id ? ` Richtig: ${h(c.a)}` : ''}`);
+        const fix = truth
+          ? { right: text, note: 'Die Aussage stimmt – du hast „falsch“ gewählt.' }
+          : { given: text, right: c.id ? c.a : c.a.replace(/^falsch – /, ''), note: 'Die Aussage ist falsch.' };
+        after(stage, v === truth, { ...c, q: text, a: truth ? 'wahr' : (c.id ? `falsch – richtig: ${c.a}` : 'falsch') }, fix);
       };
       $$('[data-v]', stage).forEach((b) => b.onclick = () => pick(b.dataset.v === '1'));
       onKey((e) => { const k = e.key.toLowerCase(); if (k === 'w') pick(true); else if (k === 'f') pick(false); });
@@ -341,7 +359,13 @@ function runChoice(ctx, list) {
         const ok = multiScore(multi, sel) === 1;
         $('#mbox', stage).innerHTML = multiHtml(multi, sel, true);
         $('#act', stage).hidden = true;
-        after(stage, ok, c, [...sel].map((k) => multi.options[k].t).join(', ') || '–', ok ? '' : `${hit} von ${nOk} richtigen gefunden. Grün umrandet = hättest du ankreuzen müssen.`);
+        const bad = multi.options.filter((o, k) => !o.ok && sel.has(k)).map((o) => o.t);
+        after(stage, ok, c, {
+          given: bad.join(' · '),
+          right: multi.options.filter((o) => o.ok).map((o) => o.t).join(' · '),
+          note: `${hit} von ${nOk} richtigen gefunden${bad.length ? `, ${plural(bad.length, 'falsches Kreuz', 'falsche Kreuze')} (durchgestrichen)` : ''}. Grün umrandet = hättest du ankreuzen müssen.`,
+          full: true,
+        });
       };
       onKey((e) => { if (e.key === 'Enter' && !$('#act', stage).hidden) $('#check', stage).click(); });
       return;
@@ -359,7 +383,7 @@ function runChoice(ctx, list) {
       answered = true;
       const ok = opts[k] === c.a;
       $$('.opt', stage).forEach((b, j) => { b.disabled = true; if (opts[j] === c.a) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); });
-      after(stage, ok, c, opts[k], ok ? '' : `Richtig ist: ${h(c.a)}`);
+      after(stage, ok, c, { given: opts[k] });
     };
     $$('.opt', stage).forEach((b) => b.onclick = () => pick(+b.dataset.o));
     onKey((e) => {
@@ -382,7 +406,7 @@ function trueFalse(ctx) {
   let i = 0, right = 0;
   const wrongs = [];
   const show = () => {
-    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs));
+    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs, ctx));
     const { c, truth, shown } = list[i];
     const stmt = isCloze(c)
       ? h(c.q).replace('_____', `<span class="mk" data-c="pink">${h(shown)}</span>`)
@@ -398,10 +422,11 @@ function trueFalse(ctx) {
     const pick = (v) => {
       if (answered) return; answered = true;
       const ok = v === truth;
-      if (ok) right++; else wrongs.push({ c, given: shown });
+      const fix = truth ? { note: 'Die Aussage stimmt – du hast „falsch“ gewählt.' } : { given: shown, note: 'Die Aussage ist falsch.' };
+      if (ok) right++; else wrongs.push({ c, fix });
       S.grade(c.id, ok);
       $$('[data-v]', stage).forEach((b) => b.disabled = true);
-      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Falsch.'}</b> Die Aussage ist ${truth ? 'wahr' : 'falsch'}.${truth ? '' : ` Richtig: ${h(c.a)}`}${sourceHtml(c)}</div>
+      $('#fb', stage).innerHTML = `<div class="feedback ${ok ? 'ok' : 'no'}"><b>${ok ? 'Richtig!' : 'Falsch – so ist es richtig:'}</b>${ok ? `Die Aussage ist ${truth ? 'wahr' : `falsch. Richtig: ${h(c.a)}`}.${sourceHtml(c)}` : fixHtml(c, ctx, fix)}</div>
         <div class="row end" style="margin-top:14px"><button class="btn primary" id="next">Weiter <kbd>Enter</kbd></button></div>`;
       $('#next').onclick = () => { i++; show(); };
       $('#next').focus();
@@ -532,8 +557,9 @@ function matching(ctx) {
   const rounds = [];
   for (let r = 0; r < 3 && pool.length >= 4; r++) rounds.push(pool.splice(0, Math.min(5, pool.length)));
   let ri = 0, right = 0, total = 0;
+  const wrongs = [];
   const showRound = () => {
-    if (ri >= rounds.length) return finish(ctx, right, total);
+    if (ri >= rounds.length) return finish(ctx, right, total, reviewList(wrongs, ctx));
     const set = rounds[ri];
     const left = shuffle(set), rightCol = shuffle(set);
     const misses = new Set();
@@ -542,7 +568,8 @@ function matching(ctx) {
       <div class="match">
         <div class="col">${left.map((c) => `<button class="tile" data-l="${c.id}">${h(c.q)}</button>`).join('')}</div>
         <div class="col">${rightCol.map((c) => `<button class="tile" data-r="${c.id}">${h(c.a)}</button>`).join('')}</div>
-      </div>`);
+      </div>
+      <div id="fb" style="margin-top:16px"></div>`);
     let sel = null, done = 0;
     const colors = ['gruen', 'gelb', 'blau', 'pink', 'orange'];
     $$('[data-l]', stage).forEach((b) => b.onclick = () => { $$('[data-l]', stage).forEach((x) => x.classList.remove('sel')); sel = b.dataset.l; b.classList.add('sel'); });
@@ -556,9 +583,13 @@ function matching(ctx) {
         total++;
         S.grade(sel, !misses.has(sel));
         sel = null; done++;
+        $('#fb', stage).innerHTML = '';
         if (done === set.length) setTimeout(() => { ri++; showRound(); }, 650);
       } else {
+        const c = set.find((x) => x.id === sel);
+        if (!misses.has(sel)) wrongs.push({ c, fix: { given: b.textContent } });
         misses.add(sel);
+        $('#fb', stage).innerHTML = `<div class="feedback no"><b>Passt nicht – zu „${h(c.q)}“ gehört:</b>${fixHtml(c, ctx, { given: b.textContent })}</div>`;
         b.classList.add('shake'); setTimeout(() => b.classList.remove('shake'), 400);
       }
     });
@@ -572,8 +603,9 @@ function writing(ctx) {
   const open = ctx.cards.filter((c) => !isCloze(c));
   const list = [...shuffle(open.filter((c) => c.star)), ...sample(open.filter((c) => !c.star), 10)].slice(0, Math.max(10, open.filter((c) => c.star).length));
   let i = 0, right = 0;
+  const wrongs = [];
   const show = () => {
-    if (i >= list.length) return finish(ctx, right, list.length);
+    if (i >= list.length) return finish(ctx, right, list.length, reviewList(wrongs, ctx));
     const c = list[i];
     const stage = frame(ctx, i, list.length, `
       <form class="sheet question" id="f">
@@ -596,7 +628,7 @@ function writing(ctx) {
         <div class="feedback ${sim >= 0.75 ? 'ok' : 'no'}"><span class="small muted">Musterlösung</span><div style="font-size:1.08rem;margin-top:4px">${h(c.a)}</div>${verdict ? `<div class="src">Vergleich: ${verdict}${ls ? '' : ` (${Math.round(sim * 100)} % Übereinstimmung)`}</div>` : ''}</div>
         <p class="small muted" style="margin:14px 0 8px">Wie gut war deine Antwort?</p>
         <div class="answer-row"><button type="button" class="btn dont" data-r="0">Falsch / unvollständig</button><button type="button" class="btn know" data-r="1">Richtig</button></div>`;
-      $$('[data-r]', stage).forEach((b) => b.onclick = () => { const ok = b.dataset.r === '1'; if (ok) right++; S.grade(c.id, ok); i++; show(); });
+      $$('[data-r]', stage).forEach((b) => b.onclick = () => { const ok = b.dataset.r === '1'; if (ok) right++; else wrongs.push({ c, fix: { given } }); S.grade(c.id, ok); i++; show(); });
     };
     onKey(() => {});
   };
@@ -746,8 +778,7 @@ function gradeExam(ctx, tasks, ms) {
           ${tasks.map((tk, k) => `<div class="item ${tk.score === tk.pts ? 'ok' : ''}">
             <div class="row" style="justify-content:space-between"><span class="small muted">Aufgabe ${k + 1}</span><b class="small">${num(tk.score)} / ${tk.pts}</b></div>
             <div style="font-weight:700;margin:4px 0">${tk.kind === 'tf' && isCloze(tk.c) ? h(tk.c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : tk.kind === 'tf' ? `${h(tk.c.q)} → ${h(tk.shown)}` : questionHtml(tk.c)}</div>
-            <div class="small">Deine Antwort: ${h(givenText(tk))}</div>
-            ${tk.score === tk.pts ? '' : `<div class="small"><b>Richtig:</b> ${tk.kind === 'tf' ? (tk.truth ? 'wahr' : `falsch – richtig ist: ${h(tk.c.a)}`) : tk.kind === 'multi' ? h(tk.multi.options.filter((o) => o.ok).map((o) => o.t).join(' · ')) : h(tk.c.a)}</div>`}
+            ${tk.score === tk.pts ? `<div class="small">Deine Antwort: ${h(givenText(tk))}</div>` : fixHtml(tk.c, ctx, examFix(tk, givenText(tk)))}
           </div>`).join('')}
         </div>
         <div class="row" style="justify-content:center">
@@ -760,8 +791,22 @@ function gradeExam(ctx, tasks, ms) {
   window.scrollTo(0, 0);
 }
 
-function reviewList(wrongs) {
+// Berichtigung im Probetest je Aufgabenart
+function examFix(tk, given) {
+  const leer = given === '– (leer)';
+  if (tk.kind === 'multi') {
+    const bad = leer ? [] : [...tk.given].filter((k) => !tk.multi.options[k].ok).map((k) => tk.multi.options[k].t);
+    return { given: leer ? given : bad.join(' · '), right: tk.multi.options.filter((o) => o.ok).map((o) => o.t).join(' · '), full: true, link: true };
+  }
+  if (tk.kind === 'tf') {
+    if (tk.truth) return { given: leer ? given : '', right: tk.shown, note: leer ? 'Die Aussage stimmt.' : 'Die Aussage stimmt – du hast „falsch“ gewählt.', link: true };
+    return { given: leer ? given : tk.shown, note: 'Die Aussage ist falsch.', link: true };
+  }
+  return { given, link: true };
+}
+
+function reviewList(wrongs, ctx) {
   if (!wrongs.length) return '';
-  return `<div class="review"><h3 style="margin-bottom:4px">Das solltest du dir nochmal ansehen</h3>${wrongs.map(({ c, given }) => `
-    <div class="item"><div style="font-weight:700">${questionHtml(c)}</div><div class="small">Deine Antwort: ${h(given)}</div><div class="small"><b>Richtig:</b> ${h(c.a)}</div></div>`).join('')}</div>`;
+  return `<div class="review"><h3 style="margin-bottom:4px">Berichtigung – das solltest du dir nochmal ansehen</h3>${wrongs.map(({ c, fix }) => `
+    <div class="item"><div style="font-weight:700">${questionHtml(c)}</div>${fixHtml(c, ctx, { ...fix, link: true })}</div>`).join('')}</div>`;
 }

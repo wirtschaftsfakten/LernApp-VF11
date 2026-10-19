@@ -567,10 +567,20 @@ body.in-session #main { max-width: 860px; margin: 0 auto; }
 .ka-opt input { accent-color: var(--accent); }
 .ka-opt .key { font-weight: 700; color: var(--muted); }
 .ka textarea { margin-left: 26px; width: calc(100% - 26px); padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--r-md); background: var(--bg); color: var(--ink); font: inherit; font-size: 14.5px; resize: vertical; }
+.ka-switch { gap: 8px; font-size: 14px; padding: 10px 12px; border-radius: var(--r-md); background: var(--soft); cursor: pointer; }
+.ka-solbtn { display: none; }
+.ka.sofort .ka-solbtn { display: flex; }
+.ka-sol:empty { display: none; }
+.ka-sol { margin-left: 26px; }
+.ka-sol .feedback { padding: 12px 14px; }
+.ka-opt.right { color: var(--ok); font-weight: 700; }
+.ka-opt.wrong { color: var(--bad); text-decoration: line-through; }
+.ka-opt.off { opacity: .55; }
+.ka-opt:has(input:disabled) { cursor: default; }
 .ka-sel { font: inherit; font-size: 13px; padding: 2px 4px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--ink); }
 .review h3 { margin-top: 8px; }
 .review .item b.small { white-space: nowrap; }
-@media (max-width: 560px) { .ka-opts { padding-left: 0; } .ka textarea { margin-left: 0; width: 100%; } }
+@media (max-width: 560px) { .ka-opts { padding-left: 0; } .ka textarea, .ka-sol { margin-left: 0; width: 100%; } }
 
 /* Berichtigung: falsch durchgestrichen, richtig darunter */
 .fix { display: grid; gap: 6px; margin-top: 8px; font-size: 14.5px; text-align: left; }

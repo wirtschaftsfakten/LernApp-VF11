@@ -39,14 +39,14 @@ const server = http.createServer((req, res) => {
 
 server.on('error', (e) => {
   if (e.code === 'EADDRINUSE') {
-    console.log(`LernApp läuft bereits – öffne http://localhost:${PORT}`);
+    console.log(`LernApp VF11 läuft bereits – öffne http://localhost:${PORT}`);
     openBrowser();
     setTimeout(() => process.exit(0), 500);
   } else throw e;
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`LernApp läuft: http://localhost:${PORT}`);
+  console.log(`LernApp VF11 läuft: http://localhost:${PORT}`);
   console.log('Dieses Fenster offen lassen. Zum Beenden schließen oder Strg+C drücken.');
   if (!process.argv.includes('--no-open')) openBrowser();
 });

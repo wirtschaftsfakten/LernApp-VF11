@@ -1,5 +1,5 @@
 @echo off
-title LernApp
+title LernApp VF11
 cd /d "%~dp0"
 where node >nul 2>nul
 if %errorlevel%==0 (

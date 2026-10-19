@@ -1,9 +1,9 @@
-LernApp – Tests und Fächer anlegen, Material hochladen, lernen
+LernApp VF11 – Tests und Fächer anlegen, Material hochladen, lernen
 =============================================================
 
 Online (ohne Installation, auch für Mitschüler)
-  PC & Handy:  https://wirtschaftsfakten.github.io/lernapp-ehrbarer-kaufmann/
-  Nur Handy:   https://wirtschaftsfakten.github.io/lernapp-ehrbarer-kaufmann/handy/
+  PC & Handy:  https://wirtschaftsfakten.github.io/LernApp-VF11/
+  Nur Handy:   https://wirtschaftsfakten.github.io/LernApp-VF11/handy/
   Jeder speichert seinen Lernstand nur im eigenen Browser.
 
 Starten auf dem eigenen PC

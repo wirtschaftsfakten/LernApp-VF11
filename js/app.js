@@ -81,7 +81,7 @@ function renderNav(view) {
   const p = S.get().prefs;
   const streak = S.streakDays();
   side.innerHTML = `
-    <a class="logo" href="#/"><span class="logo-mark">${I.learn}</span><span>LernApp</span></a>
+    <a class="logo" href="#/"><span class="logo-mark">${I.learn}</span><span>LernApp VF11</span></a>
     <nav class="nav" aria-label="Hauptnavigation">
       ${NAV.map(([k, l, ic]) => `<a href="#/${k}" class="nav-item" ${cur === k ? 'aria-current="page"' : ''}>${I[ic]}<span>${l}</span></a>`).join('')}
     </nav>
@@ -111,7 +111,7 @@ window.addEventListener('hashchange', route);
 const go = (hash) => { if (location.hash === hash) route(); else location.hash = hash; };
 
 const pageHead = (title, sub = '', right = '') => `<header class="page-head"><div><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ''}</div>${right ? `<div class="page-actions">${right}</div>` : ''}</header>`;
-const mobileBar = () => `<div class="mobile-bar"><button class="icon-btn" data-act="menu" aria-label="Menü">${I.menu}</button><a class="logo" href="#/"><span class="logo-mark">${I.learn}</span><span>LernApp</span></a><span class="mobile-right">${modeBtn()}<a class="avatar sm" href="#/einstellungen" aria-label="Einstellungen">${h((S.get().prefs.name || 'L').charAt(0).toUpperCase())}</a></span></div>`;
+const mobileBar = () => `<div class="mobile-bar"><button class="icon-btn" data-act="menu" aria-label="Menü">${I.menu}</button><a class="logo" href="#/"><span class="logo-mark">${I.learn}</span><span>LernApp VF11</span></a><span class="mobile-right">${modeBtn()}<a class="avatar sm" href="#/einstellungen" aria-label="Einstellungen">${h((S.get().prefs.name || 'L').charAt(0).toUpperCase())}</a></span></div>`;
 const render = (html) => { main.innerHTML = mobileBar() + html; };
 
 // Aktueller Test für Lernen/Quiz/Karteikarten

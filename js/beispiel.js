@@ -12,6 +12,72 @@ export const FAECHER = [
   { name: 'PuG – Politik und Gesellschaft', color: 'gruen' },
 ];
 
+// Englisch: Espresso English, Reading Comprehension Lesson 20 (Gratis-Probelektion).
+// Lesetext bleibt auf der Originalseite; hier nur Vokabeln und Verständnisfragen.
+// Lösungen aus dem Text abgeleitet, die Seite hat keinen Lösungsschlüssel.
+export const ENGLISCH_READING = {
+  subject: 'E – Englisch',
+  test: { title: 'Englisch-Test', notes: '' },
+  name: 'Reading 20: Staying motivated and productive',
+  kind: 'text',
+  highlights: [],
+  text: `Quelle: https://courses.espressoenglish.net/courses/free-sample-lessons/lessons/free-sample-reading-course/
+
+Name the six tips from the text for staying productive?
+Create a constructive environment
+Change your routine
+Write a list
+Make small tasks
+Set up a reward system
+Take care of yourself
+
+How should you set up your workspace?
+In a way that helps you be productive (light, noise, no clutter, everything at hand).
+
+What can happen if you keep the same routine for too long?
+It might cause you to get stuck (in a rut).
+
+Why does writing a list help?
+It helps the tasks seem achievable.
+
+What should you do if you want to write a book?
+Focus on getting small parts of it done.
+
+What is important about rewards?
+They should have a specific (time) limit.
+
+What should you NOT do, according to the last tip?
+Pressure yourself to do too much.
+
+tedious: langweilig, eintönig
+to get sidetracked: abgelenkt werden
+crushed: überwältigt, niedergedrückt
+sheer (amount): schiere (Menge)
+to optimize: optimieren
+to grease the wheels: den Ablauf reibungsloser machen
+conducive to: förderlich für
+apt to: neigen zu
+scatter-brained: zerstreut, unkonzentriert
+cluttered: unordentlich, überladen
+at hand: griffbereit
+cocoon: kleiner, geschützter Raum
+to get down to business: ernsthaft anfangen
+burnt out: ausgebrannt
+in a rut: in einem Trott feststecken
+a breath of fresh air: frische Abwechslung
+to spark: anregen, auslösen
+time-honored: traditionell bewährt
+daunting: entmutigend
+to cross off: abhaken
+bite-sized: mundgerecht, überschaubar
+to dive in: sich hineinstürzen, anpacken
+leisure: Freizeit
+to binge: exzessiv konsumieren
+to push yourself: sich antreiben, überfordern
+on top of your game: in Bestform sein
+to supercharge: stark steigern`,
+};
+
 // Fragen der Kurzarbeit (so von der Parallelklasse weitergegeben).
 // Antworten NUR aus den Unterlagen: Arbeitsblatt Aufgabe 3 und 4 sowie wörtliche Stellen aus dem Lesetext.
 export const KURZARBEIT = {

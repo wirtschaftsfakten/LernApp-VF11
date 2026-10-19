@@ -638,11 +638,6 @@ function writing(ctx) {
 }
 
 // ---------- Probetest ----------
-// Lösung direkt nach jeder Aufgabe zeigen (Standard an, zum Lernen); aus = wie in einer echten Arbeit
-const sofortPref = {
-  get() { try { return localStorage.getItem('lernapp.sofort') !== '0'; } catch { return true; } },
-  set(v) { try { localStorage.setItem('lernapp.sofort', v ? '1' : '0'); } catch {} },
-};
 const leer = (g) => g === null || g === '' || (g instanceof Set && !g.size);
 const examScore = (tk) => tk.kind === 'mc' ? (tk.given !== null && tk.opts[tk.given] === tk.c.a ? tk.pts : 0)
   : tk.kind === 'tf' ? (tk.given === tk.truth ? tk.pts : 0)
@@ -663,11 +658,10 @@ function exam(ctx) {
       <div class="sheet pad stack">
         <span class="small muted">${h(ctx.title)}</span>
         <h1>Probetest</h1>
-        <p>Gemischte Aufgaben zum Anklicken: eine richtige Antwort, mehrere ankreuzen, wahr oder falsch. Kein Tippen. Bewertet wird nach dem IHK-Notenschlüssel.</p>
+        <p>Gemischte Aufgaben zum Anklicken: eine richtige Antwort, mehrere ankreuzen, wahr oder falsch. Kein Tippen. Hast du etwas falsch, siehst du direkt die richtige Lösung. Bewertet wird nach dem IHK-Notenschlüssel.</p>
         <form id="cfg" class="stack">
           <div class="field"><span style="font:600 .92rem var(--font-ui)">Anzahl Aufgaben</span>
             <div class="row" role="radiogroup">${[10, 15, 20, 30].filter((n) => n <= Math.max(max, 10)).map((n, k) => `<label class="chip"><input type="radio" name="n" value="${n}" ${k === 0 ? 'checked' : ''} style="margin-right:6px">${Math.min(n, max)}</label>`).join('')}</div></div>
-          <label class="row"><input type="checkbox" name="sofort" ${sofortPref.get() ? 'checked' : ''}> Lösung nach jeder Aufgabe sofort zeigen</label>
           <label class="row"><input type="checkbox" name="timer" checked> Zeit stoppen</label>
           <div class="row"><button class="btn primary">Probetest starten</button></div>
         </form>
@@ -676,12 +670,11 @@ function exam(ctx) {
   $('#cfg').onsubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    sofortPref.set(!!fd.get('sofort'));
-    runExam(ctx, Math.min(+fd.get('n'), max), !!fd.get('timer'), !!fd.get('sofort'));
+    runExam(ctx, Math.min(+fd.get('n'), max), !!fd.get('timer'));
   };
 }
 
-function runExam(ctx, n, timer, sofort) {
+function runExam(ctx, n, timer) {
   const order = [...shuffle(ctx.cards.filter((c) => c.star)), ...shuffle(ctx.cards.filter((c) => !c.star))];
   const tasks = [];
   for (const c of order) {
@@ -709,16 +702,15 @@ function runExam(ctx, n, timer, sofort) {
     if (i >= tasks.length) return gradeExam(ctx, tasks, Date.now() - start);
     const tk = tasks[i], c = tk.c;
     const label = { mc: 'Kreuze die richtige Antwort an', tf: 'Wahr oder falsch?', multi: 'Kreuze alle richtigen an' }[tk.kind];
-    const done = sofort && tk.done;
+    // falsch beantwortet und auf Weiter gedrückt: Antwort gesperrt, richtige Lösung darunter
+    const done = tk.done;
     let body = '';
     if (tk.kind === 'mc') body = `<div class="opts">${tk.opts.map((o, k) => `<button type="button" class="opt ${done ? (o === c.a ? 'right' : k === tk.given ? 'wrong' : '') : ''}" data-o="${k}" ${done ? 'disabled' : ''}><span class="key">${'ABCD'[k]}</span><span>${h(o)}</span></button>`).join('')}</div>`;
     if (tk.kind === 'tf') body = `<div class="tf"><button type="button" class="btn know" data-v="1" ${done ? 'disabled' : ''}>Wahr</button><button type="button" class="btn dont" data-v="0" ${done ? 'disabled' : ''}>Falsch</button></div>`;
-    if (tk.kind === 'multi') body = `<div id="mbox">${multiHtml(tk.multi, tk.given, done)}</div>${sofort && !done ? '<div class="row end"><button type="button" class="btn" id="check">Prüfen</button></div>' : ''}`;
+    if (tk.kind === 'multi') body = `<div id="mbox">${multiHtml(tk.multi, tk.given, done)}</div>`;
     if (done) {
       const sc = examScore(tk);
-      body += sc === tk.pts
-        ? `<div class="feedback ok"><b>Richtig! ${tk.pts} von ${tk.pts} ${tk.pts === 1 ? 'Punkt' : 'Punkten'}</b>${tk.kind === 'multi' ? '' : sourceHtml(c)}</div>`
-        : `<div class="feedback no"><b>${sc ? `Teilweise richtig – ${sc.toLocaleString('de-DE')} von ${tk.pts} Punkten` : 'Nicht ganz – so ist es richtig:'}</b>${fixHtml(c, ctx, examFix(tk, examGiven(tk)))}</div>`;
+      body += `<div class="feedback no"><b>${sc ? `Teilweise richtig – ${sc.toLocaleString('de-DE')} von ${tk.pts} Punkten` : 'Nicht ganz – so ist es richtig:'}</b>${fixHtml(c, ctx, examFix(tk, examGiven(tk)))}</div>`;
     }
     const q = tk.kind === 'tf'
       ? (isCloze(c) ? h(c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(c.q)}<div style="margin-top:10px;font-weight:400">→ ${h(tk.shown)}</div>`)
@@ -737,26 +729,24 @@ function runExam(ctx, n, timer, sofort) {
     }
     const inp = $('#inp', stage);
     if (inp) { inp.value = tk.given ?? ''; inp.focus(); }
-    // im Sofort-Modus ist jede Antwort endgültig, danach kommt gleich die Lösung
-    const solve = () => { if (sofort) { tk.done = true; show(); } };
     $$('[data-o]', stage).forEach((b) => {
       if (tk.given === +b.dataset.o && !done) b.classList.add('sel'), b.style.borderColor = 'var(--blue)';
-      b.onclick = () => { tk.given = +b.dataset.o; $$('[data-o]', stage).forEach((x) => x.style.borderColor = ''); b.style.borderColor = 'var(--blue)'; solve(); };
+      b.onclick = () => { tk.given = +b.dataset.o; $$('[data-o]', stage).forEach((x) => x.style.borderColor = ''); b.style.borderColor = 'var(--blue)'; };
     });
     $$('[data-v]', stage).forEach((b) => {
-      if (tk.given === (b.dataset.v === '1')) b.style.outline = `3px solid var(--${done ? (tk.given === tk.truth ? 'ok' : 'bad') : 'blue'})`;
-      b.onclick = () => { tk.given = b.dataset.v === '1'; $$('[data-v]', stage).forEach((x) => x.style.outline = ''); b.style.outline = '3px solid var(--blue)'; solve(); };
+      if (tk.given === (b.dataset.v === '1')) b.style.outline = `3px solid var(--${done ? 'bad' : 'blue'})`;
+      b.onclick = () => { tk.given = b.dataset.v === '1'; $$('[data-v]', stage).forEach((x) => x.style.outline = ''); b.style.outline = '3px solid var(--blue)'; };
     });
     const bindMulti = () => $$('[data-m]', stage).forEach((b) => b.onclick = () => {
       const k = +b.dataset.m; if (tk.given.has(k)) tk.given.delete(k); else tk.given.add(k);
       $('#mbox', stage).innerHTML = multiHtml(tk.multi, tk.given); bindMulti();
     });
     if (tk.kind === 'multi' && !done) bindMulti();
-    $('#check', stage)?.addEventListener('click', solve);
     const save = () => { if (inp) tk.given = inp.value.trim(); };
     $('#prev', stage)?.addEventListener('click', () => { save(); i--; show(); });
     $('#f', stage).onsubmit = (e) => {
       e.preventDefault(); save();
+      if (!done && !leer(tk.given) && examScore(tk) < tk.pts) { tk.done = true; show(); return; }
       if (i === tasks.length - 1) {
         const open = tasks.filter((t) => t.given === null || t.given === '' || (t.given instanceof Set && !t.given.size)).length;
         const btn = $('#f button.primary', stage);
@@ -850,15 +840,13 @@ function klassenarbeit(ctx) {
     const q = tk.kind === 'tf' ? (isCloze(tk.c) ? h(tk.c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(tk.c.q)}<div class="ka-stmt">→ ${h(tk.shown)}</div>`) : tk.prompt ? h(tk.prompt) : questionHtml(tk.c);
     const body = tk.kind === 'mc' ? `<div class="ka-opts">${tk.opts.map((o, j) => `<label class="ka-opt"><input type="radio" name="t${k}" value="${j}"><span class="key">${'abcd'[j]})</span><span>${h(o)}</span></label>`).join('')}</div>`
       : tk.kind === 'tf' ? `<div class="ka-opts row"><label class="ka-opt"><input type="radio" name="t${k}" value="1"><span>${en ? 'true' : 'richtig'}</span></label><label class="ka-opt"><input type="radio" name="t${k}" value="0"><span>${en ? 'false' : 'falsch'}</span></label></div>`
-      : `<textarea name="t${k}" rows="${tk.pts > 2 ? 6 : 3}" placeholder="${tk.c.need ? `${tk.c.need} Punkte nennen …` : 'Antwort …'}"></textarea><div class="row end ka-solbtn"><button type="button" class="btn small" data-sol="${k}">Lösung zeigen</button></div>`;
+      : `<textarea name="t${k}" rows="${tk.pts > 2 ? 6 : 3}" placeholder="${tk.c.need ? `${tk.c.need} Punkte nennen …` : 'Antwort …'}"></textarea>`;
     tk.k = k;
     return `<div class="ka-task"><div class="ka-head"><b>${k + 1}.</b><span class="ka-q">${q}</span><span class="ka-pts">${tk.pts} P.</span></div>${body}<div class="ka-sol" id="sol${k}"></div></div>`;
   };
-  // Sofort-Lösung: Ankreuzen wird direkt bewertet und gesperrt, offene Aufgaben per Knopf
+  // falsch angekreuzt: richtige Lösung direkt darunter
+  const isRight = (tk, v) => tk.kind === 'mc' ? tk.opts[+v] === tk.c.a : (v === '1') === tk.truth;
   const solution = (tk, g) => {
-    if (tk.kind === 'open') return `<div class="feedback ok"><b>Musterlösung</b><div class="fix-right">${h(tk.c.a)}</div>${sourceHtml(tk.c)}</div>`;
-    const ok = tk.kind === 'mc' ? tk.opts[+g] === tk.c.a : (g === '1') === tk.truth;
-    if (ok) return `<div class="feedback ok"><b>Richtig!</b>${sourceHtml(tk.c)}</div>`;
     const fix = tk.kind === 'mc' ? { given: tk.opts[+g] } : tk.truth ? { right: tk.shown, note: 'Die Aussage ist richtig.' } : { given: tk.shown, note: 'Die Aussage ist falsch.' };
     return `<div class="feedback no"><b>Nicht ganz – so ist es richtig:</b>${fixHtml(tk.c, ctx, { ...fix, link: true })}</div>`;
   };
@@ -871,7 +859,6 @@ function klassenarbeit(ctx) {
           <div class="ka-meta"><span>Variante ${variante}</span><span>${max} Punkte</span><span>${min} Minuten</span></div>
         </header>
         <div class="ka-name"><span>Name: ______________________</span><span>Datum: ${new Date().toLocaleDateString('de-DE')}</span></div>
-        <label class="row ka-switch"><input type="checkbox" id="sofort" ${sofortPref.get() ? 'checked' : ''}> Lösung sofort nach jeder Aufgabe zeigen (zum Lernen)</label>
         ${parts.map((p) => `<section class="ka-part"><h2>${p.title}</h2>${p.tasks.map(taskHtml).join('')}</section>`).join('')}
         <div class="row end"><button type="button" class="btn ghost" id="neu">Neue Variante</button><button class="btn primary">Abgeben und korrigieren</button></div>
       </form>
@@ -880,28 +867,19 @@ function klassenarbeit(ctx) {
   const start = Date.now();
   $('#neu').onclick = () => klassenarbeit(ctx);
   const form = $('#ka');
-  const sofort = () => $('#sofort').checked;
-  form.classList.toggle('sofort', sofort());
-  $('#sofort').onchange = () => { sofortPref.set(sofort()); form.classList.toggle('sofort', sofort()); };
   for (const tk of tasks) {
     if (tk.kind === 'open') continue;
     $$(`input[name="t${tk.k}"]`, form).forEach((r) => r.addEventListener('change', () => {
-      if (!sofort()) return;
-      // Antwort sperren; gesperrte Felder schickt das Formular nicht mit, daher merken
+      if (isRight(tk, r.value)) return;
+      // falsche Antwort sperren; gesperrte Felder schickt das Formular nicht mit, daher merken
       $$(`input[name="t${tk.k}"]`, form).forEach((x) => {
         x.disabled = true;
-        const right = tk.kind === 'mc' ? tk.opts[+x.value] === tk.c.a : (x.value === '1') === tk.truth;
-        x.parentElement.classList.add(right ? 'right' : x === r ? 'wrong' : 'off');
+        x.parentElement.classList.add(isRight(tk, x.value) ? 'right' : x === r ? 'wrong' : 'off');
       });
       tk.locked = r.value;
       $(`#sol${tk.k}`).innerHTML = solution(tk, r.value);
     }));
   }
-  $$('[data-sol]', form).forEach((b) => b.onclick = () => {
-    const tk = tasks.find((t) => t.k === +b.dataset.sol);
-    $(`#sol${tk.k}`).innerHTML = solution(tk);
-    b.remove();
-  });
   form.onsubmit = (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);

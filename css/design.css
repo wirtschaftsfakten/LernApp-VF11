@@ -567,9 +567,6 @@ body.in-session #main { max-width: 860px; margin: 0 auto; }
 .ka-opt input { accent-color: var(--accent); }
 .ka-opt .key { font-weight: 700; color: var(--muted); }
 .ka textarea { margin-left: 26px; width: calc(100% - 26px); padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--r-md); background: var(--bg); color: var(--ink); font: inherit; font-size: 14.5px; resize: vertical; }
-.ka-switch { gap: 8px; font-size: 14px; padding: 10px 12px; border-radius: var(--r-md); background: var(--soft); cursor: pointer; }
-.ka-solbtn { display: none; }
-.ka.sofort .ka-solbtn { display: flex; }
 .ka-sol:empty { display: none; }
 .ka-sol { margin-left: 26px; }
 .ka-sol .feedback { padding: 12px 14px; }

@@ -834,58 +834,93 @@ function klassenarbeit(ctx) {
   const max = tasks.reduce((s, t) => s + t.pts, 0);
   const min = Math.max(20, Math.min(90, Math.round(max * 1.6 / 5) * 5));
   const variante = Math.random().toString(36).slice(2, 5).toUpperCase();
-  let n = 0;
-  const taskHtml = (tk) => {
-    const k = n++;
-    const q = tk.kind === 'tf' ? (isCloze(tk.c) ? h(tk.c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(tk.c.q)}<div class="ka-stmt">→ ${h(tk.shown)}</div>`) : tk.prompt ? h(tk.prompt) : questionHtml(tk.c);
-    const body = tk.kind === 'mc' ? `<div class="ka-opts">${tk.opts.map((o, j) => `<label class="ka-opt"><input type="radio" name="t${k}" value="${j}"><span class="key">${'abcd'[j]})</span><span>${h(o)}</span></label>`).join('')}</div>`
-      : tk.kind === 'tf' ? `<div class="ka-opts row"><label class="ka-opt"><input type="radio" name="t${k}" value="1"><span>${en ? 'true' : 'richtig'}</span></label><label class="ka-opt"><input type="radio" name="t${k}" value="0"><span>${en ? 'false' : 'falsch'}</span></label></div>`
-      : `<textarea name="t${k}" rows="${tk.pts > 2 ? 6 : 3}" placeholder="${tk.c.need ? `${tk.c.need} Punkte nennen …` : 'Antwort …'}"></textarea>`;
-    tk.k = k;
-    return `<div class="ka-task"><div class="ka-head"><b>${k + 1}.</b><span class="ka-q">${q}</span><span class="ka-pts">${tk.pts} P.</span></div>${body}<div class="ka-sol" id="sol${k}"></div></div>`;
-  };
-  // falsch angekreuzt: richtige Lösung direkt darunter
-  const isRight = (tk, v) => tk.kind === 'mc' ? tk.opts[+v] === tk.c.a : (v === '1') === tk.truth;
-  const solution = (tk, g) => {
-    const fix = tk.kind === 'mc' ? { given: tk.opts[+g] } : tk.truth ? { right: tk.shown, note: 'Die Aussage ist richtig.' } : { given: tk.shown, note: 'Die Aussage ist falsch.' };
-    return `<div class="feedback no"><b>Nicht ganz – so ist es richtig:</b>${fixHtml(tk.c, ctx, { ...fix, link: true })}</div>`;
-  };
+  tasks.forEach((tk, k) => { tk.k = k; tk.part = parts.find((p) => p.tasks.includes(tk)); tk.given = ''; });
   ctx.main.innerHTML = `
     <div class="session">
-      <div class="session-top" style="grid-template-columns:auto 1fr"><a class="btn small ghost" href="${ctx.back}">Abbrechen</a><span></span></div>
-      <form class="sheet pad ka" id="ka">
+      <div class="session-top" style="grid-template-columns:auto 1fr"><a class="btn small ghost" href="${ctx.back}">Zurück</a><span></span></div>
+      <div class="sheet pad ka">
         <header class="ka-top">
           <div><span class="small muted">VF11 · 2. Ausbildungsjahr · ${h(subj)}</span><h1>${en ? 'Class test' : 'Klassenarbeit'}: ${h(ctx.title)}</h1></div>
           <div class="ka-meta"><span>Variante ${variante}</span><span>${max} Punkte</span><span>${min} Minuten</span></div>
         </header>
-        <div class="ka-name"><span>Name: ______________________</span><span>Datum: ${new Date().toLocaleDateString('de-DE')}</span></div>
-        ${parts.map((p) => `<section class="ka-part"><h2>${p.title}</h2>${p.tasks.map(taskHtml).join('')}</section>`).join('')}
-        <div class="row end"><button type="button" class="btn ghost" id="neu">Neue Variante</button><button class="btn primary">Abgeben und korrigieren</button></div>
-      </form>
+        <div class="ka-parts">${parts.map((p) => `<div><span>${p.title}</span><span class="ka-pts">${plural(p.tasks.length, 'Aufgabe', 'Aufgaben')} · ${p.tasks.reduce((s, t) => s + t.pts, 0)} P.</span></div>`).join('')}</div>
+        <p class="muted">Eine Aufgabe nach der anderen. Hast du etwas falsch, siehst du direkt die richtige Lösung. Am Ende gibt es die Note nach dem IHK-Notenschlüssel.</p>
+        <div class="row end"><button type="button" class="btn ghost" id="neu">Neue Variante</button><button type="button" class="btn primary" id="go">Klassenarbeit starten</button></div>
+      </div>
     </div>`;
   window.scrollTo(0, 0);
-  const start = Date.now();
   $('#neu').onclick = () => klassenarbeit(ctx);
-  const form = $('#ka');
-  for (const tk of tasks) {
-    if (tk.kind === 'open') continue;
-    $$(`input[name="t${tk.k}"]`, form).forEach((r) => r.addEventListener('change', () => {
-      if (isRight(tk, r.value)) return;
-      // falsche Antwort sperren; gesperrte Felder schickt das Formular nicht mit, daher merken
-      $$(`input[name="t${tk.k}"]`, form).forEach((x) => {
-        x.disabled = true;
-        x.parentElement.classList.add(isRight(tk, x.value) ? 'right' : x === r ? 'wrong' : 'off');
-      });
-      tk.locked = r.value;
-      $(`#sol${tk.k}`).innerHTML = solution(tk, r.value);
-    }));
-  }
-  form.onsubmit = (e) => {
-    e.preventDefault();
-    const fd = new FormData(e.target);
-    for (const tk of tasks) tk.given = tk.locked ?? fd.get(`t${tk.k}`) ?? '';
-    korrektur(ctx, { parts, tasks, max, en, subj, ms: Date.now() - start });
+  $('#go').onclick = () => runKlassenarbeit(ctx, { parts, tasks, max, min, en });
+}
+
+// eine Aufgabe nach der anderen wie im Probetest; falsche Antwort → Lösung direkt darunter
+function runKlassenarbeit(ctx, { parts, tasks, max, min, en }) {
+  const wrong = (tk) => {
+    const g = String(tk.given).trim();
+    if (g === '') return false;
+    if (tk.kind === 'mc') return tk.opts[+g] !== tk.c.a;
+    if (tk.kind === 'tf') return (g === '1') !== tk.truth;
+    return Math.round(tk.pts * Math.min(1, score(g, tk.c) / 0.75) * 2) / 2 < tk.pts;
   };
+  const solution = (tk) => {
+    const g = String(tk.given).trim();
+    if (tk.kind === 'open') return `<div class="feedback no"><b>Nicht ganz – so lautet die Musterlösung:</b><div class="fix"><div class="fix-row"><span class="fix-label">Deine Antwort</span><span>${h(g)}</span></div><div class="fix-row ok"><span class="fix-label">Musterlösung</span><span class="fix-right">${h(tk.c.a)}</span></div>${sourceHtml(tk.c)}</div></div>`;
+    const fix = tk.kind === 'mc' ? { given: tk.opts[+g] } : tk.truth ? { right: tk.shown, note: 'Die Aussage ist richtig.' } : { given: tk.shown, note: 'Die Aussage ist falsch.' };
+    return `<div class="feedback no"><b>Nicht ganz – so ist es richtig:</b>${fixHtml(tk.c, ctx, { ...fix, link: true })}</div>`;
+  };
+  const start = Date.now();
+  let i = 0, tick;
+  const show = () => {
+    clearInterval(tick);
+    if (i >= tasks.length) return korrektur(ctx, { parts, tasks, max, en, ms: Date.now() - start });
+    const tk = tasks[i], c = tk.c, done = tk.done, g = String(tk.given);
+    const q = tk.kind === 'tf'
+      ? (isCloze(c) ? h(c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(c.q)}<div style="margin-top:10px;font-weight:400">→ ${h(tk.shown)}</div>`)
+      : tk.prompt ? h(tk.prompt) : questionHtml(c);
+    let body = '';
+    if (tk.kind === 'mc') body = `<div class="opts">${tk.opts.map((o, k) => `<button type="button" class="opt ${done ? (o === c.a ? 'right' : String(k) === g ? 'wrong' : '') : ''}" data-o="${k}" ${done ? 'disabled' : ''}><span class="key">${'ABCD'[k]}</span><span>${h(o)}</span></button>`).join('')}</div>`;
+    if (tk.kind === 'tf') body = `<div class="tf"><button type="button" class="btn know" data-v="1" ${done ? 'disabled' : ''}>${en ? 'True' : 'Richtig'}</button><button type="button" class="btn dont" data-v="0" ${done ? 'disabled' : ''}>${en ? 'False' : 'Falsch'}</button></div>`;
+    if (tk.kind === 'open') body = `<label class="field">Deine Antwort<textarea id="inp" rows="${tk.pts > 2 ? 6 : 3}" placeholder="${c.need ? `${c.need} Punkte nennen …` : 'Antwort …'}" ${done ? 'readonly' : ''}></textarea></label>`;
+    if (done) body += solution(tk);
+    const stage = frame(ctx, i, tasks.length, `
+      <form class="sheet question" id="f">
+        <div class="row" style="justify-content:space-between"><span class="small muted">${tk.part.title} · Aufgabe ${i + 1}</span><span class="small muted">${tk.pts} ${tk.pts === 1 ? 'Punkt' : 'Punkte'} · <span id="clock"></span> / ${min} Min.</span></div>
+        <div class="qtext">${q}</div>
+        ${body}
+        <div class="row end">${i > 0 ? '<button type="button" class="btn ghost" id="prev">Zurück</button>' : ''}<button class="btn primary">${i === tasks.length - 1 ? 'Abgeben und korrigieren' : 'Weiter'}</button></div>
+      </form>`);
+    const clock = $('#clock', stage);
+    const upd = () => { const s = Math.floor((Date.now() - start) / 1000); clock.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+    upd(); tick = setInterval(upd, 1000);
+    const inp = $('#inp', stage);
+    if (inp) { inp.value = g; if (!done) inp.focus(); }
+    $$('[data-o]', stage).forEach((b) => {
+      if (b.dataset.o === g && !done) b.style.borderColor = 'var(--blue)';
+      b.onclick = () => { tk.given = b.dataset.o; $$('[data-o]', stage).forEach((x) => x.style.borderColor = ''); b.style.borderColor = 'var(--blue)'; };
+    });
+    $$('[data-v]', stage).forEach((b) => {
+      if (b.dataset.v === g) b.style.outline = `3px solid var(--${done ? 'bad' : 'blue'})`;
+      b.onclick = () => { tk.given = b.dataset.v; $$('[data-v]', stage).forEach((x) => x.style.outline = ''); b.style.outline = '3px solid var(--blue)'; };
+    });
+    const save = () => { if (inp && !done) tk.given = inp.value.trim(); };
+    $('#prev', stage)?.addEventListener('click', () => { save(); i--; show(); });
+    $('#f', stage).onsubmit = (e) => {
+      e.preventDefault(); save();
+      if (!done && wrong(tk)) { tk.done = true; show(); return; }
+      if (i === tasks.length - 1) {
+        const open = tasks.filter((t) => String(t.given).trim() === '').length;
+        const btn = $('#f button.primary', stage);
+        if (open && !btn.dataset.sure) {
+          btn.dataset.sure = '1';
+          btn.textContent = `${plural(open, 'Aufgabe ist', 'Aufgaben sind')} leer – trotzdem abgeben`;
+          return;
+        }
+      }
+      i++; show();
+    };
+    onKey(() => {});
+  };
+  show();
 }
 
 function korrektur(ctx, { parts, tasks, max, en, ms }) {

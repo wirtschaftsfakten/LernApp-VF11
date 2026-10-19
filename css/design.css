@@ -619,6 +619,12 @@ dialog.viewer[open] { display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .viewer-page { display: block; width: 100%; max-width: 920px; height: auto; background: #fff; border-radius: var(--r-md); box-shadow: var(--sh-2); }
 dialog.viewer.zoomed .viewer-body { justify-items: start; }
 dialog.viewer.zoomed .viewer-page { width: 220%; max-width: none; }
+img.viewer-page { aspect-ratio: auto 595 / 842; }
+.sheet-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; padding: 0 24px 22px; }
+.sheet { display: grid; gap: 6px; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; cursor: zoom-in; text-align: center; }
+.sheet img { display: block; width: 100%; aspect-ratio: 595 / 842; object-fit: cover; object-position: top; background: #fff; border: 1px solid var(--border); border-radius: var(--r-sm, 8px); box-shadow: var(--sh-1); transition: transform .18s; }
+.sheet:hover img { transform: translateY(-2px); }
+@media (max-width: 560px) { .sheet-list { grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 0 16px 18px; } }
 .viewer-wait { padding: 40px 16px; text-align: center; color: var(--muted); display: grid; gap: 12px; justify-items: center; }
 
 .filewarn { max-width: 620px; margin: 10vh auto; display: grid; gap: 14px; }

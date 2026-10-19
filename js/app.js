@@ -7,6 +7,7 @@ import { addGenerated, loadBeispiel, migrate } from './setup.js';
 import { startSession, MODES, modeAvailable, topicsOf } from './learn.js';
 import { putFile } from './files.js';
 import { openOriginal, hasOriginal } from './viewer.js';
+import { BLAETTER, blaetterOf } from './blaetter.js';
 import * as T from './track.js';
 import { I } from './icons.js';
 import { h, $, $$, toast, COLORS, COLOR_NAME, countdownText, daysUntil, fmtDate, isoDate, plural } from './util.js';
@@ -302,10 +303,11 @@ function viewSubject(id) {
 }
 
 // ---------- Test ----------
-const TABS = [['uebersicht', 'Übersicht'], ['material', 'Material'], ['karten', 'Karten'], ['spickzettel', 'Spickzettel'], ['ergebnisse', 'Ergebnisse']];
+const ALL_TABS = [['uebersicht', 'Übersicht'], ['material', 'Material'], ['markiert', 'Material markiert'], ['karten', 'Karten'], ['spickzettel', 'Spickzettel'], ['ergebnisse', 'Ergebnisse']];
 function viewTest(id, tab = 'uebersicht') {
   const t = S.test(id); const s = S.subject(t.subjectId);
   const cards = S.cardsOf(id); const st = stats(cards);
+  const TABS = ALL_TABS.filter(([k]) => k !== 'markiert' || blaetterOf(s.name).length);
   if (!TABS.some(([k]) => k === tab)) tab = 'uebersicht';
   render(`
     <nav class="crumbs"><a href="#/faecher">Fächer</a>${I.right}<a href="#/fach/${s.id}">${h(longName(s.name))}</a>${I.right}<span>${h(t.title)}</span></nav>
@@ -313,7 +315,7 @@ function viewTest(id, tab = 'uebersicht') {
       `<button class="btn" data-act="edit-test" data-id="${id}">${I.edit}<span>Bearbeiten</span></button>${cards.length ? `<a class="btn primary" href="#/lernen/${id}/wiederholen">${I.play}<span>Lernen${st.due ? ` · ${st.due} fällig` : ''}</span></a>` : ''}`)}
     <nav class="tabs" aria-label="Bereiche">${TABS.map(([k, l]) => `<a href="#/test/${id}/${k}" ${k === tab ? 'aria-current="page"' : ''}>${l}${k === 'karten' ? `<span class="count">${cards.length}</span>` : ''}</a>`).join('')}</nav>
     <div id="tab"></div>`);
-  ({ uebersicht: tabOverview, material: tabMaterial, karten: tabCards, spickzettel: tabCheat, ergebnisse: tabResults }[tab])($('#tab'), t);
+  ({ uebersicht: tabOverview, material: tabMaterial, markiert: tabMarked, karten: tabCards, spickzettel: tabCheat, ergebnisse: tabResults }[tab])($('#tab'), t);
 }
 
 function modeTiles(t, cards, keys) {
@@ -443,6 +445,15 @@ function tabCards(el, t) {
     const v = n.textContent.trim();
     if (v) S.updateCard(n.closest('[data-card]').dataset.card, { [n.dataset.field]: v });
   }));
+}
+
+// Material markiert: Original-Blätter, wichtige Stellen gelb
+function tabMarked(el, t) {
+  const sets = blaetterOf(S.subject(t.subjectId).name);
+  el.innerHTML = `<div class="dash">
+    <p class="hint span-12">Deine Blätter im Original, eigene Textmarker entfernt. Gelb markiert ist, was für den Test wichtig ist. Seite antippen zum Vergrößern.</p>
+    ${sets.map((b) => card(h(b.name), `<div class="sheet-list">${b.pages.map((u, j) => `<button class="sheet" data-act="show-sheet" data-id="${BLAETTER.indexOf(b)}:${j}" aria-label="Seite ${j + 1} vergrößern"><img src="${(window.LERNAPP_BASE || '') + u}" alt="Seite ${j + 1}" loading="lazy"><small>Seite ${j + 1}</small></button>`).join('')}</div>`, { cls: 'span-12', sub: plural(b.pages.length, 'Seite', 'Seiten') })).join('')}
+  </div>`;
 }
 
 // Spickzettel
@@ -786,6 +797,11 @@ const ACTIONS = {
     (fd) => { const d = S.addDoc(testId, fd.get('name'), 'text', fd.get('text')); toast(`${plural(addGenerated(testId, d), 'neue Karte', 'neue Karten')} erstellt`); route(); });
   },
   'show-orig'(id) { openOriginal(S.get().docs.find((x) => x.id === id)); },
+  async 'show-sheet'(id) {
+    const [i, j] = id.split(':').map(Number);
+    await openOriginal({ name: BLAETTER[i].name, urls: BLAETTER[i].pages });
+    document.querySelectorAll('dialog.viewer .viewer-page')[j]?.scrollIntoView();
+  },
   'doc-menu'(id) {
     const d = S.get().docs.find((x) => x.id === id);
     openDialog(`<h2>${h(d.name)}</h2>

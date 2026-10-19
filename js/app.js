@@ -452,7 +452,7 @@ function tabMarked(el, t) {
   const sets = blaetterOf(S.subject(t.subjectId).name);
   el.innerHTML = `<div class="dash">
     <p class="hint span-12">Deine Blätter im Original, eigene Textmarker entfernt. Gelb markiert ist, was für den Test wichtig ist. Seite antippen zum Vergrößern.</p>
-    ${sets.map((b) => card(h(b.name), `<div class="sheet-list">${b.pages.map((u, j) => `<button class="sheet" data-act="show-sheet" data-id="${BLAETTER.indexOf(b)}:${j}" aria-label="Seite ${j + 1} vergrößern"><img src="${(window.LERNAPP_BASE || '') + u}" alt="Seite ${j + 1}" loading="lazy"><small>Seite ${j + 1}</small></button>`).join('')}</div>`, { cls: 'span-12', sub: plural(b.pages.length, 'Seite', 'Seiten') })).join('')}
+    ${sets.map((b) => card(h(b.name), `<div class="blatt-list">${b.pages.map((u, j) => `<button class="blatt" data-act="show-sheet" data-id="${BLAETTER.indexOf(b)}:${j}" aria-label="Seite ${j + 1} vergrößern"><img src="${(window.LERNAPP_BASE || '') + u}" alt="Seite ${j + 1}" loading="lazy"><small>Seite ${j + 1}</small></button>`).join('')}</div>`, { cls: 'span-12', sub: plural(b.pages.length, 'Seite', 'Seiten') })).join('')}
   </div>`;
 }
 

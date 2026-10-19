@@ -20,6 +20,7 @@ export const MODES = [
   { key: 'zuordnen', title: 'Zuordnen', icon: 'match', color: 'lila', text: 'Begriffe und Erklärungen paarweise verbinden.', count: (c) => `${Math.min(3, Math.floor(c.filter(shortQA).length / 4))} Runden`, missing: 'Braucht mindestens 4 Begriff-Karten' },
   { key: 'schreiben', title: 'Antwort schreiben', icon: 'write', color: 'gelb', text: 'Freiwillig: Antwort selbst formulieren und mit der Lösung vergleichen.', count: (c) => plural(c.filter((x) => !isCloze(x)).length, 'Frage', 'Fragen'), missing: 'Keine Frage-Karten vorhanden' },
   { key: 'probetest', title: 'Probetest', icon: 'exam', color: 'blau', text: 'Gemischte Aufgaben zum Anklicken – mit Punkten und Note nach IHK-Schlüssel.', count: () => 'Ergebnis mit Note', missing: 'Braucht mindestens 6 Karten' },
+  { key: 'klassenarbeit', title: 'Klassenarbeit', icon: 'exam', color: 'lila', text: 'Wie vom Lehrer: Ankreuzen, Begriffe, Fälle mit Punkten. Jedes Mal eine neue Variante.', count: () => 'Neue Variante', missing: 'Braucht mindestens 8 Karten' },
 ];
 
 export function modeAvailable(key, cards) {
@@ -30,6 +31,7 @@ export function modeAvailable(key, cards) {
   if (key === 'zuordnen') return cards.filter(shortQA).length >= 4;
   if (key === 'schreiben') return cards.some((c) => !isCloze(c));
   if (key === 'probetest') return cards.length >= 6;
+  if (key === 'klassenarbeit') return cards.length >= 8;
   return false;
 }
 
@@ -65,7 +67,7 @@ export function startSession(main, testId, mode, extra) {
     if (!wrong.length) { location.hash = back; return; }
     return runFlash(ctx, wrong.slice(0, 30));
   }
-  ({ karteikarten: flashcards, wiederholen: review, quiz, ankreuzen, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam })[mode](ctx);
+  ({ karteikarten: flashcards, wiederholen: review, quiz, ankreuzen, wahrfalsch: trueFalse, lueckentext: cloze, zuordnen: matching, schreiben: writing, probetest: exam, klassenarbeit })[mode](ctx);
 }
 
 function frame(ctx, i, n, body) {
@@ -789,6 +791,132 @@ function gradeExam(ctx, tasks, ms) {
     </div>`;
   $('#again').onclick = () => exam(ctx);
   window.scrollTo(0, 0);
+}
+
+// ---------- Klassenarbeit: wie vom Lehrer, bei jedem Start neue Variante ----------
+// Teil A Ankreuzen/Richtig-Falsch, Teil B Begriffe, Teil C Fälle und offene Fragen; offene Antworten selbst korrigieren
+function klassenarbeit(ctx) {
+  const subj = ctx.t ? S.subject(ctx.t.subjectId)?.name || '' : '';
+  const en = /englisch/i.test(subj);
+  const used = new Set();
+  const take = (list, n) => { const out = []; for (const c of list) { if (out.length >= n) break; if (!used.has(c.id)) { used.add(c.id); out.push(c); } } return out; };
+  const pri = (l) => [...shuffle(l.filter((c) => c.star)), ...shuffle(l.filter((c) => !c.star))];
+  const open = ctx.cards.filter((c) => c.type === 'frage' && !isCloze(c) && c.a.length >= 20);
+  const fall = (c) => /^(Fall|Situation|Case)\b/i.test(c.q) || c.q.length > 70;
+  const partC = take([...pri(open.filter(fall)), ...pri(open.filter((c) => !fall(c)))], 3)
+    .map((c) => ({ c, kind: 'open', pts: Math.min(6, c.need || Math.max(2, Math.round(c.a.length / 45))) }));
+  const partB = take(pri(ctx.cards.filter((c) => ['begriff', 'definition', 'abkuerzung'].includes(c.type) && c.a.length <= 220)), 4)
+    .map((c) => ({ c, kind: 'open', pts: en ? 1 : 2, prompt: c.type !== 'begriff' ? c.q : en ? `Translate into German: „${c.q}“` : `Erläutern Sie den Begriff „${c.q}“.` }));
+  const short = pri(ctx.cards.filter((c) => c.a.length <= 160));
+  const partA = [];
+  for (const c of take(short, 5)) { const d = distractors(c, ctx); if (d.length >= 2) partA.push({ c, kind: 'mc', pts: 1, opts: shuffle([c.a, ...d]), prompt: c.type === 'begriff' ? (en ? `What does „${c.q}“ mean?` : askTerm(c)) : '' }); }
+  for (const c of take(short.filter((x) => x.a.length <= 140), 4)) {
+    const truth = Math.random() < 0.5; const shown = truth ? c.a : (distractors(c, ctx, 1)[0] || c.a);
+    partA.push({ c, kind: 'tf', pts: 1, truth: truth || shown === c.a, shown });
+  }
+  const parts = [
+    { title: en ? 'Part A – Multiple choice / true or false' : 'Teil A – Ankreuzen und Richtig/Falsch', tasks: partA },
+    { title: en ? 'Part B – Vocabulary and terms' : 'Teil B – Fachbegriffe', tasks: partB },
+    { title: en ? 'Part C – Questions and cases' : 'Teil C – Fälle und offene Fragen', tasks: partC },
+  ].filter((p) => p.tasks.length);
+  const tasks = parts.flatMap((p) => p.tasks);
+  if (tasks.length < 4) { toast('Zu wenig Material für eine Klassenarbeit'); location.hash = ctx.back; return; }
+  const max = tasks.reduce((s, t) => s + t.pts, 0);
+  const min = Math.max(20, Math.min(90, Math.round(max * 1.6 / 5) * 5));
+  const variante = Math.random().toString(36).slice(2, 5).toUpperCase();
+  let n = 0;
+  const taskHtml = (tk) => {
+    const k = n++;
+    const q = tk.kind === 'tf' ? (isCloze(tk.c) ? h(tk.c.q).replace('_____', `<u>${h(tk.shown)}</u>`) : `${h(tk.c.q)}<div class="ka-stmt">→ ${h(tk.shown)}</div>`) : tk.prompt ? h(tk.prompt) : questionHtml(tk.c);
+    const body = tk.kind === 'mc' ? `<div class="ka-opts">${tk.opts.map((o, j) => `<label class="ka-opt"><input type="radio" name="t${k}" value="${j}"><span class="key">${'abcd'[j]})</span><span>${h(o)}</span></label>`).join('')}</div>`
+      : tk.kind === 'tf' ? `<div class="ka-opts row"><label class="ka-opt"><input type="radio" name="t${k}" value="1"><span>${en ? 'true' : 'richtig'}</span></label><label class="ka-opt"><input type="radio" name="t${k}" value="0"><span>${en ? 'false' : 'falsch'}</span></label></div>`
+      : `<textarea name="t${k}" rows="${tk.pts > 2 ? 6 : 3}" placeholder="${tk.c.need ? `${tk.c.need} Punkte nennen …` : 'Antwort …'}"></textarea>`;
+    tk.k = k;
+    return `<div class="ka-task"><div class="ka-head"><b>${k + 1}.</b><span class="ka-q">${q}</span><span class="ka-pts">${tk.pts} P.</span></div>${body}</div>`;
+  };
+  ctx.main.innerHTML = `
+    <div class="session">
+      <div class="session-top" style="grid-template-columns:auto 1fr"><a class="btn small ghost" href="${ctx.back}">Abbrechen</a><span></span></div>
+      <form class="sheet pad ka" id="ka">
+        <header class="ka-top">
+          <div><span class="small muted">VF11 · 2. Ausbildungsjahr · ${h(subj)}</span><h1>${en ? 'Class test' : 'Klassenarbeit'}: ${h(ctx.title)}</h1></div>
+          <div class="ka-meta"><span>Variante ${variante}</span><span>${max} Punkte</span><span>${min} Minuten</span></div>
+        </header>
+        <div class="ka-name"><span>Name: ______________________</span><span>Datum: ${new Date().toLocaleDateString('de-DE')}</span></div>
+        ${parts.map((p) => `<section class="ka-part"><h2>${p.title}</h2>${p.tasks.map(taskHtml).join('')}</section>`).join('')}
+        <div class="row end"><button type="button" class="btn ghost" id="neu">Neue Variante</button><button class="btn primary">Abgeben und korrigieren</button></div>
+      </form>
+    </div>`;
+  window.scrollTo(0, 0);
+  const start = Date.now();
+  $('#neu').onclick = () => klassenarbeit(ctx);
+  $('#ka').onsubmit = (e) => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    for (const tk of tasks) tk.given = fd.get(`t${tk.k}`) ?? '';
+    korrektur(ctx, { parts, tasks, max, en, subj, ms: Date.now() - start });
+  };
+}
+
+function korrektur(ctx, { parts, tasks, max, en, ms }) {
+  for (const tk of tasks) {
+    const g = String(tk.given).trim();
+    if (tk.kind === 'mc') tk.score = g !== '' && tk.opts[+g] === tk.c.a ? tk.pts : 0;
+    else if (tk.kind === 'tf') tk.score = g !== '' && (g === '1') === tk.truth ? tk.pts : 0;
+    else {
+      const sim = g ? score(g, tk.c) : 0;
+      tk.score = Math.round(tk.pts * Math.min(1, sim / 0.75) * 2) / 2;
+    }
+  }
+  const num = (x) => x.toLocaleString('de-DE');
+  const fixFor = (tk) => {
+    const g = String(tk.given).trim();
+    if (tk.kind === 'mc') return { given: g === '' ? '– (leer)' : tk.opts[+g], link: true };
+    if (tk.kind === 'tf') return tk.truth ? { right: tk.shown, note: 'Die Aussage ist richtig.', link: true } : { given: tk.shown, note: 'Die Aussage ist falsch.', link: true };
+    return { link: true };
+  };
+  const total = () => tasks.reduce((s, t) => s + t.score, 0);
+  const sum = () => { const p = total(); const pct = Math.round(p / max * 100); const g = gradeFor(pct); return { p, pct, g }; };
+  const head = () => { const { p, pct, g } = sum(); return `<div class="grade" aria-label="Note ${g.note}">${g.note}</div><h2>${g.text} – ${num(p)} von ${max} Punkten (${pct} %)</h2>`; };
+  ctx.main.innerHTML = `
+    <div class="session">
+      <div class="sheet result">
+        <span class="small muted">${h(ctx.title)} · Klassenarbeit</span>
+        <div id="ka-sum">${head()}</div>
+        <p class="muted">Ankreuzaufgaben sind automatisch bewertet. Bei offenen Aufgaben ist die Punktzahl geschätzt – vergleiche mit der Musterlösung und stell die Punkte selbst ein.</p>
+        <div class="review">${parts.map((p) => `<h3>${p.title}</h3>${p.tasks.map((tk) => {
+          const full = tk.score === tk.pts;
+          const q = tk.kind === 'tf' ? `${h(tk.c.q)} → ${h(tk.shown)}` : tk.prompt ? h(tk.prompt) : questionHtml(tk.c);
+          const pts = tk.kind === 'open'
+            ? `<select class="ka-sel" data-k="${tk.k}" aria-label="Punkte für Aufgabe ${tk.k + 1}">${Array.from({ length: tk.pts * 2 + 1 }, (_, j) => j / 2).map((v) => `<option value="${v}" ${v === tk.score ? 'selected' : ''}>${num(v)}</option>`).join('')}</select> / ${tk.pts}`
+            : `${num(tk.score)} / ${tk.pts}`;
+          const body = tk.kind === 'open'
+            ? `<div class="fix"><div class="fix-row"><span class="fix-label">Deine Antwort</span><span>${h(String(tk.given).trim() || '– (leer)')}</span></div><div class="fix-row ok"><span class="fix-label">Musterlösung</span><span class="fix-right">${h(tk.c.a)}</span></div>${sourceHtml(tk.c)}</div>`
+            : full ? '' : fixHtml(tk.c, ctx, fixFor(tk));
+          return `<div class="item ${full ? 'ok' : ''}" data-item="${tk.k}"><div class="row" style="justify-content:space-between"><span class="small muted">Aufgabe ${tk.k + 1}</span><b class="small">${pts}</b></div><div style="font-weight:700;margin:4px 0">${q}</div>${body}</div>`;
+        }).join('')}`).join('')}</div>
+        <div class="row" style="justify-content:center">
+          <button class="btn primary" id="save">Ergebnis speichern</button>
+          <button class="btn" id="again">Neue Klassenarbeit</button>
+          <a class="btn" href="${ctx.back}">Zurück</a>
+        </div>
+      </div>
+    </div>`;
+  window.scrollTo(0, 0);
+  $$('.ka-sel').forEach((s) => s.onchange = () => {
+    const tk = tasks.find((t) => t.k === +s.dataset.k); tk.score = +s.value;
+    $(`[data-item="${tk.k}"]`).classList.toggle('ok', tk.score === tk.pts);
+    $('#ka-sum').innerHTML = head();
+  });
+  $('#save').onclick = () => {
+    for (const tk of tasks) S.grade(tk.c.id, tk.score === tk.pts, false);
+    const { p, g } = sum();
+    if (ctx.t) S.addResult({ testId: ctx.t.id, points: p, max, grade: g.note, gradeText: `${g.text} · Klassenarbeit`, mode: 'klassenarbeit', ms });
+    else S.save();
+    $('#save').disabled = true; $('#save').textContent = 'Gespeichert';
+    toast(`Klassenarbeit gespeichert: Note ${g.note}`);
+  };
+  $('#again').onclick = () => klassenarbeit(ctx);
 }
 
 // Berichtigung im Probetest je Aufgabenart

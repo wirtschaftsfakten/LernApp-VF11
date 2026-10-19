@@ -549,6 +549,29 @@ body.in-session #main { max-width: 860px; margin: 0 auto; }
 .feedback.no { background: var(--bad-soft); }
 .feedback.no b { color: var(--bad); }
 .feedback .src { margin-top: 6px; font-size: 13px; color: var(--muted); }
+/* Klassenarbeit */
+.ka { display: grid; gap: 22px; text-align: left; }
+.ka-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; align-items: flex-end; border-bottom: 2px solid var(--ink); padding-bottom: 12px; }
+.ka-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.ka-meta span { font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--soft); color: var(--muted); }
+.ka-name { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--muted); }
+.ka-part { display: grid; gap: 14px; }
+.ka-part h2 { font-size: 17px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.ka-task { display: grid; gap: 10px; }
+.ka-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: baseline; font-size: 15.5px; line-height: 1.5; }
+.ka-pts { font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.ka-stmt { margin-top: 4px; font-style: italic; }
+.ka-opts { display: grid; gap: 6px; padding-left: 26px; }
+.ka-opts.row { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.ka-opt { display: flex; gap: 8px; align-items: baseline; font-size: 14.5px; cursor: pointer; }
+.ka-opt input { accent-color: var(--accent); }
+.ka-opt .key { font-weight: 700; color: var(--muted); }
+.ka textarea { margin-left: 26px; width: calc(100% - 26px); padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--r-md); background: var(--bg); color: var(--ink); font: inherit; font-size: 14.5px; resize: vertical; }
+.ka-sel { font: inherit; font-size: 13px; padding: 2px 4px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--ink); }
+.review h3 { margin-top: 8px; }
+.review .item b.small { white-space: nowrap; }
+@media (max-width: 560px) { .ka-opts { padding-left: 0; } .ka textarea { margin-left: 0; width: 100%; } }
+
 /* Berichtigung: falsch durchgestrichen, richtig darunter */
 .fix { display: grid; gap: 6px; margin-top: 8px; font-size: 14.5px; text-align: left; }
 .fix-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 10px; align-items: baseline; padding: 8px 12px; border-radius: var(--r-sm); background: var(--card); }

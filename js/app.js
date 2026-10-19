@@ -299,7 +299,8 @@ function viewSubject(id) {
         <span class="subject-progress">${bar(st.pct)}<small>${st.pct}%</small></span>
         <span class="subject-meta"><span><small>Karten</small>${st.total}</span><span><small>Fällig</small>${st.due}</span><span><small>Probetest</small>${res ? `Note ${res.grade}` : '–'}</span></span>
       </a>`;
-    }).join('')}</div>` : card('', empty('Noch kein Test', 'Ein Test sammelt alles, was du dafür lernen musst: Unterlagen, Karten und Probetest-Ergebnisse.', `<button class="btn primary" data-act="new-test" data-id="${id}">${I.plus}<span>Test anlegen</span></button>`))}`);
+    }).join('')}</div>
+    ${tests.some((t) => S.cardsOf(t.id).length >= 8) ? card('Test generieren', `<div class="exam-cta"><p>Eine Klassenarbeit wie vom Lehrer: Ankreuzen, Fachbegriffe, Fälle – mit Punkten, Note und Musterlösung. Jedes Mal eine neue Variante.</p><div class="row">${tests.filter((t) => S.cardsOf(t.id).length >= 8).map((t) => `<a class="btn primary" href="#/lernen/${t.id}/klassenarbeit">${I.exam}<span>${h(t.title)}</span></a>`).join('')}</div></div>`) : ''}` : card('', empty('Noch kein Test', 'Ein Test sammelt alles, was du dafür lernen musst: Unterlagen, Karten und Probetest-Ergebnisse.', `<button class="btn primary" data-act="new-test" data-id="${id}">${I.plus}<span>Test anlegen</span></button>`))}`);
 }
 
 // ---------- Test ----------
@@ -319,7 +320,7 @@ function viewTest(id, tab = 'uebersicht') {
 }
 
 function modeTiles(t, cards, keys) {
-  const meta = { karteikarten: ['cards', 'Karteikarten'], quiz: ['quiz', 'Quiz'], ankreuzen: ['listCheck', 'Ankreuzen'], wahrfalsch: ['checkCircle', 'Wahr oder falsch'], lueckentext: ['text', 'Lückentext'], zuordnen: ['shuffle', 'Zuordnen'], probetest: ['exam', 'Probetest'], schreiben: ['pen', 'Antwort schreiben'] };
+  const meta = { karteikarten: ['cards', 'Karteikarten'], quiz: ['quiz', 'Quiz'], ankreuzen: ['listCheck', 'Ankreuzen'], wahrfalsch: ['checkCircle', 'Wahr oder falsch'], lueckentext: ['text', 'Lückentext'], zuordnen: ['shuffle', 'Zuordnen'], probetest: ['exam', 'Probetest'], klassenarbeit: ['exam', 'Klassenarbeit'], schreiben: ['pen', 'Antwort schreiben'] };
   return `<div class="mode-grid">${keys.map((k) => {
     const m = MODES.find((x) => x.key === k); const ok = modeAvailable(k, cards);
     return `<a class="mode ${ok ? '' : 'disabled'}" href="#/lernen/${t.id}/${k}" ${ok ? '' : 'aria-disabled="true"'}><span class="mode-ico">${I[meta[k][0]]}</span><b>${meta[k][1]}</b><small>${ok ? m.text : m.missing}</small></a>`;
@@ -337,7 +338,7 @@ function tabOverview(el, t) {
   el.innerHTML = `<div class="dash">
     ${stars.length ? card('Kommt im Test dran', `<div class="list">${stars.map((c) => `<details class="list-row disclose"><summary>${I.star}<span class="lr-txt"><b>${h(c.q)}</b></span><span class="link-btn">Antwort</span></summary><div class="disclose-body">${h(c.a)}</div></details>`).join('')}</div>`, { cls: 'span-12' }) : ''}
     ${card('Üben', modeTiles(t, cards, ['karteikarten', 'quiz', 'ankreuzen', 'wahrfalsch', 'lueckentext', 'zuordnen']), { cls: 'span-8' })}
-    ${card('Probetest', `<div class="exam-cta"><span class="mode-ico big">${I.exam}</span><p>Gemischte Aufgaben zum Anklicken, Note nach IHK-Schlüssel.${S.resultsOf(t.id).length ? ` Letzte Note: <b>${S.resultsOf(t.id).at(-1).grade}</b>` : ''}</p><a class="btn primary block" href="#/lernen/${t.id}/probetest">Probetest starten</a></div>`, { cls: 'span-4' })}
+    ${card('Probetest', `<div class="exam-cta"><span class="mode-ico big">${I.exam}</span><p>Gemischte Aufgaben zum Anklicken, Note nach IHK-Schlüssel.${S.resultsOf(t.id).length ? ` Letzte Note: <b>${S.resultsOf(t.id).at(-1).grade}</b>` : ''}</p><a class="btn primary block" href="#/lernen/${t.id}/klassenarbeit">Test generieren</a><small class="muted">Wie vom Lehrer: Ankreuzen, Begriffe, Fälle – jedes Mal neu.</small><a class="btn block" href="#/lernen/${t.id}/probetest">Probetest zum Anklicken</a></div>`, { cls: 'span-4' })}
     ${tps.length ? card('Abfragen nach Thema', `<div class="list">${tps.map((tp) => `<a class="list-row" href="#/lernen/${t.id}/thema/${encodeURIComponent(tp.key)}"><span class="row-ico">${I[tp.key === 'zeit' ? 'clock' : tp.key.startsWith('doc:') ? 'file' : 'listCheck']}</span><span class="lr-txt"><b>${h(tp.label)}</b><small>${h(tp.sub)}</small></span>${I.right}</a>`).join('')}</div>`, { cls: 'span-12' }) : ''}
     ${t.date && daysUntil(t.date) >= 0 ? card('Lernplan bis zum Test', planStrip(t, cards), { cls: 'span-12' }) : ''}
   </div>`;
@@ -556,7 +557,7 @@ function viewQuiz(testId) {
   render(`
     ${pageHead('Quiz', `${h(longName(S.subject(t.subjectId)?.name || ''))} · ${h(t.title)}`, testPicker(t, 'quiz'))}
     <div class="dash">
-      ${card('Quiz-Arten', modeTiles(t, cards, ['quiz', 'ankreuzen', 'wahrfalsch', 'lueckentext', 'zuordnen', 'probetest']), { cls: 'span-8' })}
+      ${card('Quiz-Arten', modeTiles(t, cards, ['quiz', 'ankreuzen', 'wahrfalsch', 'lueckentext', 'zuordnen', 'probetest', 'klassenarbeit']), { cls: 'span-8' })}
       ${card('Letzte Probetests', res.length ? `<div class="list">${res.map((r) => `<div class="list-row"><span class="grade-chip" data-g="${r.grade}">${r.grade}</span><span class="lr-txt"><b>${h(r.gradeText || '')}</b><small>${fmtDate(r.date)}</small></span><span class="lr-right"><b>${Math.round(r.points / r.max * 100)} %</b></span></div>`).join('')}</div>` : `<p class="muted pad-x">Noch kein Probetest für diesen Test.</p>`, { cls: 'span-4' })}
       ${tps.length ? card('Abfragen nach Thema', `<div class="topic-grid">${tps.map((tp) => `<a class="topic" href="#/lernen/${t.id}/thema/${encodeURIComponent(tp.key)}"><span class="row-ico">${I[tp.key === 'zeit' ? 'clock' : tp.key.startsWith('doc:') ? 'file' : 'listCheck']}</span><span class="lr-txt"><b>${h(tp.label)}</b><small>${h(tp.sub)}</small></span>${I.right}</a>`).join('')}</div>`, { cls: 'span-12' }) : ''}
     </div>`);

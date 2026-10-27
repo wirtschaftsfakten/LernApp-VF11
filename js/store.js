@@ -169,6 +169,13 @@ export function importJSON(text, mode = 'replace') {
   if (!Array.isArray(data.subjects) || !Array.isArray(data.tests)) throw new Error('Das ist keine LernApp-Sicherung.');
   if (mode === 'replace') state = { ...empty(), ...data };
   else {
+    // Fächer mit gleichem Namen zusammenlegen, damit ein importierter Test im vorhandenen Fach landet
+    for (const s of data.subjects) {
+      const same = state.subjects.find((x) => x.name === s.name && x.id !== s.id);
+      if (!same) continue;
+      (data.tests || []).forEach((t) => { if (t.subjectId === s.id) t.subjectId = same.id; });
+      s.id = same.id;
+    }
     for (const k of ['subjects', 'tests', 'docs', 'cards', 'results', 'tasks']) {
       state[k] ||= [];
       const ids = new Set(state[k].map((x) => x.id));

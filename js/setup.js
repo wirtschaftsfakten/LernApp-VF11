@@ -115,7 +115,10 @@ export async function loadPakete() {
       const r = await fetch('pakete/' + file, { cache: 'no-store' });
       if (!r.ok) continue;
       const text = await r.text();
-      n += JSON.parse(text).tests.filter((t) => !st.tests.some((x) => x.id === t.id)).length;
+      const data = JSON.parse(text);
+      // Neue Fassung eines Pakets ersetzt die alte (replaces = Test-IDs)
+      for (const tid of data.replaces || []) if (S.test(tid)) S.deleteTest(tid, false);
+      n += data.tests.filter((t) => !st.tests.some((x) => x.id === t.id)).length;
       S.importJSON(text, 'merge');
       st.setup.pakete[file] = true;
       S.save();

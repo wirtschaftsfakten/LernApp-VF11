@@ -188,6 +188,9 @@ function distractors(card, ctx, n = 3) {
   let pool = ctx.cards.filter((c) => c.id !== card.id && isCloze(c) === isCloze(card)).map((c) => c.a);
   if (isCloze(card)) pool = pool.concat(ctx.kws);
   pool = [...new Set(pool)].filter((x) => { const y = norm(x); return y && y !== a && !y.includes(a) && !a.includes(y) && !/^\d/.test(x) === !/^\d/.test(card.a); });
+  // Ja/Nein-Antworten (Fallaufgaben) nur mit Ja/Nein-Antworten mischen, sonst sticht die richtige heraus
+  const yn = (s) => /^(ja|nein)\b/i.test(s);
+  if (pool.filter((x) => yn(x) === yn(card.a)).length >= n) pool = pool.filter((x) => yn(x) === yn(card.a));
   // ähnlich lange Antworten bevorzugen, damit die richtige nicht heraussticht
   pool.sort((x, y) => Math.abs(x.length - card.a.length) - Math.abs(y.length - card.a.length));
   let pick = sample(pool.slice(0, Math.max(n * 3, 8)), n);

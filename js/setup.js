@@ -96,28 +96,28 @@ export function migrate() {
   S.save();
 }
 
-// Private Lernpakete aus dem Ordner privat/ (nicht im Repo, nur in der lokalen App).
-// privat/pakete.json listet die Dateien; jedes Paket wird einmal zusammengeführt.
-export async function loadPrivat() {
+// Fertige Lernpakete aus dem Ordner pakete/ (lokal und auf GitHub Pages).
+// pakete/pakete.json listet die Dateien; jedes Paket wird einmal zusammengeführt.
+export async function loadPakete() {
   let list;
   try {
-    const r = await fetch('privat/pakete.json', { cache: 'no-store' });
+    const r = await fetch('pakete/pakete.json', { cache: 'no-store' });
     if (!r.ok) return 0;
     list = await r.json();
   } catch { return 0; }
   const st = S.get();
   st.setup ||= {};
-  st.setup.privat ||= {};
+  st.setup.pakete ||= {};
   let n = 0;
   for (const file of list) {
-    if (st.setup.privat[file]) continue;
+    if (st.setup.pakete[file]) continue;
     try {
-      const r = await fetch('privat/' + file, { cache: 'no-store' });
+      const r = await fetch('pakete/' + file, { cache: 'no-store' });
       if (!r.ok) continue;
       const text = await r.text();
       n += JSON.parse(text).tests.filter((t) => !st.tests.some((x) => x.id === t.id)).length;
       S.importJSON(text, 'merge');
-      st.setup.privat[file] = true;
+      st.setup.pakete[file] = true;
       S.save();
     } catch (e) { console.warn('Paket nicht ladbar', file, e); }
   }

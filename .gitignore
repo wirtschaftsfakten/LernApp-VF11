@@ -4,3 +4,6 @@ handy/site/
 # Eigene Unterlagen (nicht veröffentlichen)
 /*.pdf
 /*.goodnotes
+
+# Private Lernpakete (Buchinhalte) – nur lokal
+/privat/

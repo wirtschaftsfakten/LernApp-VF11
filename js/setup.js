@@ -96,6 +96,34 @@ export function migrate() {
   S.save();
 }
 
+// Private Lernpakete aus dem Ordner privat/ (nicht im Repo, nur in der lokalen App).
+// privat/pakete.json listet die Dateien; jedes Paket wird einmal zusammengeführt.
+export async function loadPrivat() {
+  let list;
+  try {
+    const r = await fetch('privat/pakete.json', { cache: 'no-store' });
+    if (!r.ok) return 0;
+    list = await r.json();
+  } catch { return 0; }
+  const st = S.get();
+  st.setup ||= {};
+  st.setup.privat ||= {};
+  let n = 0;
+  for (const file of list) {
+    if (st.setup.privat[file]) continue;
+    try {
+      const r = await fetch('privat/' + file, { cache: 'no-store' });
+      if (!r.ok) continue;
+      const text = await r.text();
+      n += JSON.parse(text).tests.filter((t) => !st.tests.some((x) => x.id === t.id)).length;
+      S.importJSON(text, 'merge');
+      st.setup.privat[file] = true;
+      S.save();
+    } catch (e) { console.warn('Paket nicht ladbar', file, e); }
+  }
+  return n;
+}
+
 // Nächster anstehender Test des Fachs, sonst der neueste, sonst ein neuer
 function attachToSubjectTest(subjectName, testTitle, docs) {
   const s = S.get().subjects.find((x) => x.name === subjectName);

@@ -3,7 +3,7 @@
 import * as S from './store.js';
 import { generate, keywords, keySentences, TYPE_LABEL } from './gen.js';
 import { extractFile, ACCEPT } from './extract.js';
-import { addGenerated, loadBeispiel, migrate } from './setup.js';
+import { addGenerated, loadBeispiel, migrate, loadPrivat } from './setup.js';
 import { startSession, MODES, modeAvailable, topicsOf } from './learn.js';
 import { putFile } from './files.js';
 import { openOriginal, hasOriginal } from './viewer.js';
@@ -880,3 +880,4 @@ try { localStorage.removeItem('lernapp.theme'); } catch {}
 applyTheme();
 migrate();
 route();
+loadPrivat().then((n) => { if (n) { toast(`${plural(n, 'neuer Test', 'neue Tests')} geladen`); route(); } });
